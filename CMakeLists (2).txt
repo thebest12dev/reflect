@@ -1,0 +1,29 @@
+﻿# CMakeList.txt : CMake project for cinnamontoast, include source and define
+# project specific logic here.
+#
+cmake_minimum_required (VERSION 3.8)
+
+# Enable Hot Reload for MSVC compilers if supported.
+if (POLICY CMP0141)
+  cmake_policy(SET CMP0141 NEW)
+  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+endif()
+
+project ("cinnamontoast")
+
+# Collect .cpp files from specific directories
+file(GLOB DLL1_SOURCES "src/dll1/*.cpp")
+file(GLOB DLL2_SOURCES "src/dll2/*.cpp")
+file(GLOB_RECURSE CTOAST_CORE "src/*.cpp" "src/*.h")
+file(GLOB_RECURSE CTOAST_CRASHHANDLER "crash/*.cpp" "crash/*.h")
+# Add the source files for the specific DLLs
+add_library(CinnamonToast.Core ${CTOAST_CORE})
+add_library(CinnamonToast.CrashHandler SHARED ${CTOAST_CRASHHANDLER})
+# Add source to this project's executable.
+add_executable (cinnamontoast)
+
+if (CMAKE_VERSION VERSION_GREATER 3.12)
+  set_property(TARGET cinnamontoast PROPERTY CXX_STANDARD 20)
+endif()
+
+# TODO: Add tests and install targets if needed.
