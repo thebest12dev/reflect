@@ -18,7 +18,7 @@
 namespace CinnamonToast {
     struct Vector2 {
         public:
-            shared Vector2(int v1, int v2);
+            CTOAST_API Vector2(int v1, int v2);
             int X,Y;
     };
     

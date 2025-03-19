@@ -19,9 +19,9 @@
 #include <cstdint>
 #include <string>
 
-#define crash_unhandled_exception 0x10
-#define crash_invoke 0x100
-#define crash_segfault 0x1
+#define CRASH_UNHANDLED_EXCEPTION 0x10
+#define CRASH_INVOKE 0x100
+#define CRASH_SEGFAULT 0x1
 typedef void (*CrashFunction)();
 
 namespace CinnamonToast {
@@ -36,17 +36,17 @@ namespace CinnamonToast {
             bool throwHandle;
             bool throwCrash;
             CrashConfig config;
-            shared void Activate();
-            shared void Deactivate();
+            CTOAST_API void Activate();
+            CTOAST_API void Deactivate();
             
         public:
-            shared CrashHandler(CrashConfig cf);
-            shared void SetCustomCrashHandler(CrashFunction func);
-            shared void InvokeCrash(string crashMessage);
+            CTOAST_API CrashHandler(CrashConfig cf);
+            CTOAST_API void SetCustomCrashHandler(CrashFunction func);
+            CTOAST_API void InvokeCrash(string crashMessage);
 
             // Note: explicitly need to define try-catch block and to call this method
-            shared void InvokeUnhandledExceptionCrash(exception& ex);
-            shared void SetUnhandledExceptionCrashFunction(CrashFunction function);
+            CTOAST_API void InvokeUnhandledExceptionCrash(exception& ex);
+            CTOAST_API void SetUnhandledExceptionCrashFunction(CrashFunction function);
 
             friend class CrashManager;
         
@@ -55,8 +55,8 @@ namespace CinnamonToast {
         private:
             static CrashHandler* handler;
         public:
-            shared static void SetActiveCrashHandler(CrashHandler* handler_);
-            shared static CrashHandler* GetActiveCrashHandler();
+            CTOAST_API static void SetActiveCrashHandler(CrashHandler* handler_);
+            CTOAST_API static CrashHandler* GetActiveCrashHandler();
     };
     namespace Utilities {
         bool CheckBit(unsigned int num, int n);

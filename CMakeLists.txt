@@ -20,8 +20,8 @@ add_library(CinnamonToast.CrashHandler SHARED ${CTOAST_CRASHHANDLER})
 add_library(tinyxml2 SHARED "lib/tinyxml2.h" "lib/tinyxml2.cpp")
 add_library(CinnamonToast.Core SHARED ${CTOAST_CORE})
 
-target_compile_definitions(CinnamonToast.CrashHandler PRIVATE shared_library=1)
-target_compile_definitions(CinnamonToast.Core PRIVATE shared_library=1)
+target_compile_definitions(CinnamonToast.CrashHandler PRIVATE CTOAST_SHARED_LIBRARY=1)
+target_compile_definitions(CinnamonToast.Core PRIVATE CTOAST_SHARED_LIBRARY=1)
 target_compile_definitions(tinyxml2 PRIVATE TINYXML2_EXPORT=1)
 
 # Add source files for the executable (cli)
@@ -33,7 +33,7 @@ target_link_libraries(CinnamonToast.Core PRIVATE tinyxml2)
 
 # Add the target executable (cli) - linking the core library
 target_link_libraries(ctoasti PRIVATE CinnamonToast.Core)
-
+target_compile_options(ctoasti PRIVATE /MT)
 if(MSVC)
     target_link_libraries(CinnamonToast.Core PRIVATE d2d1 gdi32 comctl32)
 endif()

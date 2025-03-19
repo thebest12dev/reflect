@@ -33,19 +33,19 @@
                 Vector2 position;
                 Vector2 size;
                 
-            
+                Color3 color;
             public:
-                shared Component(/* args */);
-                shared virtual void Render(HWND& parentHWND, HWND& windowHWND) = 0;
-                shared void SetVisible(bool flag);
-                shared void Add(Component& comp);
-                shared void SetSize(Vector2 size);
-                shared void SetVisible(int cmd);
-                shared void SetColor(uint8_t r, uint8_t g, uint8_t b);
-                shared void SetColor(Color3 color);
-
-                shared void SetColor(Color3Array color);
-                shared ~Component();
+                CTOAST_API Component(/* args */);
+                CTOAST_API virtual void Render(HWND& parentHWND, HWND& windowHWND) = 0;
+                CTOAST_API void SetVisible(bool flag);
+                CTOAST_API void Add(Component& comp);
+                CTOAST_API void SetSize(Vector2 size);
+                CTOAST_API void SetVisible(int cmd);
+                CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
+                CTOAST_API void SetColor(Color3 color);
+                CTOAST_API Color3 GetColor();
+                CTOAST_API void SetColor(Color3Array color);
+                CTOAST_API virtual ~Component() = default;  // To allow dynamic_cast to work
                 friend class Window;
                 friend class Label;
                 friend class Button;
@@ -72,16 +72,16 @@
                 vector<Component*> children;
             public:
                 Component(/* args */);
-                shared void SetVisible(bool flag);
-                shared void Add(Component* comp);
-                shared void SetSize(Vector2 size);
-                shared Vector2 GetSize();
-                shared Vector2 GetPosition();
-                shared bool GetVisible();
-                shared int* GetColor();
-                virtual shared string GetProperty(string name) {return "null";};
-                shared void SetVisible(int cmd);
-                shared void SetColor(uint8_t r, uint8_t g, uint8_t b);
+                CTOAST_API void SetVisible(bool flag);
+                CTOAST_API void Add(Component* comp);
+                CTOAST_API void SetSize(Vector2 size);
+                CTOAST_API Vector2 GetSize();
+                CTOAST_API Vector2 GetPosition();
+                CTOAST_API bool GetVisible();
+                CTOAST_API int* GetColor();
+                virtual CTOAST_API string GetProperty(string name) {return "null";};
+                CTOAST_API void SetVisible(int cmd);
+                CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
                 virtual ~Component() {};
                 friend class Window;
                 friend class Label;

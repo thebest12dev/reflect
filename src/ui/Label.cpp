@@ -27,16 +27,19 @@
     void ctoast Label::SetFont(string font) {
         fontStr = font;
         if (font == "default") {
-            fontStr = default_font;
+            fontStr = DEFAULT_FONT;
         } 
     }
     void ctoast Label::SetFontSize(int size) {
         fontSize = size;
     }
+    string ctoast Label::GetText() {
+        return text;
+    }
     void ctoast Label::Render(HWND& parentHWND, HWND& windowHWND) {
         if (!IsWindow(parentHWND)) {
             error("parent HWND is invalid!");
-            std::exit(error_win_parent_hwnd_invalid);
+            std::exit(ERROR_WIN_PARENT_HWND_INVALID);
         }
         
         
