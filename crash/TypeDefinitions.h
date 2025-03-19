@@ -13,21 +13,19 @@
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+#pragma once
 typedef unsigned char byte;
 
-#if !defined(CTOAST_API) && !defined(CTOAST_BUILDING)
-	#define CTOAST_API __declspec(dllimport);
+#ifndef shared
+    #define shared
 #endif
-#define ctoast CinnamonToast::
-namespace CinnamonToast {};
-
-#ifdef CTOAST_SHARED_LIBRARY
-	#ifdef _WIN32
-		#define CTOAST_API __declspec(dllexport)
-	#elif __linux__
-		#define CTOAST_API __attribute__((visibility("default")))
-	#endif
+#define ctoast CinnamonToast::  
+#ifdef shared_library
+    #ifdef _WIN32
+        #define shared __declspec(dllexport)
+    #elif __linux__
+        #define shared __attribute__((visibility("default")))
+    #endif
 #endif
 
 using namespace std;
-using namespace CinnamonToast;

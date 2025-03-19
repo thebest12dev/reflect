@@ -15,42 +15,20 @@
 */
 typedef unsigned char byte;
 #include <Windows.h>
-#include "ui/Label.h"
 #include "CToastAPI.h"
 #include "ui/Component.h"
 #include "ui/Components.h"
-#include "Console.h"
-#include <iostream>
 #include "ui/TextComponent.h"
 #include <vector>
 using namespace CinnamonToast;
 namespace {
-	vector<const char*> cull = {};
+	vector<Component*> cull;
 }
-
-ComponentId ExternalAPI::GetComponentById(const char* id) {
-	
-	cull.push_back(id);
+ComponentId ExternalAPI::GetComponentById(string id) {
+	cull.push_back(Components::GetComponentById(id));
 	return cull.size();
 };
-const char* ExternalAPI::GetComponentText(ComponentId ref) {
-    // Ensure the ref is within bounds
-    if (ref - 1 < 0 || ref - 1 >= cull.size()) {
-        
-        return nullptr;  // Return null if invalid
-    }
-
-    // Attempt dynamic_cast to TextComponent*
-    TextComponent* comp = (TextComponent*) (Components::GetComponentById(cull[ref - 1]));
-    Label* label = dynamic_cast<Label*>(comp);
-    if (label) {
-
-        string* text = new string(label->GetText());
-        const char* textc = text->c_str();
-
-        return textc;
-    } else {
-        Console::warn("cast for component failed! (nullptr)", "GetComponentText");
-        return nullptr;  // Return null if the cast fails
-    }
-}
+string ExternalAPI::GetComponentText(ComponentId ref) {
+	TextComponent* comp = (TextComponent*) cull[ref];
+	return comp->GetText();
+};

@@ -40,15 +40,14 @@
 
             public:
                 friend class Component;
-                CTOAST_API void Render(HWND& parentHWND, HWND& windowHWND);
-                CTOAST_API void SetVisible(bool flag);
-                CTOAST_API void Add(Component comp);
-                CTOAST_API Label(string contents, Vector2 pos);
-                CTOAST_API void SetVisible(int cmd);
-                CTOAST_API void SetFontSize(int size) override;
-                CTOAST_API void SetFont(string font) override;
-                CTOAST_API string GetText() override;
-                CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
+                shared void Render(HWND& parentHWND, HWND& windowHWND);
+                shared void SetVisible(bool flag);
+                shared void Add(Component comp);
+                shared Label(string contents, Vector2 pos);
+                shared void SetVisible(int cmd);
+                shared void SetFontSize(int size);
+                shared void SetFont(string font);
+                shared void SetColor(uint8_t r, uint8_t g, uint8_t b);
         };
     }
 
@@ -75,17 +74,17 @@
                 bool visible;
             public:
                 friend class Component;
-                CTOAST_API void SetVisible(bool flag);
-                CTOAST_API bool GetVisible();
-                CTOAST_API void Add(Component comp);
-                CTOAST_API Label();
-                CTOAST_API Label(string contents, Vector2 pos);
-                CTOAST_API void SetVisible(int cmd);
-                CTOAST_API void SetFontSize(int size);
-                CTOAST_API string GetText();
-                CTOAST_API string GetProperty(string property) override;
-                CTOAST_API void SetFont(string font);
-                CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
+                shared void SetVisible(bool flag);
+                shared bool GetVisible();
+                shared void Add(Component comp);
+                shared Label();
+                shared Label(string contents, Vector2 pos);
+                shared void SetVisible(int cmd);
+                shared void SetFontSize(int size);
+                shared string GetText();
+                shared string GetProperty(string property) override;
+                shared void SetFont(string font);
+                shared void SetColor(uint8_t r, uint8_t g, uint8_t b);
                 friend class Window;
                 
         };

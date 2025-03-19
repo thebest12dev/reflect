@@ -251,9 +251,7 @@ orleans.codegen.cs
 # RIA/Silverlight projects
 Generated_Code/
 main.xml
-main.dll
-lib
-vcpkg.json
+
 # Backup & report files from converting an old project file
 # to a newer Visual Studio version. Backup files are not needed,
 # because we have git ;-)
@@ -364,6 +362,3 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-
-# 32067
-secret/

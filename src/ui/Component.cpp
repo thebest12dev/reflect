@@ -18,14 +18,11 @@
 #include "../TypeDefinitions.h"
 #include "Vector2.h"
 #include <string>
-ctoast Component::Component() : position(Vector2(0, 0)), size(Vector2(0, 0)), color(Color3(255,255,255)) {
+ctoast Component::Component() : position(Vector2(0,0)), size(Vector2(0,0)) {
     
 }
-//ctoast Component::~Component()  {
-//    
-//}
-ctoast Color3 ctoast Component::GetColor() {
-    return color;
+ctoast Component::~Component()  {
+    
 }
 #ifdef __linux__
     void ctoast Component::SetColor(uint8_t r, uint8_t g, uint8_t b) {

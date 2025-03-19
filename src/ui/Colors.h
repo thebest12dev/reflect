@@ -17,12 +17,6 @@
 namespace CinnamonToast {
 	struct Color3 {
 		unsigned char r, g, b;
-		Color3() {
-
-		}
-		Color3(unsigned char r, unsigned char g, unsigned char b ) : r(r), g(g), b(b) {
-
-		}
 	};
 	typedef unsigned char Color3Array[3];
 }

@@ -14,22 +14,22 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 #pragma once
-#define DEFAULT_FONT "Segoe UI"
+#define default_font "Segoe UI"
 
 /**
  * External app name to be shown to the end user.
 */
-#define APP_NAME "Project CinnamonToast"
+#define app_name "Project CinnamonToast"
 
 /**
  * Internal app version for compatibility checks.
  */
-#define APP_INTERNAL_VERSION 0000002L
+#define app_internal_version 0000001L
 
 /**
  * External app version to be shown to the end user.
  */
-#define APP_VERSION "1.1.0"
+#define app_version "1.0.0"
 
 /**
  * Error code specification
@@ -54,24 +54,23 @@
  * Comment/uncomment this to toggle Win32 errors.
  */
 #ifdef _WIN32
-    #define WIN32_ERROR_CODES
+    #define win32_error_codes
 #endif
 
 // Internal error codes and other things
-#define ERROR_NO_FILES_SPECIFIED 0x000003f0L
-#define ERROR_GENERIC_XML_ERROR 0x000003f1L
-#define ERROR_XML_NO_ROOT 0x000003f2L
-#define ERROR_XML_NO_WINDOW 0x000003f3L
-#define ERROR_FILE_NOT_FOUND 0x0000002L
-#define ERROR_FONT_NOT_FOUND 0x0000003L
-#define ERROR_HEX_COLOR_MALFORMED 0x000003f4L
-#define ERROR_LINUX_X11_NOT_INITIALIZED 0x030003f5L
-#define ERROR_CANNOT_LOAD_SHARED_LIBRARY 0x000003f9L
-#define ERROR_CANNOT_LOAD_LIBRARY_FUNCTION 0x000003faL
-#define ERROR_XML_NOT_COMPATIBLE 0x000003fbL
-#define ERROR_UNHANDLED_EXCEPTION 0x000003fcL
+#define error_no_files_specified 0x000003f0L
+#define error_generic_xml_error 0x000003f1L
+#define error_xml_no_root 0x000003f2L
+#define error_xml_no_window 0x000003f3L
+#define error_file_not_found 0x0000002L
+#define error_font_not_found 0x0000003L
+#define error_hex_color_malformed 0x000003f4L
+#define error_linux_x11_not_initialized 0x030003f5L
+#define error_cannot_load_shared_library 0x000003f9L
+#define error_cannot_load_library_function 0x000003faL
+#define error_xml_not_compatible 0x000003fbL
 // Win32 specific errors
-#if defined(_WIN32) && defined(WIN32_ERROR_CODES)
-    #define ERROR_WIN_PARENT_HWND_INVALID 0x010003f5L
+#if defined(_WIN32) && defined(win32_error_codes)
+    #define error_win_parent_hwnd_invalid 0x010003f5L
     // more errors go here
 #endif

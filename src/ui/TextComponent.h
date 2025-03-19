@@ -33,26 +33,26 @@ namespace CinnamonToast {
 
             Vector2 position;
             Vector2 size;
-            Color3 color;
+
         private:
             string text;
             string fontStr;
             int fontSize;
         public:
-            CTOAST_API TextComponent();
-            CTOAST_API virtual void Render(HWND& parentHWND, HWND& windowHWND) = 0;
-            CTOAST_API void SetVisible(bool flag);
-            CTOAST_API void Add(Component& comp);
-            CTOAST_API void SetSize(Vector2 size);
-            CTOAST_API void SetVisible(int cmd);
-            CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
-            CTOAST_API void SetColor(Color3 color);
-            CTOAST_API void SetColor(Color3Array color);
-            CTOAST_API virtual void SetFontSize(int size);
-            CTOAST_API virtual void SetFont(string font);
-            CTOAST_API void SetText(string text);
-            CTOAST_API virtual string GetText();
-            CTOAST_API ~TextComponent();
+            shared TextComponent();
+            shared virtual void Render(HWND& parentHWND, HWND& windowHWND) = 0;
+            shared void SetVisible(bool flag);
+            shared void Add(Component& comp);
+            shared void SetSize(Vector2 size);
+            shared void SetVisible(int cmd);
+            shared void SetColor(uint8_t r, uint8_t g, uint8_t b);
+            shared void SetColor(Color3 color);
+            shared void SetColor(Color3Array color);
+            shared void SetFontSize(int size);
+            shared void SetFont(string font);
+            shared void SetText(string text);
+            shared string GetText();
+            shared ~TextComponent();
             friend class Label;
             friend class Button;
     };
