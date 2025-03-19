@@ -26,14 +26,14 @@
 
 namespace CinnamonToast {
     namespace Utilities {
-        shared vector<string> CstrArrToVector(const char* arr[]);
-        shared vector<string> SplitString(std::string str, char delimiter);
+        CTOAST_API vector<string> CstrArrToVector(const char* arr[]);
+        CTOAST_API vector<string> SplitString(std::string str, char delimiter);
         
         #ifdef _WIN32
-            shared HFONT GetFont(string fontName = default_font, int size = 16, int fontWeight = 400, bool italic = false, bool underline = false, bool strikeout = false);
-            shared string GetLastErrorAsString();
+            CTOAST_API HFONT GetFont(string fontName = DEFAULT_FONT, int size = 16, int fontWeight = 400, bool italic = false, bool underline = false, bool strikeout = false);
+            CTOAST_API string GetLastErrorAsString();
         #endif
-        shared string GetOSPlatformAndVersion();
+        CTOAST_API string GetOSPlatformAndVersion();
     }
 }
 

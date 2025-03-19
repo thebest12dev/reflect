@@ -16,13 +16,13 @@
 #pragma once
 typedef unsigned char byte;
 #include "Definitions.h"
-#ifndef shared
-    #define shared
+#ifndef CTOAST_API
+    #define CTOAST_API
 #endif
-#ifdef shared_library
+#ifdef CTOAST_API_library
     #ifdef _WIN32
-        #define shared __declspec(dllexport)
-        #define ctoast shared_api CinnamonToast::
+        #define CTOAST_API __declspec(dllexport)
+        #define ctoast CTOAST_API_api CinnamonToast::
     #endif
 #else
     #define ctoast CinnamonToast::  

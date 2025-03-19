@@ -25,27 +25,27 @@ namespace CinnamonToast {
         
         // std:: part is omitted because of `using namespace std;`.
         template <typename T>
-        shared void print(const T& obj) {
+        CTOAST_API void print(const T& obj) {
             cout << obj;
         };      
         template <typename T>
-        shared void println(const T& obj) {
+        CTOAST_API void println(const T& obj) {
             cout << obj << endl;
         };
         template <typename T>
-        shared void error(const T& obj, string ctx = "default") {
+        CTOAST_API void error(const T& obj, string ctx = "default") {
             cerr << "[ERROR] " << "[" << ctx << "]: " << obj << endl;
         };
         template <typename T>
-        shared void info(const T& obj, string ctx = "default") {
+        CTOAST_API void info(const T& obj, string ctx = "default") {
             cout << "[INFO] " << "[" << ctx << "]: " << obj << endl;
         };
         template <typename T>
-        shared void warn(const T& obj, string ctx = "default") {
+        CTOAST_API void warn(const T& obj, string ctx = "default") {
             cout << "[WARN] " << "[" << ctx << "]: " << obj << endl;
         };
         template <typename T>
-        shared void debug(const T& obj, string ctx = "default") {
+        CTOAST_API void debug(const T& obj, string ctx = "default") {
             cout << "[DEBUG] " << "[" << ctx << "]: " << obj << endl;
         };
     }

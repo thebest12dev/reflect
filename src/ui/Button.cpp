@@ -30,7 +30,7 @@
         
         fontStr = font;
         if (font == "default") {
-            fontStr = default_font;
+            fontStr = DEFAULT_FONT;
         } 
     }
     void ctoast Button::SetFontSize(int size) {
@@ -39,7 +39,7 @@
     void ctoast Button::Render(HWND& parentHWND, HWND& windowHWND) {
         if (!IsWindow(parentHWND)) {
             error("parent HWND is invalid!");
-            std::exit(error_win_parent_hwnd_invalid);
+            std::exit(ERROR_WIN_PARENT_HWND_INVALID);
         }
         
         
@@ -124,6 +124,9 @@
 
     void ctoast Button::SetVisible(bool flag) {
     ShowWindow(this->hwnd, flag ? SW_SHOW : SW_HIDE);
+    }
+    string ctoast Button::GetText() {
+        return text;
     }
     ctoast Button::Button(string text, Vector2 pos) :  position(pos), size(Vector2(0,0)), text(text){
     }

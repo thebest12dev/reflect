@@ -24,7 +24,7 @@ namespace CinnamonToast {
 		private:
 			static map<string, Component*> gchildren;
 		public:
-			shared static Component* GetComponentById(string id);
+			CTOAST_API static Component* GetComponentById(string id);
 			friend class Window;
 	};
 }

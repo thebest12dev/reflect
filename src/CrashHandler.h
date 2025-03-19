@@ -19,9 +19,9 @@
 #include <cstdint>
 #include <string>
 
-#define crash_unhandled_exception 0x10
-#define crash_invoke 0x100
-#define crash_segfault 0x1
+#define CRASH_UNHANDLED_EXCEPTION 0x10
+#define CRASH_INVOKE 0x100
+#define CRASH_SEGFAULT 0x1
 typedef void (*CrashFunction)();
 
 namespace CinnamonToast {
