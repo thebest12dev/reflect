@@ -18,7 +18,7 @@
 #ifdef _WIN32
     #include <windows.h>
     #include "Component.h"
-    #include "../TypeDefinitions.h"
+    #include "TypeDefinitions.h"
     #include <cstdint>
     #include <string>
     #include "Vector2.h"

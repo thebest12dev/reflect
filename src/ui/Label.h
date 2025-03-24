@@ -17,7 +17,7 @@
 #ifdef _WIN32
     #include "Component.h"
     #include "TextComponent.h"
-    #include "../TypeDefinitions.h"
+    #include "TypeDefinitions.h"
     #include <string>
 
     namespace CinnamonToast {

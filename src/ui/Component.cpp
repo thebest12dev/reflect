@@ -15,7 +15,7 @@
 */
 #include "Component.h"
 #include <cstdint>
-#include "../TypeDefinitions.h"
+#include "TypeDefinitions.h"
 #include "Vector2.h"
 #include <string>
 ctoast Component::Component() : position(Vector2(0, 0)), size(Vector2(0, 0)), color(Color3(255,255,255)) {

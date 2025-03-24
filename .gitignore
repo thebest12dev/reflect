@@ -250,8 +250,8 @@ orleans.codegen.cs
 
 # RIA/Silverlight projects
 Generated_Code/
-main.xml
 main.dll
+main.xml
 lib
 vcpkg.json
 # Backup & report files from converting an old project file

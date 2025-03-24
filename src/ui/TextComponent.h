@@ -21,7 +21,7 @@
 #include <string>
 #include "Colors.h"
 
-#include "../TypeDefinitions.h"
+#include "TypeDefinitions.h"
 namespace CinnamonToast {
     class TextComponent: public Component {
         protected:

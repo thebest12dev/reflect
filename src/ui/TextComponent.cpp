@@ -15,7 +15,7 @@
 */
 #include "Vector2.h"
 #include "Component.h"
-#include "../TypeDefinitions.h"
+#include "TypeDefinitions.h"
 #include "TextComponent.h"
 #include <string>
 

@@ -21,7 +21,7 @@
     #include "Component.h"
 
     #include "Vector2.h"
-    #include "../TypeDefinitions.h"
+    #include "TypeDefinitions.h"
     #include <string>
     namespace CinnamonToast {
         class Button : public TextComponent {

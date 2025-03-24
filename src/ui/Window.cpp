@@ -21,8 +21,8 @@
 #include "Window.h"
 #include "Label.h"
 #include "Components.h"
-#include "../Console.h"
-#include "../TypeDefinitions.h"
+#include "Console.h"
+#include "TypeDefinitions.h"
 #ifdef _WIN32
     #include <windows.h>
     #include <d2d1.h>

@@ -33,7 +33,12 @@ typedef unsigned char byte;
 
 
 // other libraries
-#include "../lib/tinyxml2.h"
+#include "../lib/tinyxml2/tinyxml2.h"
+#ifdef CTOAST_LUA
+    extern "C" {
+        #include "../lua/CToastLua.h"
+    }
+#endif
 
 // our header files here
 #include "Main.h"
@@ -51,7 +56,9 @@ typedef unsigned char byte;
 #include "ui/Component.h"
 #include "ui/Components.h"
 #include "ui/TextComponent.h"
-
+#ifdef CTOAST_LUA
+    #include "LuaAPI.h"
+#endif
 // windows-specific code
 #ifdef _WIN32
 
@@ -80,6 +87,8 @@ typedef unsigned char byte;
     * registering APIs for the libraries to use.
     */
     int ctoast InvokeExecutable(string xmlFile) {
+        // if lua enabled
+        
         // load the xml file
         tinyxml2::XMLDocument doc;
        
@@ -90,6 +99,7 @@ typedef unsigned char byte;
         INITCOMMONCONTROLSEX icex;
         icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
         icex.dwICC = ICC_STANDARD_CLASSES;
+       
         InitCommonControlsEx(&icex);
 
         // file doesnt exist
@@ -190,28 +200,48 @@ typedef unsigned char byte;
 
         }
         debug("loading libraries...", "InvokeExecutable");
+        #ifdef CTOAST_LUA
+            LuaInstance* lua = nullptr;
+        #endif
+
         for (tinyxml2::XMLElement* sharedLib = winXml->FirstChildElement("library"); sharedLib != nullptr; sharedLib = sharedLib->NextSiblingElement("library")) {
-            HMODULE hDll = LoadLibrary((const char*) (fs::absolute(fs::path(xmlFile)).parent_path().string()+"\\"+sharedLib->Attribute("location")).c_str());
-            if (!hDll) {
-                error("cannot load shared library", "InvokeExecutable");
-                return ERROR_CANNOT_LOAD_SHARED_LIBRARY;
-            }
-            debug("loaded shared library!", "InvokeExecutable");
+            if (string(sharedLib->Attribute("type")) == "native") {
+                HMODULE hDll = LoadLibrary((const char*)(fs::absolute(fs::path(xmlFile)).parent_path().string() + "\\" + sharedLib->Attribute("location")).c_str());
+                if (!hDll) {
+                    error("cannot load shared library", "InvokeExecutable");
+                    return ERROR_CANNOT_LOAD_SHARED_LIBRARY;
+                }
+                debug("loaded shared library!", "InvokeExecutable");
 
-            // Get the address of the Add function
-            SharedLibraryMain mainFunc = (SharedLibraryMain)GetProcAddress(hDll, "CToastMain");
-            if (!mainFunc) {
-                error("cannot find CToastMain function of library!", "InvokeExecutable");
+                // Get the address of the Add function
+                SharedLibraryMain mainFunc = (SharedLibraryMain)GetProcAddress(hDll, "CToastMain");
+                if (!mainFunc) {
+                    error("cannot find CToastMain function of library!", "InvokeExecutable");
 
-                FreeLibrary(hDll); // Free the DLL
-                return ERROR_CANNOT_LOAD_LIBRARY_FUNCTION;
-            }
-            CToastAPI ctoastApi = { ExternalAPI::GetComponentById, ExternalAPI::GetComponentText };
-            mainFunc(&ctoastApi);
+                    FreeLibrary(hDll); // Free the DLL
+                    return ERROR_CANNOT_LOAD_LIBRARY_FUNCTION;
+                }
+                CToastAPI ctoastApi = { ExternalAPI::GetComponentById, ExternalAPI::GetComponentText };
+                mainFunc(&ctoastApi);
+			}
+            #ifdef CTOAST_LUA
+			    else if (string(sharedLib->Attribute("type")) == "lua") {
+                    debug("loading lua file...", "InvokeExecutable");
+                    if (lua == nullptr) {
+                        debug("initializing lua...", "InvokeExecutable");
+                        lua = new LuaInstance();
+                        lua->InitializeLuaApis(InjectLuaApis);
+                    }
+				           
+				    lua->ExecuteFile((fs::absolute(fs::path(xmlFile)).parent_path().string() + "\\" + sharedLib->Attribute("location")).c_str());
+                
+			    }
+            #endif
+            
         }
         debug("entering main loop...","InvokeExecutable");
         win.SetVisible(true);
-       
+        
         return win.Run();
     }
     int ctoast CLIMain(const uint8_t argc, const vector<string> argv) {

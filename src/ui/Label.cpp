@@ -15,7 +15,7 @@
 */
 #ifdef _WIN32
     #include "Label.h"
-    #include "../TypeDefinitions.h"
+    #include "TypeDefinitions.h"
     #include <windows.h>
     #include "../Utilities.h"
     #include "../Console.h"

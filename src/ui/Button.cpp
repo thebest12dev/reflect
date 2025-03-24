@@ -16,7 +16,7 @@
 #ifdef _WIN32
     #include <windows.h> // or any other conflicting headers
 
-    #include "../TypeDefinitions.h"
+    #include "TypeDefinitions.h"
     #include "../Utilities.h"
     #include "../Console.h"
     #include "../Definitions.h"

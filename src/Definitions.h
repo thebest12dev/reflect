@@ -24,12 +24,12 @@
 /**
  * Internal app version for compatibility checks.
  */
-#define APP_INTERNAL_VERSION 0000002L
+#define APP_INTERNAL_VERSION 0000003L
 
 /**
  * External app version to be shown to the end user.
  */
-#define APP_VERSION "1.1.0"
+#define APP_VERSION "1.2.0"
 
 /**
  * Error code specification

@@ -14,17 +14,40 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 #pragma once
+
 #include "TypeDefinitions.h"
-#include "Component.h"
-#include "Window.h"
+#include <iostream>
 #include <string>
-#include <map>
+using namespace std;
+
 namespace CinnamonToast {
-	class Components {
-		private:
-			static map<string, Component*> gchildren;
-		public:
-			CTOAST_API static Component* GetComponentById(string id);
-			friend class Window;
-	};
+    namespace Console {
+        
+        // std:: part is omitted because of `using namespace std;`.
+        template <typename T>
+        CTOAST_API void print(const T& obj) {
+            cout << obj;
+        };      
+        template <typename T>
+        CTOAST_API void println(const T& obj) {
+            cout << obj << endl;
+        };
+        template <typename T>
+        CTOAST_API void error(const T& obj, string ctx = "default") {
+            cerr << "[ERROR] " << "[" << ctx << "]: " << obj << endl;
+        };
+        template <typename T>
+        CTOAST_API void info(const T& obj, string ctx = "default") {
+            cout << "[INFO] " << "[" << ctx << "]: " << obj << endl;
+        };
+        template <typename T>
+        CTOAST_API void warn(const T& obj, string ctx = "default") {
+            cout << "[WARN] " << "[" << ctx << "]: " << obj << endl;
+        };
+        template <typename T>
+        CTOAST_API void debug(const T& obj, string ctx = "default") {
+            cout << "[DEBUG] " << "[" << ctx << "]: " << obj << endl;
+        };
+    }
 }
+

@@ -20,7 +20,7 @@
     #include <windows.h>
     #include "Vector2.h"
     #include "Colors.h"
-    #include "../TypeDefinitions.h"
+    #include "TypeDefinitions.h"
     namespace CinnamonToast {
         class Component {
             protected:
