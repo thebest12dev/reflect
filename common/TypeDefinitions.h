@@ -16,18 +16,38 @@
 #pragma once
 typedef unsigned char byte;
 #include "Definitions.h"
-#if !defined(CTOAST_API) && !defined(CTOAST_BUILDING)
-    #define CTOAST_API __declspec(dllimport);
-#endif
-#define ctoast CinnamonToast::
-namespace CinnamonToast { };
 
+/*
+The macro to specify whether or not CinnamonToast should export or import functions.
+*/
+#define CTOAST_API
+#undef CTOAST_API
+
+// Check if CTOAST_API is already defined
+#if !defined(CTOAST_API) && !defined(CTOAST_BUILDING)
+#define CTOAST_API __declspec(dllimport)
+#endif
+
+/*
+Alias for CinnamonToast
+*/
+#define ctoast CinnamonToast::
+
+/*
+The namespace which holds everything related to CinnamonToast as well as additional types and objects.
+*/
+namespace CinnamonToast {};
+
+
+// if defined
 #ifdef CTOAST_SHARED_LIBRARY
-    #ifdef _WIN32
-        #define CTOAST_API __declspec(dllexport)
-    #elif __linux__
-        #define CTOAST_API __attribute__((visibility("default")))
-    #endif
+	#ifdef _WIN32
+		#undef CTOAST_API  // Undefine CTOAST_API if it was previously defined
+		#define CTOAST_API __declspec(dllexport)
+	#elif __linux__
+		#undef CTOAST_API  // Undefine CTOAST_API if it was previously defined
+		#define CTOAST_API __attribute__((visibility("default")))
+	#endif
 #endif
 
 using namespace std;

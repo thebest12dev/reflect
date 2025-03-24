@@ -1,3 +1,6 @@
+# v1.2.1 (2025-03-24)
+- Fixed a bug where the window controls disappear
+
 # v1.2.0 (2025-03-24)
 - Added support for Lua scripting
 - Fixed some bugs

@@ -19,7 +19,7 @@
     #include <windows.h>
     #include "../Utilities.h"
     #include "../Console.h"
-    #include "../Definitions.h"
+    #include "Definitions.h"
     #include <iostream>
 
     using namespace CinnamonToast::Console;
@@ -39,7 +39,7 @@
     void ctoast Label::Render(HWND& parentHWND, HWND& windowHWND) {
         if (!IsWindow(parentHWND)) {
             error("parent HWND is invalid!");
-            std::exit(ERROR_WIN_PARENT_HWND_INVALID);
+            std::exit(CTOAST_ERROR_WIN_PARENT_HWND_INVALID);
         }
         
         
@@ -66,7 +66,7 @@
 
             // Calculate the size of the text
             SIZE textSize;
-            GetTextExtentPoint32(hdc, text.c_str(), text.length(), &textSize);
+            GetTextExtentPoint32(hdc, text.c_str(), (int) text.length(), &textSize);
             // // Get device context of the label
             // RECT parentRect;
             // GetClientRect(windowHWND, &parentRect); // Get the client area of the parent window

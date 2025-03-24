@@ -55,6 +55,7 @@ typedef unsigned char byte;
 #include "ui/Vector2.h"
 #include "ui/Component.h"
 #include "ui/Components.h"
+#include "ui/MenuItem.h"
 #include "ui/TextComponent.h"
 #ifdef CTOAST_LUA
     #include "LuaAPI.h"
@@ -71,6 +72,7 @@ typedef unsigned char byte;
     #include <filesystem>
     #include <iostream>
     #include <string>
+    #include "ui/MenuBar.h"
     #include <vector>
     
 
@@ -116,7 +118,7 @@ typedef unsigned char byte;
         // error handling
         if (eResult != tinyxml2::XML_SUCCESS) {
             error(string("cannot load XML file: "+string(doc.ErrorStr())));
-            return ERROR_GENERIC_XML_ERROR;
+            return CTOAST_ERROR_GENERIC_XML_ERROR;
         }
 
         // get the root element
@@ -125,7 +127,7 @@ typedef unsigned char byte;
         // handling
         if (root == nullptr) {
             error("no root element found.");
-            return ERROR_XML_NO_ROOT;
+            return CTOAST_ERROR_XML_NO_ROOT;
         }
         
         // checking compat
@@ -134,12 +136,12 @@ typedef unsigned char byte;
         if (version > APP_INTERNAL_VERSION) {
             // handle and return
             error("file not compatible! please upgrade to a newer version.");
-            return ERROR_XML_NOT_COMPATIBLE;
+            return CTOAST_ERROR_XML_NOT_COMPATIBLE;
         }
         tinyxml2::XMLElement* winXml = root->FirstChildElement("window");
         if (winXml == nullptr) {
             error("no window element found.");
-            return ERROR_XML_NO_WINDOW;
+            return CTOAST_ERROR_XML_NO_WINDOW;
         }
         
         #ifdef _WIN32
@@ -169,7 +171,7 @@ typedef unsigned char byte;
                 win.SetColor(color);
             } else {
                 error("invalid hex color representation");
-                return ERROR_HEX_COLOR_MALFORMED;
+                return CTOAST_ERROR_HEX_COLOR_MALFORMED;
             }
             
             
@@ -209,7 +211,7 @@ typedef unsigned char byte;
                 HMODULE hDll = LoadLibrary((const char*)(fs::absolute(fs::path(xmlFile)).parent_path().string() + "\\" + sharedLib->Attribute("location")).c_str());
                 if (!hDll) {
                     error("cannot load shared library", "InvokeExecutable");
-                    return ERROR_CANNOT_LOAD_SHARED_LIBRARY;
+                    return CTOAST_ERROR_CANNOT_LOAD_SHARED_LIBRARY;
                 }
                 debug("loaded shared library!", "InvokeExecutable");
 
@@ -219,7 +221,7 @@ typedef unsigned char byte;
                     error("cannot find CToastMain function of library!", "InvokeExecutable");
 
                     FreeLibrary(hDll); // Free the DLL
-                    return ERROR_CANNOT_LOAD_LIBRARY_FUNCTION;
+                    return CTOAST_ERROR_CANNOT_LOAD_LIBRARY_FUNCTION;
                 }
                 CToastAPI ctoastApi = { ExternalAPI::GetComponentById, ExternalAPI::GetComponentText };
                 mainFunc(&ctoastApi);
@@ -239,6 +241,16 @@ typedef unsigned char byte;
             #endif
             
         }
+        tinyxml2::XMLElement* menu = winXml->FirstChildElement("menuBar");
+        if (menu) {
+			MenuBar* menuBar = new MenuBar();
+            for (tinyxml2::XMLElement* menuItem = menu->FirstChildElement("menuItem"); menuItem != nullptr; menuItem = menu->NextSiblingElement("menuItem")) {
+				MenuItem* item = new MenuItem(menuItem->GetText());
+				menuBar->Add(*item);
+            }
+            win.Add(*menuBar);
+        }
+        
         debug("entering main loop...","InvokeExecutable");
         win.SetVisible(true);
         
@@ -256,13 +268,14 @@ typedef unsigned char byte;
             if (argv.size() == 1) {
                 error("error: no files specified. please pass an argument to a valid file");
                 error("error code: ERROR_NO_FILES_SPECIFIED");
-                return ERROR_NO_FILES_SPECIFIED;
+                return CTOAST_ERROR_NO_FILES_SPECIFIED;
             } else {
                 info("launching executable...","CLIMain");
                 return CinnamonToast::InvokeExecutable(argv[1]);
             }
         } catch (exception e) {
             ch->InvokeUnhandledExceptionCrash(e);
+			return 1;
         }
     }   
     

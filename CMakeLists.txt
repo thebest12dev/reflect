@@ -11,7 +11,7 @@ endif()
 project ("cinnamontoast")
 
 # Collect .cpp and .h files from specific directories
-file(GLOB_RECURSE CTOAST_CORE "src/*.cpp" "src/*.h")
+file(GLOB_RECURSE CTOAST_CORE "core/*.cpp" "core/*.h")
 file(GLOB_RECURSE CTOAST_CRASHHANDLER "crash/*.cpp" "crash/*.h")
 file(GLOB_RECURSE CTOAST_CLI "cli/*.cpp" "cli/*.h")
 file(GLOB_RECURSE CTOAST_LUA "lua/*.cpp" "lua/*.h")
@@ -48,7 +48,6 @@ target_include_directories(CinnamonToast.Core PRIVATE "${CMAKE_SOURCE_DIR}/commo
 target_include_directories(ctoasti PRIVATE "${CMAKE_SOURCE_DIR}/common")
 # Add the target executable (cli) - linking the core library
 target_link_libraries(ctoasti PRIVATE CinnamonToast.Core)
-target_compile_options(ctoasti PRIVATE /MT)
 if(MSVC)
     target_link_libraries(CinnamonToast.Core PRIVATE d2d1 gdi32 comctl32)
 endif()

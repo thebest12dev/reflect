@@ -24,27 +24,92 @@
     namespace CinnamonToast {
         class Component {
             protected:
+                /// @brief The HINSTANCE object associated 
+                /// with the program required for window creation.
                 HINSTANCE winstance;
-                HWND hwnd;
-                
-                HINSTANCE parentInstance;
-                // Window parentWindow;
 
+                /// @brief The window handle (HWND) associated 
+                /// with the object needed for Win32 APIs.
+                HWND hwnd;
+
+                /// @brief The position of the component
+                /// in X and Y coordinates.
                 Vector2 position;
+
+                /// @brief The position of the component
+                /// in X and Y coordinates.
                 Vector2 size;
                 
+                /// @brief The color of the 
+                /// component in RGB.
                 Color3 color;
             public:
+                /**
+                * @brief Creation of the component as well as
+                * fields and other properties.
+                */
                 CTOAST_API Component(/* args */);
+
+                /**
+                * @brief Method to render the component, primarily handled by the derived class.
+                * 
+                * It uses 2 arguments, the parent window handle and the window's window handle.
+                * Using these arguments, the component can be attached to the parent window
+                * and rendered as necessary. Note that this is intentionally left blank in
+                * some use cases, but it is not recommended to leave it blank.
+                * 
+                * @param parentHWND The parent window handle (obtained through CreateWindowEx/CreateWindow).
+                * @param windowHWND The window window handle (similar to the parent handle but for the window).
+                */
                 CTOAST_API virtual void Render(HWND& parentHWND, HWND& windowHWND) = 0;
+
+                /**
+                * @brief Sets the component visibility to either show or hide depending on the flag.
+                * 
+                * @param flag The flag to set visibility.
+                */
                 CTOAST_API void SetVisible(bool flag);
+
+                /**
+                * @brief Adds a component to the hierarchy, as well as calling the `Render` function
+                * of the child component to properly render it.
+                */
                 CTOAST_API void Add(Component& comp);
+
+                /**
+                * @brief Sets the size of the component.
+                */
                 CTOAST_API void SetSize(Vector2 size);
+
+                /**
+                * @brief Similar to `SetVisible(bool)` but directly use Win32 commands.
+                */
                 CTOAST_API void SetVisible(int cmd);
+
+                /**
+                * @brief Sets the color of the component by its red, green and blue components.
+                */
                 CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
+
+                /**
+                * @brief Similar to SetColor(uint8_t, uint8_t, uint8_t) but with a Color3 struct.
+                */
                 CTOAST_API void SetColor(Color3 color);
+
+                /**
+                * @brief Returns the component's color.
+                * @returns The component's color.
+                */
                 CTOAST_API Color3 GetColor();
+
+                /**
+                * @brief Same as other methods but with an int[3] type.
+                */
                 CTOAST_API void SetColor(Color3Array color);
+                
+                /**
+                * @brief Virtual destructor needed for runtime polymorphism. 
+                */
                 CTOAST_API virtual ~Component() = default;  // To allow dynamic_cast to work
                 friend class Window;
                 friend class Label;

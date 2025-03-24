@@ -14,6 +14,10 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 #pragma once
+
+/*
+Default font for CinnamonToast to use.
+*/
 #define DEFAULT_FONT "Segoe UI"
 
 /**
@@ -24,12 +28,12 @@
 /**
  * Internal app version for compatibility checks.
  */
-#define APP_INTERNAL_VERSION 0000003L
+#define APP_INTERNAL_VERSION 0000004L
 
 /**
  * External app version to be shown to the end user.
  */
-#define APP_VERSION "1.2.0"
+#define APP_VERSION "1.2.1"
 
 /**
  * Error code specification
@@ -54,24 +58,53 @@
  * Comment/uncomment this to toggle Win32 errors.
  */
 #ifdef _WIN32
+    // Define Win32 error codes
     #define WIN32_ERROR_CODES
 #endif
 
 // Internal error codes and other things
-#define ERROR_NO_FILES_SPECIFIED 0x000003f0L
-#define ERROR_GENERIC_XML_ERROR 0x000003f1L
-#define ERROR_XML_NO_ROOT 0x000003f2L
-#define ERROR_XML_NO_WINDOW 0x000003f3L
-#define ERROR_FILE_NOT_FOUND 0x0000002L
-#define ERROR_FONT_NOT_FOUND 0x0000003L
-#define ERROR_HEX_COLOR_MALFORMED 0x000003f4L
-#define ERROR_LINUX_X11_NOT_INITIALIZED 0x030003f5L
-#define ERROR_CANNOT_LOAD_SHARED_LIBRARY 0x000003f9L
-#define ERROR_CANNOT_LOAD_LIBRARY_FUNCTION 0x000003faL
-#define ERROR_XML_NOT_COMPATIBLE 0x000003fbL
-#define ERROR_UNHANDLED_EXCEPTION 0x000003fcL
+
+// Error for if there isn't a file specified.
+#define CTOAST_ERROR_NO_FILES_SPECIFIED 0x000003f0L
+
+// Error for an XML error that does not originate from the program.
+#define CTOAST_ERROR_GENERIC_XML_ERROR 0x000003f1L
+
+// Error for if the XML file does not have a root element.
+#define CTOAST_ERROR_XML_NO_ROOT 0x000003f2L
+
+// Error for if the XML file does not have a window element inside the root element.
+#define CTOAST_ERROR_XML_NO_WINDOW 0x000003f3L
+
+// Error for if a file is not found.
+#define CTOAST_ERROR_FILE_NOT_FOUND 0x0000002L
+
+// Error for if a font is not found.
+#define CTOAST_ERROR_FONT_NOT_FOUND 0x0000003L
+
+// Error if a hex color (like #ffffff) is malformed.
+#define CTOAST_ERROR_HEX_COLOR_MALFORMED 0x000003f4L
+
+// A Linux-specific error that X11 isn't initialized.
+#define CTOAST_ERROR_LINUX_X11_NOT_INITIALIZED 0x030003f5L
+
+// Error if the shared library (.dll, .so, etc.) can't be loaded primarily due to filesystem errors or other reasons.
+#define CTOAST_ERROR_CANNOT_LOAD_SHARED_LIBRARY 0x000003f9L
+
+// Error if the shared library's `CToastMain` function does not exist or there is another problem.
+#define CTOAST_ERROR_CANNOT_LOAD_LIBRARY_FUNCTION 0x000003faL
+
+// Error if the XML document's app version is above the current app version.
+#define CTOAST_ERROR_XML_NOT_COMPATIBLE 0x000003fbL
+
+// Error if an unhandled exception (std::exception) occurs.
+#define CTOAST_ERROR_UNHANDLED_EXCEPTION 0x000003fcL
+
 // Win32 specific errors
 #if defined(_WIN32) && defined(WIN32_ERROR_CODES)
-    #define ERROR_WIN_PARENT_HWND_INVALID 0x010003f5L
+    
+    // Error if the parent HWND (window handle) is invalid in Windows.
+    #define CTOAST_ERROR_WIN_PARENT_HWND_INVALID 0x010003f5L
+
     // more errors go here
 #endif

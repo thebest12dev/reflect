@@ -20,6 +20,7 @@
 #include <iostream>
 #include "Window.h"
 #include "Label.h"
+#include "MenuBar.h"
 #include "Components.h"
 #include "Console.h"
 #include "TypeDefinitions.h"
@@ -73,122 +74,92 @@
                 &pRenderTarget);
         }
     }
+  
     LRESULT CALLBACK ctoast Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         CinnamonToast::Window* pThis = nullptr;
-        
+
         if (uMsg == WM_CREATE) {
-            debug("message type: WM_CREATE","WindowProc");
+            debug("message type: WM_CREATE", "WindowProc");
             CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
             pThis = reinterpret_cast<ctoast Window*>(pCreate->lpCreateParams);
             SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
-    
+
             // Initialize Direct2D
-            debug("calling InitializeDirect2D...","WindowProc");
+            debug("calling InitializeDirect2D...", "WindowProc");
             InitializeDirect2D(hwnd);
-        } else {
+        }
+        else {
             pThis = reinterpret_cast<ctoast Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
         }
-    
+
         if (pThis) {
             // Delegate the handling of messages to the instance
             switch (uMsg) {
-                case WM_DESTROY:
-                    debug("message type: WM_DESTROY","WindowProc");
-                    PostQuitMessage(0);
-                    info("Exiting...", "WindowProc");
-                    return 0;
-                // case WM_SIZE:
-                //     // Handle WM_SIZE as before
-                //     InvalidateRect(hwnd, NULL, TRUE);
-                //     break;
-                case WM_SIZE:
-                    
-                    if (pRenderTarget) {
-                        RECT rc;
-                        GetClientRect(hwnd, &rc);
-                        pRenderTarget->Resize(D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top));
-                    }
-                    InvalidateRect(hwnd, NULL, TRUE);  // Mark the entire window as needing a repaint
-                    break;
-                // case WM_PAINT: {
-                //     if (!pRenderTarget) {
-                //         InitializeDirect2D(hwnd);
-                //     }
-        
-                //     PAINTSTRUCT ps;
-                //     BeginPaint(hwnd, &ps);
-        
-                //     // Start drawing
-                //     pRenderTarget->BeginDraw();
-        
-                //     // Set background color
-                //     pRenderTarget->Clear(
-                //         D2D1::ColorF(pThis->bgColor[0], pThis->bgColor[1], pThis->bgColor[2]));
-        
-                //     // End drawing
-                //     HRESULT hr = pRenderTarget->EndDraw();
-                //     if (hr == D2DERR_RECREATE_TARGET) {
-                //         // Handle device loss
-                //         pRenderTarget->Release();
-                //         pRenderTarget = nullptr;
-                //         InitializeDirect2D(hwnd);
-                //     }
-        
-                //     EndPaint(hwnd, &ps);
-                //     break;
-                // }
-                case WM_PAINT: {
-                  //  debug("repainting window...","WindowProc");
-                    if (!pRenderTarget) {
-                        InitializeDirect2D(hwnd);
-                    }
-                
-                    PAINTSTRUCT ps;
-                    HDC hdc = BeginPaint(hwnd, &ps);
-                
-                    // Create a clipping region for the child controls
-                    HRGN hrgn = CreateRectRgn(0, 0, 0, 0);
-                    int regionType = GetWindowRgn(hwnd, hrgn); // Get the window's region (valid or error)
-                    if (regionType != ERROR) {
-                        RECT controlRect;
-                        HWND hChild = GetWindow(hwnd, GW_CHILD); // Get the first child window
-                
-                        while (hChild != NULL) {
-                            GetWindowRect(hChild, &controlRect);
-                            MapWindowPoints(NULL, hwnd, (LPPOINT)&controlRect, 2); // Convert to client coordinates
-                
-                            // Exclude the child control region from the painting area
-                            ExcludeClipRect(hdc, controlRect.left, controlRect.top, controlRect.right, controlRect.bottom);
-                
-                            hChild = GetNextWindow(hChild, GW_HWNDNEXT); // Get the next child window
-                        }
-                    }
-                
-                    // Start Direct2D rendering
-                    pRenderTarget->BeginDraw();
-                
-                    // Set background color (this will not cover child control areas due to ExcludeClipRect)
-                    pRenderTarget->Clear(D2D1::ColorF(pThis->bgColor[0], pThis->bgColor[1], pThis->bgColor[2]));
-                
-                    // End drawing
-                    HRESULT hr = pRenderTarget->EndDraw();
-                    if (hr == D2DERR_RECREATE_TARGET) {
-                        // Handle device loss
-                        pRenderTarget->Release();
-                        pRenderTarget = nullptr;
-                        InitializeDirect2D(hwnd);
-                    }
-                
-                    // Clean up
-                    DeleteObject(hrgn);
-                    EndPaint(hwnd, &ps);
-                    break;
+            case WM_DESTROY:
+                debug("message type: WM_DESTROY", "WindowProc");
+                PostQuitMessage(0);
+                info("Exiting...", "WindowProc");
+                return 0;
+            case WM_SIZE:
+                if (pRenderTarget) {
+                    RECT rc;
+                    GetClientRect(hwnd, &rc);
+                    pRenderTarget->Resize(D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top));
                 }
-                
-                
+                InvalidateRect(hwnd, NULL, TRUE);  // Mark the entire window as needing a repaint
+                break;
+            case WM_MOVE:
+                InvalidateRect(hwnd, NULL, TRUE);  // Mark the entire window as needing a repaint
+                break;
+            case WM_PAINT: {
+                if (!pRenderTarget) {
+                    InitializeDirect2D(hwnd);
+                }
+
+                PAINTSTRUCT ps;
+                HDC hdc = BeginPaint(hwnd, &ps);
+
+                // Create a clipping region for the child controls
+                HRGN hrgn = CreateRectRgn(0, 0, 0, 0);
+                int regionType = GetWindowRgn(hwnd, hrgn); // Get the window's region (valid or error)
+                if (regionType != ERROR) {
+                    RECT controlRect;
+                    HWND hChild = GetWindow(hwnd, GW_CHILD); // Get the first child window
+
+                    while (hChild != NULL) {
+                        GetWindowRect(hChild, &controlRect);
+                        MapWindowPoints(NULL, hwnd, (LPPOINT)&controlRect, 2); // Convert to client coordinates
+
+                        // Exclude the child control region from the painting area
+                        ExcludeClipRect(hdc, controlRect.left, controlRect.top, controlRect.right, controlRect.bottom);
+
+                        hChild = GetNextWindow(hChild, GW_HWNDNEXT); // Get the next child window
+                    }
+                }
+
+                // Start Direct2D rendering
+                pRenderTarget->BeginDraw();
+
+                // Set background color (this will not cover child control areas due to ExcludeClipRect)
+                pRenderTarget->Clear(D2D1::ColorF(pThis->bgColor[0], pThis->bgColor[1], pThis->bgColor[2]));
+
+                // End drawing
+                HRESULT hr = pRenderTarget->EndDraw();
+                if (hr == D2DERR_RECREATE_TARGET) {
+                    // Handle device loss
+                    pRenderTarget->Release();
+                    pRenderTarget = nullptr;
+                    InitializeDirect2D(hwnd);
+                }
+
+                // Clean up
+                DeleteObject(hrgn);
+                EndPaint(hwnd, &ps);
+                break;
+            }
             }
         }
-    
+
         return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }
     void ctoast Window::Add(ctoast Component& comp) {
@@ -198,7 +169,6 @@
     }
     void ctoast Window::Add(ctoast Component& comp, string id) {
         debug("added new component", "WindowProc");
-        
         if (Components::gchildren[id] == nullptr) {
             Components::gchildren[id] = &comp;
 

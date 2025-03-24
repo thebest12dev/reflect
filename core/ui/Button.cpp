@@ -19,15 +19,13 @@
     #include "TypeDefinitions.h"
     #include "../Utilities.h"
     #include "../Console.h"
-    #include "../Definitions.h"
+    #include "Definitions.h"
     #include <iostream>
 
     #include "Button.h"
     using namespace CinnamonToast::Console;
     using namespace CinnamonToast::Utilities;
-    void ctoast Button::SetFont(string font) {
-        
-        
+    void ctoast Button::SetFont(string font) {        
         fontStr = font;
         if (font == "default") {
             fontStr = DEFAULT_FONT;
@@ -39,7 +37,7 @@
     void ctoast Button::Render(HWND& parentHWND, HWND& windowHWND) {
         if (!IsWindow(parentHWND)) {
             error("parent HWND is invalid!");
-            std::exit(ERROR_WIN_PARENT_HWND_INVALID);
+            std::exit(CTOAST_ERROR_WIN_PARENT_HWND_INVALID);
         }
         
         
@@ -66,7 +64,7 @@
 
             // Calculate the size of the text
             SIZE textSize;
-            GetTextExtentPoint32(hdc, text.c_str(), text.length(), &textSize);
+            GetTextExtentPoint32(hdc, text.c_str(), (int) text.length(), &textSize);
             // // Get device context of the Button
             // RECT parentRect;
             // GetClientRect(windowHWND, &parentRect); // Get the client area of the parent window

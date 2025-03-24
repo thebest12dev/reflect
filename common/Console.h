@@ -23,7 +23,6 @@ using namespace std;
 namespace CinnamonToast {
     namespace Console {
         
-        // std:: part is omitted because of `using namespace std;`.
         template <typename T>
         CTOAST_API void print(const T& obj) {
             cout << obj;
