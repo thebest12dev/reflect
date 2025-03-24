@@ -14,14 +14,15 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 #include "Component.h"
-
+#include "TextComponent.h"
 #include <string>
 #include "Vector2.h"
 #include <iostream>
 #include "Window.h"
+#include "Label.h"
 #include "Components.h"
-#include "../Console.h"
-#include "../TypeDefinitions.h"
+#include "Console.h"
+#include "TypeDefinitions.h"
 #ifdef _WIN32
     #include <windows.h>
     #include <d2d1.h>
@@ -197,8 +198,10 @@
     }
     void ctoast Window::Add(ctoast Component& comp, string id) {
         debug("added new component", "WindowProc");
+        
         if (Components::gchildren[id] == nullptr) {
             Components::gchildren[id] = &comp;
+
             comp.winstance = this->parentInstance;
             comp.Render(this->hwnd, this->hwnd);  
         }

@@ -14,11 +14,11 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 #pragma once
-#include "../TypeDefinitions.h"
+#include "TypeDefinitions.h"
 namespace CinnamonToast {
     struct Vector2 {
         public:
-            shared Vector2(int v1, int v2);
+            CTOAST_API Vector2(int v1, int v2);
             int X,Y;
     };
     

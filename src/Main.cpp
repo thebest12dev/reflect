@@ -33,7 +33,12 @@ typedef unsigned char byte;
 
 
 // other libraries
-#include "../lib/tinyxml2.h"
+#include "../lib/tinyxml2/tinyxml2.h"
+#ifdef CTOAST_LUA
+    extern "C" {
+        #include "../lua/CToastLua.h"
+    }
+#endif
 
 // our header files here
 #include "Main.h"
@@ -51,7 +56,9 @@ typedef unsigned char byte;
 #include "ui/Component.h"
 #include "ui/Components.h"
 #include "ui/TextComponent.h"
-
+#ifdef CTOAST_LUA
+    #include "LuaAPI.h"
+#endif
 // windows-specific code
 #ifdef _WIN32
 
@@ -60,6 +67,7 @@ typedef unsigned char byte;
     
     // standard libs
     #include <cstdint>
+    #include <memory>  // for std::unique_ptr
     #include <filesystem>
     #include <iostream>
     #include <string>
@@ -79,6 +87,8 @@ typedef unsigned char byte;
     * registering APIs for the libraries to use.
     */
     int ctoast InvokeExecutable(string xmlFile) {
+        // if lua enabled
+        
         // load the xml file
         tinyxml2::XMLDocument doc;
        
@@ -89,13 +99,14 @@ typedef unsigned char byte;
         INITCOMMONCONTROLSEX icex;
         icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
         icex.dwICC = ICC_STANDARD_CLASSES;
+       
         InitCommonControlsEx(&icex);
 
         // file doesnt exist
         if (!fs::exists(xmlFile)) {
             // error and return
             error("file not found!");
-            return error_file_not_found;
+            return ERROR_FILE_NOT_FOUND;
         }
 
         // debug print and load xml file
@@ -105,7 +116,7 @@ typedef unsigned char byte;
         // error handling
         if (eResult != tinyxml2::XML_SUCCESS) {
             error(string("cannot load XML file: "+string(doc.ErrorStr())));
-            return error_generic_xml_error;
+            return ERROR_GENERIC_XML_ERROR;
         }
 
         // get the root element
@@ -114,21 +125,21 @@ typedef unsigned char byte;
         // handling
         if (root == nullptr) {
             error("no root element found.");
-            return error_xml_no_root;
+            return ERROR_XML_NO_ROOT;
         }
         
         // checking compat
         debug("file is compatible with app?","InvokeExecutable");
         const uint32_t version = stoi(root->Attribute("version"));
-        if (version > app_internal_version) {
+        if (version > APP_INTERNAL_VERSION) {
             // handle and return
             error("file not compatible! please upgrade to a newer version.");
-            return error_xml_not_compatible;
+            return ERROR_XML_NOT_COMPATIBLE;
         }
         tinyxml2::XMLElement* winXml = root->FirstChildElement("window");
         if (winXml == nullptr) {
             error("no window element found.");
-            return error_xml_no_window;
+            return ERROR_XML_NO_WINDOW;
         }
         
         #ifdef _WIN32
@@ -158,7 +169,7 @@ typedef unsigned char byte;
                 win.SetColor(color);
             } else {
                 error("invalid hex color representation");
-                return error_hex_color_malformed;
+                return ERROR_HEX_COLOR_MALFORMED;
             }
             
             
@@ -166,13 +177,14 @@ typedef unsigned char byte;
         debug("parsing labels...","InvokeExecutable");
         for (tinyxml2::XMLElement* label = winXml->FirstChildElement("label"); label != nullptr; label = label->NextSiblingElement("label")) {
             // Access attributes
-            string contents = label->GetText();
+            string c = string(label->GetText());
+            string* contents = &c;
             string id = label->Attribute("id");
             Vector2 position(stoi(label->Attribute("x")),stoi(label->Attribute("y")));
-            Label labelComp(contents, position);
-            labelComp.SetFont(label->Attribute("font"));
-            labelComp.SetFontSize(stoi(label->Attribute("fontSize")));
-            win.Add(labelComp, id);
+            Label* labelComp = new Label(*contents, position);
+            labelComp->SetFont(label->Attribute("font"));
+            labelComp->SetFontSize(stoi(label->Attribute("fontSize")));
+            win.Add(*labelComp, id);
             
         }
         debug("parsing buttons...", "InvokeExecutable");
@@ -188,43 +200,63 @@ typedef unsigned char byte;
 
         }
         debug("loading libraries...", "InvokeExecutable");
+        #ifdef CTOAST_LUA
+            LuaInstance* lua = nullptr;
+        #endif
+
         for (tinyxml2::XMLElement* sharedLib = winXml->FirstChildElement("library"); sharedLib != nullptr; sharedLib = sharedLib->NextSiblingElement("library")) {
-            HMODULE hDll = LoadLibrary((const char*) fs::absolute(fs::path(xmlFile)).parent_path().c_str());
-            if (!hDll) {
-                error("cannot load shared library", "InvokeExecutable");
-                return error_cannot_load_shared_library;
-            }
-            debug("loaded shared library!", "InvokeExecutable");
+            if (string(sharedLib->Attribute("type")) == "native") {
+                HMODULE hDll = LoadLibrary((const char*)(fs::absolute(fs::path(xmlFile)).parent_path().string() + "\\" + sharedLib->Attribute("location")).c_str());
+                if (!hDll) {
+                    error("cannot load shared library", "InvokeExecutable");
+                    return ERROR_CANNOT_LOAD_SHARED_LIBRARY;
+                }
+                debug("loaded shared library!", "InvokeExecutable");
 
-            // Get the address of the Add function
-            SharedLibraryMain mainFunc = (SharedLibraryMain)GetProcAddress(hDll, "CToastMain");
-            if (!mainFunc) {
-                error("cannot find CToastMain function of library!", "InvokeExecutable");
+                // Get the address of the Add function
+                SharedLibraryMain mainFunc = (SharedLibraryMain)GetProcAddress(hDll, "CToastMain");
+                if (!mainFunc) {
+                    error("cannot find CToastMain function of library!", "InvokeExecutable");
 
-                FreeLibrary(hDll); // Free the DLL
-                return error_cannot_load_library_function;
-            }
-            CToastAPI ctoastApi = { ExternalAPI::GetComponentById, ExternalAPI::GetComponentText };
-            mainFunc(&ctoastApi);
+                    FreeLibrary(hDll); // Free the DLL
+                    return ERROR_CANNOT_LOAD_LIBRARY_FUNCTION;
+                }
+                CToastAPI ctoastApi = { ExternalAPI::GetComponentById, ExternalAPI::GetComponentText };
+                mainFunc(&ctoastApi);
+			}
+            #ifdef CTOAST_LUA
+			    else if (string(sharedLib->Attribute("type")) == "lua") {
+                    debug("loading lua file...", "InvokeExecutable");
+                    if (lua == nullptr) {
+                        debug("initializing lua...", "InvokeExecutable");
+                        lua = new LuaInstance();
+                        lua->InitializeLuaApis(InjectLuaApis);
+                    }
+				           
+				    lua->ExecuteFile((fs::absolute(fs::path(xmlFile)).parent_path().string() + "\\" + sharedLib->Attribute("location")).c_str());
+                
+			    }
+            #endif
+            
         }
         debug("entering main loop...","InvokeExecutable");
         win.SetVisible(true);
-       
+        
         return win.Run();
     }
     int ctoast CLIMain(const uint8_t argc, const vector<string> argv) {
         CrashConfig config = {};
-        config.CrashType = crash_invoke | crash_segfault | crash_unhandled_exception;
+        config.CrashType = CRASH_INVOKE | CRASH_SEGFAULT | CRASH_UNHANDLED_EXCEPTION;
 
         CrashHandler* ch = new CrashHandler(config);
         CrashManager::SetActiveCrashHandler(ch);
 
         try {
-            println(app_name+string(" ")+app_version);
+            println(APP_NAME+string(" ")+APP_VERSION);
             if (argv.size() == 1) {
                 error("error: no files specified. please pass an argument to a valid file");
                 error("error code: ERROR_NO_FILES_SPECIFIED");
-                return error_no_files_specified;
+                return ERROR_NO_FILES_SPECIFIED;
             } else {
                 info("launching executable...","CLIMain");
                 return CinnamonToast::InvokeExecutable(argv[1]);
@@ -354,7 +386,7 @@ typedef unsigned char byte;
 #endif
 // Main entrypoint
 
-#ifndef shared_library
+#ifndef CTOAST_API_library
 int main(const int argc, const char* argv[]) {
     return CinnamonToast::CLIMain(argc, CstrArrToVector(argv));
 }

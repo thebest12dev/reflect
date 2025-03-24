@@ -13,12 +13,17 @@
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-#include "../TypeDefinitions.h"
+#include "TypeDefinitions.h"
 #include "Components.h"
+#include "TextComponent.h"
 #include "Component.h"
+#include "Label.h"
 #include <map>
+#include <iostream>
 using namespace CinnamonToast;
 map<string, Component*> Components::gchildren;
+
 Component* ctoast Components::GetComponentById(string id) {
-	return Components::gchildren[id];
+
+	return (Component*) Components::gchildren[id];
 }

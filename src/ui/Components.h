@@ -14,7 +14,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 #pragma once
-#include "../TypeDefinitions.h"
+#include "TypeDefinitions.h"
 #include "Component.h"
 #include "Window.h"
 #include <string>
@@ -24,7 +24,7 @@ namespace CinnamonToast {
 		private:
 			static map<string, Component*> gchildren;
 		public:
-			shared static Component* GetComponentById(string id);
+			CTOAST_API static Component* GetComponentById(string id);
 			friend class Window;
 	};
 }

@@ -22,12 +22,12 @@ typedef unsigned char byte;
 namespace CinnamonToast {
     typedef unsigned long long ComponentId;
     struct CToastAPI {
-        ComponentId(*GetComponentById)(string id);
-        string(*GetComponentText)(ComponentId ref);
+        ComponentId(*GetComponentById)(const char* id);
+        const char* (*GetComponentText)(ComponentId ref);
     };
     namespace ExternalAPI {
-        shared ComponentId GetComponentById(string id);
-        shared string GetComponentText(ComponentId ref);
+        CTOAST_API ComponentId GetComponentById(const char* id);
+        CTOAST_API const char* GetComponentText(ComponentId ref);
     }
     typedef void (*SharedLibraryMain)(CToastAPI* api);
 }

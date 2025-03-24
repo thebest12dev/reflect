@@ -21,7 +21,7 @@
     #include "Component.h"
 
     #include "Vector2.h"
-    #include "../TypeDefinitions.h"
+    #include "TypeDefinitions.h"
     #include <string>
     namespace CinnamonToast {
         class Button : public TextComponent {
@@ -41,16 +41,16 @@
                 int fontSize;
             public:
                 friend class Component;
-                shared void Render(HWND& parentHWND, HWND& windowHWND);
-                shared void SetVisible(bool flag);
-                shared void Add(Component comp);
-                shared Button(string contents, Vector2 pos);
-                shared void SetVisible(int cmd);
-                shared void SetFontSize(int size);
-                shared void SetFont(string font);
-                shared void SetText(string text);
-                shared string GetText(string text);
-                shared void SetColor(uint8_t r, uint8_t g, uint8_t b);
+                CTOAST_API void Render(HWND& parentHWND, HWND& windowHWND);
+                CTOAST_API void SetVisible(bool flag);
+                CTOAST_API void Add(Component comp);
+                CTOAST_API Button(string contents, Vector2 pos);
+                CTOAST_API void SetVisible(int cmd);
+                CTOAST_API void SetFontSize(int size);
+                CTOAST_API void SetFont(string font);
+                CTOAST_API void SetText(string text);
+                CTOAST_API string GetText();
+                CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
         };
     } 
 #elif __linux__
@@ -80,14 +80,14 @@
                 int fontSize;
             public:
                 friend class Component;
-                shared void Render(Window& parentWindow, Window& windowWindow);
-                shared void SetVisible(bool flag);
-                shared void Add(Component comp);
-                shared Button(string contents, Vector2 pos);
-                shared void SetVisible(int cmd);
-                shared void SetFontSize(int size);
-                shared void SetFont(string font);
-                shared void SetColor(uint8_t r, uint8_t g, uint8_t b);
+                CTOAST_API void Render(Window& parentWindow, Window& windowWindow);
+                CTOAST_API void SetVisible(bool flag);
+                CTOAST_API void Add(Component comp);
+                CTOAST_API Button(string contents, Vector2 pos);
+                CTOAST_API void SetVisible(int cmd);
+                CTOAST_API void SetFontSize(int size);
+                CTOAST_API void SetFont(string font);
+                CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
         };
     } 
 

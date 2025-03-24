@@ -1,4 +1,4 @@
-/**
+/** 
 * Copyright (c) 2025 thebest12lines
 * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -15,11 +15,10 @@
 */
 #pragma once
 
-
 #ifdef _WIN32
     #include <windows.h>
     #include "Component.h"
-    #include "../TypeDefinitions.h"
+    #include "TypeDefinitions.h"
     #include <cstdint>
     #include <string>
     #include "Vector2.h"
@@ -31,23 +30,23 @@
             private:
                 float bgColor[3];
             public:
-                shared Window(HINSTANCE instance);
-                shared void SetTitle(string title);
+                CTOAST_API Window(HINSTANCE instance);
+                CTOAST_API void SetTitle(string title);
                 // // void SetSize(Vector2 dim);
-                shared static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+                CTOAST_API static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
                 
-                shared void SetColor(uint8_t r, uint8_t g, uint8_t b);
-                shared void SetColor(Color3 color);
-                shared void SetColor(Color3Array color);
-                shared void SetVisible(bool flag);
-                shared void Add(Component &comp);
-                shared void Add(Component& comp, string id);
-                shared void SetSize(Vector2 size);
-                shared void Render(HWND& parentHWND, HWND& windowHWND);
-                shared void SetVisible(int cmd);
-                shared int Run();
+                CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
+                CTOAST_API void SetColor(Color3 color);
+                CTOAST_API void SetColor(Color3Array color);
+                CTOAST_API void SetVisible(bool flag);
+                CTOAST_API void Add(Component &comp);
+                CTOAST_API void Add(Component& comp, string id);
+                CTOAST_API void SetSize(Vector2 size);
+                CTOAST_API void Render(HWND& parentHWND, HWND& windowHWND);
+                CTOAST_API void SetVisible(int cmd);
+                CTOAST_API int Run();
                 
-                shared ~Window();
+                CTOAST_API ~Window();
                 friend class Component;
                 friend class Label;
         };
@@ -74,17 +73,17 @@
             private:
                 uint8_t bgColor[3];
             public:
-                shared Window(Display* instance);
-                shared void SetTitle(string title);
+                CTOAST_API Window(Display* instance);
+                CTOAST_API void SetTitle(string title);
                 // // void SetSize(Vector2 dim);
-                shared void SetColor(uint8_t r, uint8_t g, uint8_t b);
-                shared void SetVisible(bool flag);
-                shared void Add(Component* comp);
-                shared string GetProperty(string property);
-                shared void SetSize(Vector2 size);
-                shared void SetVisible(int cmd);
-                shared int Run();
-                shared ~Window();
+                CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
+                CTOAST_API void SetVisible(bool flag);
+                CTOAST_API void Add(Component* comp);
+                CTOAST_API string GetProperty(string property);
+                CTOAST_API void SetSize(Vector2 size);
+                CTOAST_API void SetVisible(int cmd);
+                CTOAST_API int Run();
+                CTOAST_API ~Window();
                 friend class Component;
                 friend class Label;
         };
