@@ -28,12 +28,12 @@ Default font for CinnamonToast to use.
 /**
  * Internal app version for compatibility checks.
  */
-#define APP_INTERNAL_VERSION 0000004L
+#define APP_INTERNAL_VERSION 0000005L
 
 /**
  * External app version to be shown to the end user.
  */
-#define APP_VERSION "1.2.1"
+#define APP_VERSION "1.3.0"
 
 /**
  * Error code specification

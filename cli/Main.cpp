@@ -14,20 +14,22 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-// set byte to unsigned char to prevent ambiguity
-typedef unsigned char byte;
+#ifndef CTOAST_TESTS
+    // set byte to unsigned char to prevent ambiguity
+    typedef unsigned char byte;
 
-// if windows
-#ifdef _WIN32
+    // if windows
+    #ifdef _WIN32
     #include <windows.h>
-    // visual styles
-    #pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version = '6.0.0.0' processorArchitecture = '*' publicKeyToken = '6595b64144ccf1df' language = '*'\"")
-#endif
-#include "Main.h"
-#include "Utilities.h"
+        // visual styles
+        #pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version = '6.0.0.0' processorArchitecture = '*' publicKeyToken = '6595b64144ccf1df' language = '*'\"")
+    #endif
+    #include "Main.h"
+    #include "Utilities.h"
 
-// main function
-int main(int argc, char const *argv[]) {
-    // expression to load ctoast
-    return CinnamonToast::CLIMain(argc, CinnamonToast::Utilities::CstrArrToVector(argv));
-}
+    // main function
+    int main(int argc, char const* argv[]) {
+        // expression to load ctoast
+        return CinnamonToast::CLIMain(argc, CinnamonToast::Utilities::CstrArrToVector(argv));
+    }
+#endif

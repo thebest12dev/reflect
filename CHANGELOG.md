@@ -1,3 +1,8 @@
+# v1.3.0 (2025-03-26)
+- Added notifications 
+- Added tests
+- Fixed bugs
+
 # v1.2.1 (2025-03-24)
 - Fixed a bug where the window controls disappear
 

@@ -28,6 +28,7 @@ typedef unsigned char byte;
 #include <vector>
 #include <cstdint>
 #include <iostream>
+#include <thread>
 #include <exception>
 #include <filesystem>
 
@@ -68,6 +69,7 @@ typedef unsigned char byte;
     
     // standard libs
     #include <cstdint>
+    #include "ui/Notification.h"
     #include <memory>  // for std::unique_ptr
     #include <filesystem>
     #include <iostream>
@@ -83,7 +85,11 @@ typedef unsigned char byte;
 
     namespace fs = std::filesystem;
 
-
+    namespace {
+        void OnExecute(Window& win) {
+            /*win.Close();*/
+        }
+    }
     /**
     * Invokes and loads a .xml file and also loads the specific libraries. It will setup the GUI as well as
     * registering APIs for the libraries to use.
@@ -205,7 +211,6 @@ typedef unsigned char byte;
         #ifdef CTOAST_LUA
             LuaInstance* lua = nullptr;
         #endif
-
         for (tinyxml2::XMLElement* sharedLib = winXml->FirstChildElement("library"); sharedLib != nullptr; sharedLib = sharedLib->NextSiblingElement("library")) {
             if (string(sharedLib->Attribute("type")) == "native") {
                 HMODULE hDll = LoadLibrary((const char*)(fs::absolute(fs::path(xmlFile)).parent_path().string() + "\\" + sharedLib->Attribute("location")).c_str());
@@ -224,7 +229,7 @@ typedef unsigned char byte;
                     return CTOAST_ERROR_CANNOT_LOAD_LIBRARY_FUNCTION;
                 }
                 CToastAPI ctoastApi = { ExternalAPI::GetComponentById, ExternalAPI::GetComponentText };
-                mainFunc(&ctoastApi);
+                std::thread* thread = new std::thread(mainFunc, &ctoastApi);
 			}
             #ifdef CTOAST_LUA
 			    else if (string(sharedLib->Attribute("type")) == "lua") {
@@ -241,6 +246,7 @@ typedef unsigned char byte;
             #endif
             
         }
+        
         tinyxml2::XMLElement* menu = winXml->FirstChildElement("menuBar");
         if (menu) {
 			MenuBar* menuBar = new MenuBar();
@@ -254,7 +260,7 @@ typedef unsigned char byte;
         debug("entering main loop...","InvokeExecutable");
         win.SetVisible(true);
         
-        return win.Run();
+        return win.Run(OnExecute);
     }
     int ctoast CLIMain(const uint8_t argc, const vector<string> argv) {
         CrashConfig config = {};
@@ -265,7 +271,7 @@ typedef unsigned char byte;
 
         try {
             println(APP_NAME+string(" ")+APP_VERSION);
-            if (argv.size() == 1) {
+            if (argc == 1) {
                 error("error: no files specified. please pass an argument to a valid file");
                 error("error code: ERROR_NO_FILES_SPECIFIED");
                 return CTOAST_ERROR_NO_FILES_SPECIFIED;

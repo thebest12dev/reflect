@@ -15,6 +15,7 @@
 */
 #include "Component.h"
 #include "TextComponent.h"
+#include "../Utilities.h"
 #include <string>
 #include "Vector2.h"
 #include <iostream>
@@ -27,6 +28,7 @@
 #ifdef _WIN32
     #include <windows.h>
     #include <d2d1.h>
+#include "Notification.h"
 
 
     using namespace CinnamonToast::Console;
@@ -161,10 +163,63 @@
         }
 
         return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    };
+    void ctoast Window::ShowNotification(Notification& notif) {
+        NOTIFYICONDATA nid = {};
+        nid.cbSize = sizeof(NOTIFYICONDATA);
+        nid.hWnd = hwnd;
+        nid.uID = 32067;
+        nid.uFlags = NIF_INFO | NIF_MESSAGE | NIF_ICON | NIF_TIP;
+        nid.uCallbackMessage = WM_USER + 1; // Custom message ID for notification events
+       
+        // Load an icon for the notification
+        nid.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+
+        strcpy_s(nid.szInfo, notif.text.c_str());
+        strcpy_s(nid.szTip, "");
+        strcpy_s(nid.szInfoTitle, notif.title.c_str());
+        //wcsncpy_s(nid.szInfoTitle, wTitle.c_str(), ARRAYSIZE(nid.szInfoTitle) - 1);
+        //wcsncpy_s(nid.szInfo, wText.c_str(), ARRAYSIZE(nid.szInfo) - 1);
+
+        //std::wstring tooltip = L"Notification Tooltip";
+        /*wcsncpy_s(nid.szTip, tooltip.c_str(), ARRAYSIZE(nid.szTip) - 1);*/
+
+        nid.dwInfoFlags = NIIF_INFO;
+
+
+        // Modify the notification icon to show the balloon tip
+        if (!Shell_NotifyIcon(NIM_MODIFY, &nid)) {
+            warn("Failed to modify notification icon!", "ShowNotification");
+        }
     }
+
+    //void ctoast Window::ShowNotification(Notification&  notif) {
+    //    NOTIFYICONDATA nid = {};
+    //    nid.cbSize = sizeof(NOTIFYICONDATA);
+    //    nid.hWnd = hwnd;
+    //    nid.uID = 32067;
+    //    nid.uFlags = NIF_INFO;
+    //    // Convert std::string to std::wstring
+    //    std::wstring wTitle = std::wstring(notif.title.begin(), notif.title.end());
+    //    std::wstring wText = std::wstring(notif.text.begin(), notif.text.end());
+    //    // Convert std::wstring to std::string
+    //    int titleSize = WideCharToMultiByte(CP_ACP, 0, wTitle.c_str(), -1, NULL, 0, NULL, NULL);
+    //    int textSize = WideCharToMultiByte(CP_ACP, 0, wText.c_str(), -1, NULL, 0, NULL, NULL);
+    //    std::string narrowTitle(titleSize, 0);
+    //    std::string narrowText(textSize, 0);
+    //    WideCharToMultiByte(CP_ACP, 0, wTitle.c_str(), -1, &narrowTitle[0], titleSize, NULL, NULL);
+    //    WideCharToMultiByte(CP_ACP, 0, wText.c_str(), -1, &narrowText[0], textSize, NULL, NULL);
+    //    strncpy_s(nid.szInfoTitle, narrowTitle.c_str(), ARRAYSIZE(nid.szInfoTitle) - 1);
+    //    strncpy_s(nid.szInfo, narrowText.c_str(), ARRAYSIZE(nid.szInfo) - 1);
+    //    nid.dwInfoFlags = NIIF_INFO;
+    //    bool success = Shell_NotifyIcon(NIM_MODIFY, &nid);
+    //    if (!success) {
+    //        warn("Notification failed to show! "+GetLastError(), "ShowNotification");
+    //    }
+    //}
     void ctoast Window::Add(ctoast Component& comp) {
         debug("added new component","WindowProc");
-        comp.winstance = this->parentInstance;
+        comp.winstance = this->winstance;
         comp.Render(this->hwnd, this->hwnd);
     }
     void ctoast Window::Add(ctoast Component& comp, string id) {
@@ -172,7 +227,7 @@
         if (Components::gchildren[id] == nullptr) {
             Components::gchildren[id] = &comp;
 
-            comp.winstance = this->parentInstance;
+            comp.winstance = this->winstance;
             comp.Render(this->hwnd, this->hwnd);  
         }
     }
@@ -243,13 +298,33 @@
         warn("Window::Render called, the method is intentionally empty because it is not a child component!","Render");
         // do nothing
     }
-
-    int ctoast Window::Run() {
+    void ctoast Window::Close() {
+        PostMessage(hwnd, WM_DESTROY, 0, 0);
+    }
+    int ctoast Window::Run(void(*func)(Window& win)) {
         info("Running window...","Run");
         MSG msg;
-        while (GetMessage(&msg, nullptr, 0, 0)) {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+        bool isExecuted = false;
+        while (true) {
+            // Peek for messages, doesn't block
+            if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+                if (msg.message == WM_QUIT) {
+                    break;  // Exit the loop when receiving WM_QUIT
+                }
+
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
+
+            // Perform other tasks here while the message loop is running
+            // Example: process background tasks, update UI, etc.
+            // This ensures the UI is responsive and other tasks can run concurrently
+            if (!isExecuted) {
+
+                func(*this);
+                isExecuted = true;
+            }
+           
         }
         return static_cast<int>(msg.wParam);
     }

@@ -7,8 +7,9 @@
       "inheritEnvironments": [ "msvc_x64_x64" ],
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "",
+      "cmakeToolchain": "C:\\Users\\client\\Downloads\\vcpkg-master\\vcpkg-master2\\scripts\\buildsystems\\vcpkg.cmake",
       "buildCommandArgs": "",
+      "cmakeCommandArgs": "",
       "ctestCommandArgs": ""
     },
     {
@@ -17,6 +18,7 @@
       "configurationType": "RelWithDebInfo",
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeToolchain": "C:\\Users\\client\\Downloads\\vcpkg-master\\vcpkg-master2\\scripts\\buildsystems\\vcpkg.cmake",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",

@@ -15,7 +15,11 @@
 */
 #include "TypeDefinitions.h"
 #include "Utilities.h"
-
+#include <sstream>
+#ifdef _WIN32
+    #include <windows.h>
+    #include <VersionHelpers.h>
+#endif
 vector<string> ctoast Utilities::CstrArrToVector(const char* arr[]) {
     vector<string> vec;
 
@@ -98,13 +102,24 @@ vector<string> ctoast Utilities::SplitString(std::string str, char delimiter) {
     #include <windows.h>
     #include <sstream>
     string ctoast Utilities::GetOSPlatformAndVersion() {
-        OSVERSIONINFO osvi;
         stringstream ss;
-        osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-        if (GetVersionEx(&osvi)) {
-            ss << "Windows " << osvi.dwMajorVersion << "." 
-            << osvi.dwMinorVersion << " " 
-            << osvi.szCSDVersion << std::endl;
+        if (IsWindows10OrGreater()) {
+            ss << "Windows 10";
+        }
+        else if (IsWindows8OrGreater()) {
+            ss << "Windows 8";
+        }
+        else if (IsWindows7OrGreater()) {
+            ss << "Windows 7";
+        }
+        else if (IsWindowsVistaOrGreater()) {
+            ss << "Windows Vista";
+        }
+        else if (IsWindowsXPOrGreater()) {
+            ss << "Windows XP";
+        }
+        else {
+            ss << "Older than Windows XP";
         }
         return ss.str();
     }

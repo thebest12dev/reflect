@@ -17,10 +17,13 @@
 
 #ifdef _WIN32
     #include <windows.h>
+    #undef byte
+    #include "Notification.h"
     #include "Component.h"
     #include "TypeDefinitions.h"
     #include <cstdint>
     #include <string>
+    
     #include "Vector2.h"
     namespace CinnamonToast {
         class Window : public Component {
@@ -43,8 +46,10 @@
                 CTOAST_API void Add(Component& comp, string id);
                 CTOAST_API void SetSize(Vector2 size);
                 CTOAST_API void Render(HWND& parentHWND, HWND& windowHWND);
+                CTOAST_API void ShowNotification(Notification& notif);
                 CTOAST_API void SetVisible(int cmd);
-                CTOAST_API int Run();
+                CTOAST_API int Run(void(*func)(Window& win));
+                CTOAST_API void Close();
                 
                 CTOAST_API ~Window();
                 friend class Component;
