@@ -38,9 +38,9 @@ jobs:
         ./bootstrap-vcpkg.bat
 
         # Add vcpkg to PATH for use in later steps
-        echo "##vso[task.setvariable variable=VCPKG_ROOT]$(pwd)"
-        echo "##vso[task.setvariable variable=VCPKG_PATH]$(pwd)"
-        echo "##vso[task.setvariable variable=PATH]$(pwd)/vcpkg:$PATH"
+        $env:VCPKG_ROOT = $(pwd)
+        $env:VCPKG_PATH = $(pwd)
+        #echo "##vso[task.setvariable variable=PATH]$(pwd)/vcpkg:$PATH"
 
     - name: Configure with CMake
       run: |
