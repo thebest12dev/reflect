@@ -18,8 +18,8 @@ jobs:
     - name: Set up JDK
       uses: actions/setup-java@v2
       with:
-        java-version: '17'  # You can specify other versions like '8', '17', etc.
-        distribution: 'adoptium'
+        java-version: '11'  # You can specify other versions like '8', '17', etc.
+        distribution: 'openjdk'
 
     # Optional: Verify Java installation
     - name: Verify JDK installation
