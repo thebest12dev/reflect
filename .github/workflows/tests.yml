@@ -66,7 +66,7 @@ jobs:
         $VCPKG_PATH="$PWD/../vcpkg/scripts/buildsystems/vcpkg.cmake"
         echo $VCPKG_PATH
         if ("${{ matrix.os }}" -eq "cl") {
-            cmake .. -G "Visual Studio 17 2022" -DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_PATH" -DPKG_CONFIG_EXECUTABLE="$PWD/../vcpkg/packages/pkgconf_x64-windows/tools/pkgconf/pkgconf.exe" -DCMAKE_MAKE_PROGRAM="C:/ProgramData/chocolatey/bin/ninja.exe"
+            cmake .. -G "Ninja" -DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_PATH" -DPKG_CONFIG_EXECUTABLE="$PWD/../vcpkg/packages/pkgconf_x64-windows/tools/pkgconf/pkgconf.exe" -DCMAKE_MAKE_PROGRAM="C:/ProgramData/chocolatey/bin/ninja.exe"
         }
         
        
