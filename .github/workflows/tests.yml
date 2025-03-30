@@ -39,12 +39,6 @@ jobs:
         cd..
         
         ./vcpkg/vcpkg install
-        cd vcpkg/
-        dir
-        cd installed/x64-windows/tools
-        dir
-        cd pkgconf
-        dir
 
     - name: Configure with CMake
       run: |
