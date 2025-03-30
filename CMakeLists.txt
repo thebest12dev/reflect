@@ -36,7 +36,6 @@ add_library(CinnamonToast.CStyleAPI SHARED ${CTOAST_CSTYLE})
 add_library(CinnamonToast.CrashHandler SHARED ${CTOAST_CRASHHANDLER} )
 add_library(CinnamonToast.LuaAPI SHARED ${CTOAST_LUA})
 add_library(CinnamonToast.JavaAPI SHARED ${CTOAST_JAVA})
-
 add_library(CinnamonToast.Core SHARED ${CTOAST_CORE})
 link_directories("${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/lib")
 target_compile_definitions(CinnamonToast.Core PRIVATE CTOAST_SHARED_LIBRARY=1)
