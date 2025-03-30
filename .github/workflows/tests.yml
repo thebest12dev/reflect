@@ -41,7 +41,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        $VCPKG_PATH=$PWD/../vcpkg/scripts/buildsystems/vcpkg.cmake
+        $VCPKG_PATH="$PWD/../vcpkg/scripts/buildsystems/vcpkg.cmake"
         echo $VCPKG_PATH
         
         cmake .. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$VCPKG_PATH
