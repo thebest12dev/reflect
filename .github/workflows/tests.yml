@@ -37,16 +37,11 @@ jobs:
         # Bootstrap vcpkg to build it
         ./bootstrap-vcpkg.bat
 
-        # Add vcpkg to PATH for use in later steps
-        $env:VCPKG_ROOT = $(pwd)
-        $env:VCPKG_PATH = $(pwd)
-        #echo "##vso[task.setvariable variable=PATH]$(pwd)/vcpkg:$PATH"
-
     - name: Configure with CMake
       run: |
         mkdir build
         cd build
-        cmake .. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_PATH/scripts/buildsystems/vcpkg.cmake
+        cmake .. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake
 
     # Step 5: Build the project with Ninja
     - name: Build with Ninja
