@@ -30,7 +30,7 @@ set(VCPKG_DIR "${VCPKG_DIR}/../../")
 set(PKG_CONFIG_EXECUTABLE "${VCPKG_DIR}/installed/x64-windows/tools/pkgconf/pkgconf.exe")
 set(LIB_FILE_DIR "${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/lib")
 set(JAVA_VERSION "21")
-set(JNI_INCLUDE_DIR "C:/Program Files/Java/jdk-${JAVA_VERSION}/include" "C:/Program Files/Java/jdk-${JAVA_VERSION}/include/win32")
+set(JNI_INCLUDE_DIR "$ENV{JAVA_HOME}/include/win32" "$ENV{JAVA_HOME}/include")
 # Add the source files for the specific DLLs
 add_library(CinnamonToast.CStyleAPI SHARED ${CTOAST_CSTYLE})
 add_library(CinnamonToast.CrashHandler SHARED ${CTOAST_CRASHHANDLER} )

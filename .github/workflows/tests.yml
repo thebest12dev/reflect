@@ -39,7 +39,14 @@ jobs:
         cd..
         
         ./vcpkg/vcpkg install
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: '21'  # You can specify other versions like '8', '17', etc.
 
+    # Optional: Verify Java installation
+    - name: Verify JDK installation
+      run: java -version
     - name: Configure with CMake
       run: |
         mkdir build
