@@ -67,5 +67,6 @@ jobs:
     - name: Run tests with CTest
       run: |
         cd build
+        dir
         ctest -N
-        ctest -C Debug --output-on-failure  # Run tests and output on failure
+        ctest -C . --output-on-failure  # Run tests and output on failure
