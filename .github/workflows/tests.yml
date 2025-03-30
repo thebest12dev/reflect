@@ -65,7 +65,7 @@ jobs:
         cd build
         $VCPKG_PATH="$PWD/../vcpkg/scripts/buildsystems/vcpkg.cmake"
         echo $VCPKG_PATH
-        if ("${{ matrix.os }}" -eq "cl") {
+        if ("${{ matrix.compiler }}" -eq "cl") {
             cmake .. -G "Ninja" -DCMAKE_CXX_COMPILER=cl -DCMAKE_C_COMPILER=cl -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_PATH" -DPKG_CONFIG_EXECUTABLE="$PWD/../vcpkg/packages/pkgconf_x64-windows/tools/pkgconf/pkgconf.exe" -DCMAKE_MAKE_PROGRAM="C:/ProgramData/chocolatey/bin/ninja.exe"
         }
         
