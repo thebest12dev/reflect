@@ -1,0 +1,442 @@
+/**
+ * Copyright (c) 2025 thebest12lines
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED
+ * "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+ * LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+#include "Window.h"
+#include "../Utilities.h"
+#include "Component.h"
+#include "Components.h"
+#include "Console.h"
+#include "Label.h"
+#include "MenuBar.h"
+#include "TextComponent.h"
+#include "TypeDefinitions.h"
+#include "Vector2.h"
+#include <iostream>
+#include <string>
+#ifdef _WIN32
+#include "Notification.h"
+#include <d2d1.h>
+#include <windows.h>
+
+using namespace CinnamonToast::Console;
+// Direct2D-specific members
+ID2D1Factory *pFactory = nullptr;
+ID2D1HwndRenderTarget *pRenderTarget = nullptr;
+// Due to floating point operations, may not produce exact color
+void ctoast Window::setColor(uint8_t r, uint8_t g, uint8_t b) {
+  this->bgColor[0] = r / 255.0f;
+  this->bgColor[1] = g / 255.0f;
+  this->bgColor[2] = b / 255.0f;
+}
+// Due to floating point operations, may not produce exact color
+void ctoast Window::setColor(Color3 color) {
+  this->bgColor[0] = color.r / 255.0f;
+  this->bgColor[1] = color.g / 255.0f;
+  this->bgColor[2] = color.b / 255.0f;
+}
+// Due to floating point operations, may not produce exact color
+void ctoast Window::setColor(Color3Array color) {
+  this->bgColor[0] = color[0] / 255.0f;
+  this->bgColor[1] = color[1] / 255.0f;
+  this->bgColor[2] = color[2] / 255.0f;
+}
+
+void initializeDirect2D(HWND hwnd) {
+  debug("initializing Direct2D...", "initializeDirect2D");
+  // Create the Direct2D factory
+  if (!pFactory) {
+    debug("creating d2d1 factory...", "initializeDirect2D");
+    D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory);
+  }
+
+  // Get window dimensions
+  RECT rc;
+  GetClientRect(hwnd, &rc);
+
+  // Create the render target
+  debug("creating renderer target...", "initializeDirect2D");
+  if (!pRenderTarget) {
+    pFactory->CreateHwndRenderTarget(
+        D2D1::RenderTargetProperties(),
+        D2D1::HwndRenderTargetProperties(
+            hwnd, D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top)),
+        &pRenderTarget);
+  }
+}
+
+LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+                                           LPARAM lParam) {
+  CinnamonToast::Window *pThis = nullptr;
+
+  if (uMsg == WM_CREATE) {
+    debug("message type: WM_CREATE", "windowProc");
+    CREATESTRUCT *pCreate = reinterpret_cast<CREATESTRUCT *>(lParam);
+    pThis = reinterpret_cast<ctoast Window *>(pCreate->lpCreateParams);
+    SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
+
+    // Initialize Direct2D
+    debug("calling initializeDirect2D...", "windowProc");
+    initializeDirect2D(hwnd);
+  } else {
+    pThis = reinterpret_cast<ctoast Window *>(
+        GetWindowLongPtr(hwnd, GWLP_USERDATA));
+  }
+
+  if (pThis) {
+    // Delegate the handling of messages to the instance
+    switch (uMsg) {
+    case WM_DESTROY:
+      debug("message type: WM_DESTROY", "windowProc");
+      PostQuitMessage(0);
+      info("Exiting...", "windowProc");
+      return 0;
+    case WM_SIZE:
+      if (pRenderTarget) {
+        RECT rc;
+        GetClientRect(hwnd, &rc);
+        pRenderTarget->Resize(
+            D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top));
+      }
+      InvalidateRect(hwnd, NULL,
+                     TRUE); // Mark the entire window as needing a repaint
+      break;
+    case WM_MOVE:
+      InvalidateRect(hwnd, NULL,
+                     TRUE); // Mark the entire window as needing a repaint
+      break;
+    case WM_PAINT: {
+      if (!pRenderTarget) {
+        initializeDirect2D(hwnd);
+      }
+
+      PAINTSTRUCT ps;
+      HDC hdc = BeginPaint(hwnd, &ps);
+
+      // Create a clipping region for the child controls
+      HRGN hrgn = CreateRectRgn(0, 0, 0, 0);
+      int regionType =
+          GetWindowRgn(hwnd, hrgn); // Get the window's region (valid or error)
+      if (regionType != ERROR) {
+        RECT controlRect;
+        HWND hChild = GetWindow(hwnd, GW_CHILD); // Get the first child window
+
+        while (hChild != NULL) {
+          GetWindowRect(hChild, &controlRect);
+          MapWindowPoints(NULL, hwnd, (LPPOINT)&controlRect,
+                          2); // Convert to client coordinates
+
+          // Exclude the child control region from the painting area
+          ExcludeClipRect(hdc, controlRect.left, controlRect.top,
+                          controlRect.right, controlRect.bottom);
+
+          hChild =
+              GetNextWindow(hChild, GW_HWNDNEXT); // Get the next child window
+        }
+      }
+
+      // Start Direct2D rendering
+      pRenderTarget->BeginDraw();
+
+      // Set background color (this will not cover child control areas due to
+      // ExcludeClipRect)
+      pRenderTarget->Clear(D2D1::ColorF(pThis->bgColor[0], pThis->bgColor[1],
+                                        pThis->bgColor[2]));
+
+      // End drawing
+      HRESULT hr = pRenderTarget->EndDraw();
+      if (hr == D2DERR_RECREATE_TARGET) {
+        // Handle device loss
+        pRenderTarget->Release();
+        pRenderTarget = nullptr;
+        initializeDirect2D(hwnd);
+      }
+
+      // Clean up
+      DeleteObject(hrgn);
+      EndPaint(hwnd, &ps);
+      break;
+    }
+    }
+  }
+
+  return DefWindowProc(hwnd, uMsg, wParam, lParam);
+};
+void ctoast Window::showNotification(Notification &notif) {
+  NOTIFYICONDATA nid = {};
+  nid.cbSize = sizeof(NOTIFYICONDATA);
+  nid.hWnd = hwnd;
+  nid.uID = 32067;
+  nid.uFlags = NIF_INFO | NIF_MESSAGE | NIF_ICON | NIF_TIP;
+  nid.uCallbackMessage =
+      WM_USER + 1; // Custom message ID for notification events
+
+  // Load an icon for the notification
+  nid.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+
+  strcpy_s(nid.szInfo, notif.text.c_str());
+  strcpy_s(nid.szTip, "");
+  strcpy_s(nid.szInfoTitle, notif.title.c_str());
+  // wcsncpy_s(nid.szInfoTitle, wTitle.c_str(), ARRAYSIZE(nid.szInfoTitle) - 1);
+  // wcsncpy_s(nid.szInfo, wText.c_str(), ARRAYSIZE(nid.szInfo) - 1);
+
+  // std::wstring tooltip = L"Notification Tooltip";
+  /*wcsncpy_s(nid.szTip, tooltip.c_str(), ARRAYSIZE(nid.szTip) - 1);*/
+
+  nid.dwInfoFlags = NIIF_INFO;
+
+  // Modify the notification icon to show the balloon tip
+  if (!Shell_NotifyIcon(NIM_MODIFY, &nid)) {
+    warn("Failed to modify notification icon!", "showNotification");
+  }
+}
+
+// void ctoast Window::ShowNotification(Notification&  notif) {
+//     NOTIFYICONDATA nid = {};
+//     nid.cbSize = sizeof(NOTIFYICONDATA);
+//     nid.hWnd = hwnd;
+//     nid.uID = 32067;
+//     nid.uFlags = NIF_INFO;
+//     // Convert std::string to std::wstring
+//     std::wstring wTitle = std::wstring(notif.title.begin(),
+//     notif.title.end()); std::wstring wText = std::wstring(notif.text.begin(),
+//     notif.text.end());
+//     // Convert std::wstring to std::string
+//     int titleSize = WideCharToMultiByte(CP_ACP, 0, wTitle.c_str(), -1, NULL,
+//     0, NULL, NULL); int textSize = WideCharToMultiByte(CP_ACP, 0,
+//     wText.c_str(), -1, NULL, 0, NULL, NULL); std::string
+//     narrowTitle(titleSize, 0); std::string narrowText(textSize, 0);
+//     WideCharToMultiByte(CP_ACP, 0, wTitle.c_str(), -1, &narrowTitle[0],
+//     titleSize, NULL, NULL); WideCharToMultiByte(CP_ACP, 0, wText.c_str(), -1,
+//     &narrowText[0], textSize, NULL, NULL); strncpy_s(nid.szInfoTitle,
+//     narrowTitle.c_str(), ARRAYSIZE(nid.szInfoTitle) - 1);
+//     strncpy_s(nid.szInfo, narrowText.c_str(), ARRAYSIZE(nid.szInfo) - 1);
+//     nid.dwInfoFlags = NIIF_INFO;
+//     bool success = Shell_NotifyIcon(NIM_MODIFY, &nid);
+//     if (!success) {
+//         warn("Notification failed to show! "+GetLastError(),
+//         "ShowNotification");
+//     }
+// }
+void ctoast Window::add(ctoast Component &comp) {
+  debug("added new component", "add");
+  comp.winstance = this->winstance;
+  comp.render(this->hwnd, this->hwnd);
+}
+void ctoast Window::add(ctoast Component &comp, std::string id) {
+  debug("added new component", "add");
+  if (Components::gchildren[id] == nullptr) {
+    Components::gchildren[id] = &comp;
+
+    comp.winstance = this->winstance;
+    comp.render(this->hwnd, this->hwnd);
+  }
+}
+void ctoast Window::setSize(Vector2 size) {
+  debug("resized window", "setSize");
+  SetWindowPos(hwnd,   // Handle to the window
+               NULL,   // Z-order (NULL if not changing the order)
+               100,    // New X position
+               100,    // New Y position
+               size.x, // New width
+               size.y, // New height
+               SWP_NOZORDER | SWP_NOACTIVATE // Flags
+  );
+}
+ctoast Window::Window(HINSTANCE instance) : winstance(instance) {
+  debug("initializing win32 parameters...", "Window");
+  WNDCLASS wc = {};
+  wc.lpfnWndProc = windowProc; // Window procedure
+  wc.hInstance = instance;
+  wc.lpszClassName = "WindowClass";
+  wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+
+  RegisterClass(&wc);
+
+  // Create window
+  debug("calling CreateWindowEx...", "Window");
+  hwnd = CreateWindowEx(0, wc.lpszClassName, "Window", WS_OVERLAPPEDWINDOW,
+                        CW_USEDEFAULT, CW_USEDEFAULT, 100, 100, nullptr,
+                        nullptr, instance, this);
+
+  if (hwnd == nullptr) {
+    debug("whoops, hwnd is nullptr", "Window");
+    MessageBox(nullptr, "Window creation failed!", "Error",
+               MB_OK | MB_ICONERROR);
+    exit(1);
+  }
+}
+
+ctoast Window::~Window() {
+  debug("releasing memory...", "~Window");
+  if (pRenderTarget) {
+    pRenderTarget->Release();
+  }
+  if (pFactory) {
+    pFactory->Release();
+  }
+}
+
+void ctoast Window::setTitle(std::string title) {
+  debug("window title set", "setTitle");
+  SetWindowText(this->hwnd, title.c_str());
+}
+
+void ctoast Window::setVisible(bool flag) {
+  debug("window visible = " + flag ? "true" : "false", "setVisible");
+  ShowWindow(hwnd, flag ? SW_SHOW : SW_HIDE);
+}
+
+void ctoast Window::setVisible(int cmd) { ShowWindow(hwnd, cmd); }
+void ctoast Window::render(HWND &parentHWND, HWND &windowHWND) {
+  warn("Window::render called, the method is intentionally empty because it is "
+       "not a child component!",
+       "Render");
+  // do nothing
+}
+void ctoast Window::close() { PostMessage(hwnd, WM_DESTROY, 0, 0); }
+int ctoast Window::run(void (*func)(Window &win)) {
+  info("Running window...", "run");
+  MSG msg;
+  bool isExecuted = false;
+  while (true) {
+    // Peek for messages, doesn't block
+    if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+      if (msg.message == WM_QUIT) {
+        break; // Exit the loop when receiving WM_QUIT
+      }
+
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+    }
+
+    // Perform other tasks here while the message loop is running
+    // Example: process background tasks, update UI, etc.
+    // This ensures the UI is responsive and other tasks can run concurrently
+    if (!isExecuted) {
+
+      func(*this);
+      isExecuted = true;
+    }
+  }
+  return static_cast<int>(msg.wParam);
+}
+
+#elif __linux__
+#include "Label.h"
+#include <X11/Xft/Xft.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <string.h>
+#include <string>
+ctoast Window::Window(Display *instance) {
+  // Initialize the X11 winstance
+  winstance = instance;
+  if (!winstance) {
+    std::cerr << "Cannot open winstance." << std::endl;
+    exit(error_linux_x11_not_initialized);
+  }
+
+  // Create a window
+  screen = DefaultScreen(winstance);
+  window = XCreateSimpleWindow(winstance, RootWindow(winstance, screen), 100,
+                               100, 400, 200, 1, BlackPixel(winstance, screen),
+                               WhitePixel(winstance, screen));
+
+  // Set window title
+  XStoreName(winstance, window, "Window");
+
+  // Select input events
+  XSelectInput(winstance, window, ExposureMask | KeyPressMask);
+
+  // Map (show) the window
+  // XMapWindow(winstance, window);
+
+  // Load the font using Xft
+  font = XftFontOpenName(winstance, screen, "Ubuntu-20");
+  if (!font) {
+    std::cerr << "Font not found!" << std::endl;
+    exit(error_font_not_found);
+  }
+
+  // Create XftDraw for drawing text
+  draw = XftDrawCreate(winstance, window, DefaultVisual(winstance, screen),
+                       DefaultColormap(winstance, screen));
+
+  // Set color for text (black)
+
+  // Event loop to handle drawing text
+
+  // Cleanup
+}
+void ctoast Window::SetVisible(bool visible) {
+  visible ? XMapWindow(winstance, window)
+          : XWithdrawWindow(winstance, window, screen);
+}
+
+int ctoast Window::Run() {
+  XMapWindow(winstance, window);
+  XEvent event;
+  while (true) {
+    XNextEvent(winstance, &event);
+
+    if (event.xexpose.count == 0) {
+      // Clear the window (optional)
+      XClearWindow(winstance, window);
+
+      for (Component *child_ : children) {
+        Label *child = dynamic_cast<Label *>(child_);
+        if (child != nullptr) {
+          std::string text = child->GetText();
+
+          const FcChar8 *str = (const FcChar8 *)text.c_str();
+          XftColor color;
+          XftColorAllocName(winstance, DefaultVisual(winstance, screen),
+                            DefaultColormap(winstance, screen), "black",
+                            &color);
+          XftDrawStringUtf8(draw, &color, font, child->position.X,
+                            child->position.Y + 20, (const FcChar8 *)str,
+                            text.length());
+        }
+        /* code */
+      }
+
+      // Draw text on the window
+    }
+
+    // Exit if the user closes the window
+    if (event.xany.type == ClientMessage) {
+      break;
+    }
+  }
+  XftDrawDestroy(draw);
+  XftFontClose(winstance, font);
+  XCloseDisplay(winstance);
+  return 0;
+}
+void ctoast Window::Add(Component *comp) { children.push_back(comp); }
+void ctoast Window::SetSize(Vector2 size) {}
+void ctoast Window::SetTitle(std::string title) {}
+void ctoast Window::SetColor(uint8_t r, uint8_t g, uint8_t b) {}
+std::string ctoast Window::GetProperty(std::string property) {
+  if (property == "Window") {
+    return "true";
+  }
+  return "";
+}
+ctoast Window::~Window() {}
+#endif

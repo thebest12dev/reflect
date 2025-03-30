@@ -1,3 +1,9 @@
+# v1.4.0 (2025-03-30)
+- Added C and Java bindings
+- Use LLVM coding convention
+- Used clang-tidy and clang-format
+- Fixed bugs
+
 # v1.3.0 (2025-03-26)
 - Added notifications 
 - Added tests
