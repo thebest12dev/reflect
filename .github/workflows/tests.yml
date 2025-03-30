@@ -43,6 +43,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: '21'  # You can specify other versions like '8', '17', etc.
+        distribution: 'openjdk'
 
     # Optional: Verify Java installation
     - name: Verify JDK installation
