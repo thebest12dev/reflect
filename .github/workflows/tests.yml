@@ -1,4 +1,4 @@
-name: CMake MSVC Ninja Tests
+name: CMake MSBuild Tests
 
 on:
   push:
@@ -58,7 +58,7 @@ jobs:
         cmake .. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_PATH" -DPKG_CONFIG_EXECUTABLE="$PWD/../vcpkg/packages/pkgconf_x64-windows/tools/pkgconf/pkgconf.exe"
 
     # Step 5: Build the project with Ninja
-    - name: Build with Ninja
+    - name: Build with MSBuild
       run: |
         cd build
         cmake --build . --config Release  
@@ -67,4 +67,5 @@ jobs:
     - name: Run tests with CTest
       run: |
         cd build
-        ctest --output-on-failure  # Run tests and output on failure
+        ctest -N
+        ctest -C Debug --output-on-failure  # Run tests and output on failure
