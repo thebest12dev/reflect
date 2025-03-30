@@ -14,17 +14,17 @@ enable_testing()
 
 
 # Collect .cpp and .h files from specific directories
-file(GLOB_RECURSE CTOAST_CORE "src/core/*.cpp" "src/core/*.h")
-file(GLOB_RECURSE CTOAST_CRASHHANDLER "src/crash/*.cpp" "src/crash/*.h")
+file(GLOB_RECURSE CTOAST_CORE "src/core/*.cpp" "src/core/*.h" "src/windows/CinnamonToast.Core.rc")
+file(GLOB_RECURSE CTOAST_CRASHHANDLER "src/crash/*.cpp" "src/crash/*.h" "src/windows/CinnamonToast.CrashHandler.rc")
 file(GLOB_RECURSE CTOAST_CLI 
-    "src/cli/*.cpp" "src/cli/*.h" 
+    "src/cli/*.cpp" "src/cli/*.h" "src/windows/ctoasti.rc"
 )
 file(GLOB_RECURSE CTOAST_TEST 
     "test/*.cpp"
 )
-file(GLOB_RECURSE CTOAST_CSTYLE "src/api/cstyle/*.cpp" "src/api/cstyle/*.h")
-file(GLOB_RECURSE CTOAST_LUA "src/api/lua/*.cpp" "src/api/lua/*.h")
-file(GLOB_RECURSE CTOAST_JAVA "src/api/java/*.c" "src/api/java/*.h")
+file(GLOB_RECURSE CTOAST_CSTYLE "src/api/cstyle/*.cpp" "src/api/cstyle/*.h" "src/windows/CinnamonToast.CStyleAPI.rc")
+file(GLOB_RECURSE CTOAST_LUA "src/api/lua/*.cpp" "src/api/lua/*.h" "src/windows/CinnamonToast.LuaAPI.rc")
+file(GLOB_RECURSE CTOAST_JAVA "src/api/java/*.c" "src/api/java/*.h" "src/windows/CinnamonToast.JavaAPI.rc")
 get_filename_component(VCPKG_DIR "${CMAKE_TOOLCHAIN_FILE}" DIRECTORY)
 set(VCPKG_DIR "${VCPKG_DIR}/../../")
 set(PKG_CONFIG_EXECUTABLE "${VCPKG_DIR}/installed/x64-windows/tools/pkgconf/pkgconf.exe")

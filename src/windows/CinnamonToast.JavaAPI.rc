@@ -1,0 +1,25 @@
+#include <windows.h>
+
+VS_VERSION_INFO VERSIONINFO 
+    FILEVERSION 1, 4, 0, 0 
+    PRODUCTVERSION 1, 4, 0, 0 
+    FILEFLAGSMASK VS_FFI_FILEFLAGSMASK 
+    FILEFLAGS 0
+    FILEOS VOS_NT_WINDOWS32 
+    FILETYPE VFT_APP 
+    FILESUBTYPE VFT2_UNKNOWN 
+    BEGIN BLOCK
+        "StringFileInfo" BEGIN BLOCK
+            "040904B0" // Language and code page (040904B0 = English, Unicode)
+            BEGIN VALUE "FileDescription",
+            "CinnamonToast Crash Handler" VALUE "InternalName",
+            "CinnamonToast.CrashHandler" VALUE "LegalCopyright",
+            "Copyright © 2025 thebest12lines" VALUE "OriginalFilename",
+            "CinnamonToast.JavaAPI.dll" VALUE "ProductName",
+            "CinnamonToast" END END
+
+            BLOCK "VarFileInfo" BEGIN VALUE "Translation",
+            0x0409,
+            0x04B0 // Language and code page (English, Unicode)
+        END
+    END
