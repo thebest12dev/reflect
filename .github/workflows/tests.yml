@@ -36,7 +36,9 @@ jobs:
 
         # Bootstrap vcpkg to build it
         ./bootstrap-vcpkg.bat
-        vcpkg install pkgconf
+        cd..
+        
+        ./vcpkg/vcpkg install
 
     - name: Configure with CMake
       run: |
