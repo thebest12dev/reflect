@@ -1,0 +1,45 @@
+name: CMake MSVC Ninja Tests
+
+on:
+  push:
+    branches:
+      - dev  
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up MSVC and CMake
+      uses: microsoft/setup-msbuild@v1
+      with:
+        vs-version: 'latest'  
+        
+
+    - name: Install Ninja
+      run: |
+        choco install ninja 
+
+    - name: Configure with CMake
+      run: |
+        mkdir build
+        cd build
+        cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=Release 
+
+    # Step 5: Build the project with Ninja
+    - name: Build with Ninja
+      run: |
+        cd build
+        cmake --build . --config Release  
+
+    # Step 6: Run tests with CTest
+    - name: Run tests with CTest
+      run: |
+        cd build
+        ctest --output-on-failure  # Run tests and output on failure
