@@ -69,4 +69,4 @@ jobs:
         cd build
         dir
         ctest -N
-        ctest -C . --output-on-failure  # Run tests and output on failure
+        ctest -C Release --output-on-failure  # Run tests and output on failure
