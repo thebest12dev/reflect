@@ -11,20 +11,11 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    
-    strategy:
-      matrix:
-        os: [windows-latest]
-        compiler: [cl]
-        include:
-          - os: windows-latest
-            compiler: cl  # Use MSVC for Windows
+    runs-on: windows-latest
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Verify Ninja
-      run: ninja --version
     - name: Set up JDK
       uses: actions/setup-java@v2
       with:
@@ -60,18 +51,15 @@ jobs:
    
     - name: Configure with CMake
       run: |
-    
         mkdir build
         cd build
         $VCPKG_PATH="$PWD/../vcpkg/scripts/buildsystems/vcpkg.cmake"
         echo $VCPKG_PATH
-        if ("${{ matrix.compiler }}" -eq "cl") {
-            cmake .. -G "Ninja" -DCMAKE_C_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.43.34808/bin/Hostx64/x64/cl.exe" -DCMAKE_CXX_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.43.34808/bin/Hostx64/x64/cl.exe" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_PATH" -DPKG_CONFIG_EXECUTABLE="$PWD/../vcpkg/packages/pkgconf_x64-windows/tools/pkgconf/pkgconf.exe" -DCMAKE_MAKE_PROGRAM="C:/ProgramData/chocolatey/bin/ninja.exe"
-        }
         
-       
-    # Step 5: Build the project with Ninja
-    - name: Build with Ninja
+        cmake .. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_PATH" -DPKG_CONFIG_EXECUTABLE="$PWD/../vcpkg/packages/pkgconf_x64-windows/tools/pkgconf/pkgconf.exe"
+
+    # Step 5: Build the project with MSBuild
+    - name: Build with MSBuild
       run: |
         cd build
         cmake --build . --config Release  
