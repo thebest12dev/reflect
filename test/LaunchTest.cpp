@@ -2,7 +2,6 @@
 #include <gtest/gtest.h>
 #include "../core/Main.h"
 
-// Sample test case
 TEST(LaunchTest, Launch1ArgTest) {
     EXPECT_EQ(CinnamonToast::cliMain(1, {"foo"}), CTOAST_ERROR_NO_FILES_SPECIFIED);
    

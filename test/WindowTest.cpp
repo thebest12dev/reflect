@@ -10,14 +10,7 @@ namespace LIBC_NAMESPACE {
     }
 }
 
-//TEST(WindowTest, WindowCreateTest) {
-//    Window wnd(GetModuleHandle(nullptr));
-//    wnd.SetVisible(true);
-//    wnd.SetSize({ 100, 100 });
-//    wnd.SetColor({ 255,255,255 });
-//    EXPECT_EQ(wnd.Run(callbackWindow), 0);
-//
-//}
+
 TEST(WindowTest, WindowCreateTestWithComponents) {
     CinnamonToast::Window wnd(GetModuleHandle(nullptr));
     CinnamonToast::Label foo = CinnamonToast::Label("bar", { 50,50 });
