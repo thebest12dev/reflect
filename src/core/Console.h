@@ -21,7 +21,6 @@
 #include "TypeDefinitions.h"
 #include <iostream>
 #include <string>
-using namespace std;
 
 namespace CinnamonToast {
 namespace Console {
@@ -29,23 +28,23 @@ namespace Console {
 // std:: part is omitted because of `using namespace std;`.
 template <typename T> CTOAST_API void print(const T &obj) { std::cout << obj; };
 template <typename T> CTOAST_API void println(const T &obj) {
-  std::cout << obj << endl;
+  std::cout << obj << std::endl;
 };
 template <typename T>
 CTOAST_API void error(const T &obj, std::string ctx = "default") {
-  std::cerr << "[ERROR] " << "[" << ctx << "]: " << obj << endl;
+  std::cerr << "[ERROR] " << "[" << ctx << "]: " << obj << std::endl;
 };
 template <typename T>
 CTOAST_API void info(const T &obj, std::string ctx = "default") {
-  std::cout << "[INFO] " << "[" << ctx << "]: " << obj << endl;
+  std::cout << "[INFO] " << "[" << ctx << "]: " << obj << std::endl;
 };
 template <typename T>
 CTOAST_API void warn(const T &obj, std::string ctx = "default") {
-  std::cout << "[WARN] " << "[" << ctx << "]: " << obj << endl;
+  std::cout << "[WARN] " << "[" << ctx << "]: " << obj << std::endl;
 };
 template <typename T>
 CTOAST_API void debug(const T &obj, std::string ctx = "default") {
-  std::cout << "[DEBUG] " << "[" << ctx << "]: " << obj << endl;
+  std::cout << "[DEBUG] " << "[" << ctx << "]: " << obj << std::endl;
 };
 } // namespace Console
 } // namespace CinnamonToast

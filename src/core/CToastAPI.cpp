@@ -28,7 +28,7 @@ typedef unsigned char byte;
 #include <vector>
 using namespace CinnamonToast;
 namespace {
-vector<const char *> cull = {};
+std::vector<const char *> cull = {};
 }
 
 ComponentId ExternalAPI::getComponentById(const char *id) {
@@ -49,7 +49,7 @@ const char *ExternalAPI::getComponentText(ComponentId ref) {
   Label *label = dynamic_cast<Label *>(comp);
   if (label) {
 
-    string *text = new std::string(label->getText());
+    std::string *text = new std::string(label->getText());
     const char *textc = text->c_str();
 
     return textc;

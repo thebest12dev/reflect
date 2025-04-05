@@ -54,36 +54,31 @@ public:
 #include <X11/Xutil.h>
 #include <cstdint>
 
-#include "../TypeDefinitions.h"
 #include "Component.h"
+#include "TypeDefinitions.h"
 #include "Vector2.h"
 #include <string>
 namespace CinnamonToast {
-class Label : public Component {
+class MenuBar : public Component {
 protected:
-  Vector2 position;
-  Vector2 size;
+  Display *winstance;
+  Menu hmenu;
+
+  HINSTANCE parentInstance;
+  // HWND parentHWND;
+
+  // Vector2 position;
+  /*Vector2 size;*/
 
 private:
-  std::string text;
-  std::string fontStr;
-  int fontSize;
-  bool visible;
-
 public:
   friend class Component;
-  CTOAST_API void SetVisible(bool flag);
-  CTOAST_API bool GetVisible();
-  CTOAST_API void Add(Component comp);
-  CTOAST_API Label();
-  CTOAST_API Label(std::string contents, Vector2 pos);
-  CTOAST_API void SetVisible(int cmd);
-  CTOAST_API void SetFontSize(int size);
-  CTOAST_API std::string GetText();
-  CTOAST_API std::string GetProperty(std::string property) override;
-  CTOAST_API void SetFont(std::string font);
-  CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
-  friend class Window;
+  CTOAST_API void render(HWND &parentHWND, HWND &windowHWND);
+  // CTOAST_API void SetVisible(bool flag);
+  CTOAST_API void add(Component &comp);
+  CTOAST_API MenuBar();
+  // CTOAST_API void SetVisible(int cmd);
+  // CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
 };
 } // namespace CinnamonToast
 

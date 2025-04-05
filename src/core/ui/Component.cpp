@@ -17,6 +17,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #include "Component.h"
+#include "Colors.h"
 #include "TypeDefinitions.h"
 #include "Vector2.h"
 #include <cstdint>
@@ -37,6 +38,7 @@ void ctoast Component::setVisible(int cmd) {
 void ctoast Component::setVisible(bool cmd) {
   // Do nothing
 }
+
 void ctoast Component::setSize(Vector2 size) { this->size = size; }
 void ctoast Component::setColor(Color3 color) { this->color = color; }
 void ctoast Component::setColor(Color3Array color) {
@@ -49,16 +51,11 @@ void ctoast Component::setColor(uint8_t r, uint8_t g, uint8_t b) {
   this->color.g = g;
   this->color.b = b;
 }
-#ifdef __linux__
-void ctoast Component::setColor(uint8_t r, uint8_t g, uint8_t b) {
-  this->color[0] = r;
-  this->color[1] = g;
-  this->color[2] = b;
-};
 ctoast Vector2 ctoast Component::getPosition() { return position; };
 ctoast Vector2 ctoast Component::getSize() { return size; };
+#ifdef __linux__
+
 // std::string ctoast Component::GetProperty(std::string property) {
 //     return "";
 // }
-bool ctoast Component::getVisible() { return visible; };
 #endif

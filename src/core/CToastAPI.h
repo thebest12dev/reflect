@@ -20,7 +20,10 @@
 typedef unsigned char byte;
 #include "TypeDefinitions.h"
 #include "ui/Colors.h"
+#ifdef _WIN32
 #include <Windows.h>
+#endif
+
 #include <string>
 namespace CinnamonToast {
 typedef unsigned long long ComponentId;

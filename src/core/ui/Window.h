@@ -19,11 +19,16 @@
 #pragma once
 
 #ifdef _WIN32
-#include <windows.h>
+#include <Windows.h>
 #undef byte
+#include <GL/gl.h>
+
 #include "Component.h"
 #include "Notification.h"
+#include "OpenGLContext.h"
+
 #include "TypeDefinitions.h"
+
 #include <cstdint>
 #include <string>
 
@@ -36,9 +41,12 @@ protected:
 
 private:
   float bgColor[3];
+  bool useGL;
+  OpenGLContext *glCtx;
 
 public:
   CTOAST_API Window(HINSTANCE instance);
+  CTOAST_API Window(HINSTANCE instance, OpenGLContext ctx);
   CTOAST_API void setTitle(std::string title);
   // // void SetSize(Vector2 dim);
   CTOAST_API static LRESULT CALLBACK windowProc(HWND hwnd, UINT uMsg,
@@ -56,10 +64,11 @@ public:
   CTOAST_API void setVisible(int cmd);
   CTOAST_API int run(void (*func)(Window &win));
   CTOAST_API void close();
-
+  CTOAST_API operator WindowHandle() const;
   CTOAST_API ~Window();
   friend class Component;
   friend class Label;
+  friend class OpenGLContext;
 };
 } // namespace CinnamonToast
 

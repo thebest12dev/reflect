@@ -137,7 +137,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
 
   // checking compat
   Console::debug("file is compatible with app?", "invokeExecutable");
-  const uint32_t version = stoi(root->Attribute("version"));
+  const uint32_t version = std::stoi(root->Attribute("version"));
   if (version > APP_INTERNAL_VERSION) {
     // handle and return
     error("file not compatible! please upgrade to a newer version.");
@@ -153,15 +153,17 @@ int ctoast invokeExecutable(std::string xmlFile) {
   debug("getting HINSTANCE...", "invokeExecutable");
   HINSTANCE hInstance = GetModuleHandle(nullptr);
   debug("creating window...", "invokeExecutable");
-  Window win(hInstance);
+  OpenGLContext ctx;
+  Window win(hInstance, ctx);
+
 #endif
 
   Console::debug("window title: " + std::string(winXml->Attribute("title")),
                  "invokeExecutable");
   win.setTitle(winXml->Attribute("title"));
   Console::debug("resizing window...", "invokeExecutable");
-  win.setSize(Vector2(stoi(winXml->Attribute("width")),
-                      stoi(winXml->Attribute("height"))));
+  win.setSize(Vector2(std::stoi(winXml->Attribute("width")),
+                      std::stoi(winXml->Attribute("height"))));
   std::string bgColor = winXml->Attribute("bgColor");
   Console::debug("setting window background color...", "invokeExecutable");
   if (bgColor == "systemDefault") {
@@ -186,12 +188,13 @@ int ctoast invokeExecutable(std::string xmlFile) {
        label != nullptr; label = label->NextSiblingElement("label")) {
     // Access attributes
     std::string c = std::string(label->GetText());
-    string *contents = &c;
+    std::string *contents = &c;
     std::string id = label->Attribute("id");
-    Vector2 position(stoi(label->Attribute("x")), stoi(label->Attribute("y")));
+    Vector2 position(std::stoi(label->Attribute("x")),
+                     std::stoi(label->Attribute("y")));
     Label *labelComp = new Label(*contents, position);
     labelComp->setFont(label->Attribute("font"));
-    labelComp->setFontSize(stoi(label->Attribute("fontSize")));
+    labelComp->setFontSize(std::stoi(label->Attribute("fontSize")));
     win.add(*labelComp, id);
   }
   Console::debug("parsing buttons...", "invokeExecutable");
@@ -199,11 +202,11 @@ int ctoast invokeExecutable(std::string xmlFile) {
        button != nullptr; button = button->NextSiblingElement("button")) {
     std::string contents = button->GetText();
     std::string id = button->Attribute("id");
-    Vector2 position(stoi(button->Attribute("x")),
-                     stoi(button->Attribute("y")));
+    Vector2 position(std::stoi(button->Attribute("x")),
+                     std::stoi(button->Attribute("y")));
     Button buttonComp(contents, position);
     buttonComp.setFont(button->Attribute("font"));
-    buttonComp.setFontSize(stoi(button->Attribute("fontSize")));
+    buttonComp.setFontSize(std::stoi(button->Attribute("fontSize")));
     win.add(buttonComp, id);
   }
   Console::debug("loading libraries...", "invokeExecutable");
@@ -277,7 +280,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
 
   return win.run(onExecute);
 }
-int ctoast cliMain(const uint8_t argc, const vector<string> argv) {
+int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
   CinnamonToast::CrashConfig config = {};
   config.crashType = CRASH_INVOKE | CRASH_SEGFAULT | CRASH_UNHANDLED_EXCEPTION;
 
@@ -285,7 +288,7 @@ int ctoast cliMain(const uint8_t argc, const vector<string> argv) {
   CinnamonToast::CrashManager::setActiveCrashHandler(ch);
 
   try {
-    println(APP_NAME + string(" ") + APP_VERSION);
+    println(APP_NAME + std::string(" ") + APP_VERSION);
     if (argc == 1) {
       Console::error(
           "error: no files specified. please pass an argument to a valid file");
@@ -295,7 +298,7 @@ int ctoast cliMain(const uint8_t argc, const vector<string> argv) {
       Console::info("launching executable...", "cliMain");
       return CinnamonToast::invokeExecutable(argv[1]);
     }
-  } catch (exception e) {
+  } catch (std::exception e) {
     ch->invokeUnhandledExceptionCrash(e);
     return 1;
   }

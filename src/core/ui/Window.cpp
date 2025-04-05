@@ -20,6 +20,7 @@
 #include "../Utilities.h"
 #include "Component.h"
 #include "Components.h"
+
 #include "Console.h"
 #include "Label.h"
 #include "MenuBar.h"
@@ -31,7 +32,6 @@
 #ifdef _WIN32
 #include "Notification.h"
 #include <d2d1.h>
-#include <windows.h>
 
 using namespace CinnamonToast::Console;
 // Direct2D-specific members
@@ -77,8 +77,8 @@ void initializeDirect2D(HWND hwnd) {
             hwnd, D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top)),
         &pRenderTarget);
   }
-}
-
+};
+bool openglRendering = false, direct2dRendering = false, firstUpdate = true;
 LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                                            LPARAM lParam) {
   CinnamonToast::Window *pThis = nullptr;
@@ -98,7 +98,9 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
   }
 
   if (pThis) {
+
     // Delegate the handling of messages to the instance
+
     switch (uMsg) {
     case WM_DESTROY:
       debug("message type: WM_DESTROY", "windowProc");
@@ -120,55 +122,82 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                      TRUE); // Mark the entire window as needing a repaint
       break;
     case WM_PAINT: {
-      if (!pRenderTarget) {
-        initializeDirect2D(hwnd);
-      }
-
       PAINTSTRUCT ps;
       HDC hdc = BeginPaint(hwnd, &ps);
-
-      // Create a clipping region for the child controls
-      HRGN hrgn = CreateRectRgn(0, 0, 0, 0);
-      int regionType =
-          GetWindowRgn(hwnd, hrgn); // Get the window's region (valid or error)
-      if (regionType != ERROR) {
-        RECT controlRect;
-        HWND hChild = GetWindow(hwnd, GW_CHILD); // Get the first child window
-
-        while (hChild != NULL) {
-          GetWindowRect(hChild, &controlRect);
-          MapWindowPoints(NULL, hwnd, (LPPOINT)&controlRect,
-                          2); // Convert to client coordinates
-
-          // Exclude the child control region from the painting area
-          ExcludeClipRect(hdc, controlRect.left, controlRect.top,
-                          controlRect.right, controlRect.bottom);
-
-          hChild =
-              GetNextWindow(hChild, GW_HWNDNEXT); // Get the next child window
+      HGLRC currentContext = nullptr;
+      if (!openglRendering && firstUpdate) {
+        if (pThis->useGL) {
+          pThis->glCtx->initializeContext(*pThis);
+        }
+        HGLRC currentContext = wglGetCurrentContext();
+        debug("checking if OpenGL is initialized...", "windowProc");
+        if (currentContext) {
+          debug("context found, rendering with OpenGL...", "windowProc");
+        } else {
+          debug("OpenGL context not found, falling back to Direct2D...",
+                "windowProc");
         }
       }
+      if (currentContext != nullptr && direct2dRendering != true) {
+        openglRendering = true;
+        // Handle the situation where there's no current OpenGL context.
+        glClear(GL_COLOR_BUFFER_BIT);
 
-      // Start Direct2D rendering
-      pRenderTarget->BeginDraw();
+        glClearColor(pThis->bgColor[0], pThis->bgColor[1], pThis->bgColor[2],
+                     1.0);
+        glFlush();
 
-      // Set background color (this will not cover child control areas due to
-      // ExcludeClipRect)
-      pRenderTarget->Clear(D2D1::ColorF(pThis->bgColor[0], pThis->bgColor[1],
-                                        pThis->bgColor[2]));
+      } else if (!openglRendering) {
+        direct2dRendering = true;
+        if (!pRenderTarget) {
+          initializeDirect2D(hwnd);
+        }
 
-      // End drawing
-      HRESULT hr = pRenderTarget->EndDraw();
-      if (hr == D2DERR_RECREATE_TARGET) {
-        // Handle device loss
-        pRenderTarget->Release();
-        pRenderTarget = nullptr;
-        initializeDirect2D(hwnd);
+        // Create a clipping region for the child controls
+        HRGN hrgn = CreateRectRgn(0, 0, 0, 0);
+        int regionType = GetWindowRgn(
+            hwnd, hrgn); // Get the window's region (valid or error)
+        if (regionType != ERROR) {
+          RECT controlRect;
+          HWND hChild = GetWindow(hwnd, GW_CHILD); // Get the first child window
+
+          while (hChild != NULL) {
+            GetWindowRect(hChild, &controlRect);
+            MapWindowPoints(NULL, hwnd, (LPPOINT)&controlRect,
+                            2); // Convert to client coordinates
+
+            // Exclude the child control region from the painting area
+            ExcludeClipRect(hdc, controlRect.left, controlRect.top,
+                            controlRect.right, controlRect.bottom);
+
+            hChild =
+                GetNextWindow(hChild, GW_HWNDNEXT); // Get the next child window
+          }
+        }
+
+        // Start Direct2D rendering
+        pRenderTarget->BeginDraw();
+
+        // Set background color (this will not cover child control areas due to
+        // ExcludeClipRect)
+        pRenderTarget->Clear(D2D1::ColorF(pThis->bgColor[0], pThis->bgColor[1],
+                                          pThis->bgColor[2]));
+
+        // End drawing
+        HRESULT hr = pRenderTarget->EndDraw();
+        if (hr == D2DERR_RECREATE_TARGET) {
+          // Handle device loss
+          pRenderTarget->Release();
+          pRenderTarget = nullptr;
+          initializeDirect2D(hwnd);
+        }
+
+        // Clean up
+        DeleteObject(hrgn);
       }
 
-      // Clean up
-      DeleteObject(hrgn);
       EndPaint(hwnd, &ps);
+      firstUpdate = false;
       break;
     }
     }
@@ -257,7 +286,8 @@ void ctoast Window::setSize(Vector2 size) {
                SWP_NOZORDER | SWP_NOACTIVATE // Flags
   );
 }
-ctoast Window::Window(HINSTANCE instance) : winstance(instance) {
+ctoast Window::Window(HINSTANCE instance)
+    : winstance(instance), useGL(false), glCtx(nullptr) {
   debug("initializing win32 parameters...", "Window");
   WNDCLASS wc = {};
   wc.lpfnWndProc = windowProc; // Window procedure
@@ -280,7 +310,30 @@ ctoast Window::Window(HINSTANCE instance) : winstance(instance) {
     exit(1);
   }
 }
+ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx)
+    : winstance(instance), useGL(true), glCtx(&ctx) {
+  debug("initializing win32 parameters...", "Window");
+  WNDCLASS wc = {};
+  wc.lpfnWndProc = windowProc; // Window procedure
+  wc.hInstance = instance;
+  wc.lpszClassName = "WindowClass";
+  wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 
+  RegisterClass(&wc);
+
+  // Create window
+  debug("calling CreateWindowEx...", "Window");
+  hwnd = CreateWindowEx(0, wc.lpszClassName, "Window", WS_OVERLAPPEDWINDOW,
+                        CW_USEDEFAULT, CW_USEDEFAULT, 100, 100, nullptr,
+                        nullptr, instance, this);
+
+  if (hwnd == nullptr) {
+    debug("whoops, hwnd is nullptr", "Window");
+    MessageBox(nullptr, "Window creation failed!", "Error",
+               MB_OK | MB_ICONERROR);
+    exit(1);
+  }
+}
 ctoast Window::~Window() {
   debug("releasing memory...", "~Window");
   if (pRenderTarget) {
@@ -300,7 +353,7 @@ void ctoast Window::setVisible(bool flag) {
   debug("window visible = " + flag ? "true" : "false", "setVisible");
   ShowWindow(hwnd, flag ? SW_SHOW : SW_HIDE);
 }
-
+ctoast Window::operator WindowHandle() const { return this->hwnd; }
 void ctoast Window::setVisible(int cmd) { ShowWindow(hwnd, cmd); }
 void ctoast Window::render(HWND &parentHWND, HWND &windowHWND) {
   warn("Window::render called, the method is intentionally empty because it is "

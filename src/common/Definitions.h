@@ -17,7 +17,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #pragma once
-
 /*
 Default font for CinnamonToast to use.
 */
@@ -31,12 +30,12 @@ Default font for CinnamonToast to use.
 /**
  * Internal app version for compatibility checks.
  */
-#define APP_INTERNAL_VERSION 0000006L
+#define APP_INTERNAL_VERSION 0xC000007L
 
 /**
  * External app version to be shown to the end user.
  */
-#define APP_VERSION "1.4.0"
+#define APP_VERSION "1.5.0+snapshot-2025c01a"
 
 /**
  * Error code specification

@@ -51,7 +51,7 @@ int LuaAPI::luaReadFile(lua_State *L) {
   }
   const char *path = lua_tostring(L, 1);
 
-  std::ifstream file(path, ios::binary);
+  std::ifstream file(path, std::ios::binary);
   std::string content((std::istreambuf_iterator<char>(file)),
                       std::istreambuf_iterator<char>());
   file.close();
@@ -64,7 +64,7 @@ int LuaAPI::luaWriteFile(lua_State *L) {
   }
   const char *path = lua_tostring(L, 1);
   const char *content = lua_tostring(L, 2);
-  std::ofstream file(path, ios::binary);
+  std::ofstream file(path, std::ios::binary);
   file << content;
   file.close();
   lua_pushboolean(L, true);

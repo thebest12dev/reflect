@@ -28,12 +28,23 @@ functions.
 */
 #define CTOAST_API
 #undef CTOAST_API
-
 // Check if CTOAST_API is already defined
 #if !defined(CTOAST_API) && !defined(CTOAST_BUILDING)
 #define CTOAST_API __declspec(dllimport)
+#define CTOAST_IMPORT __declspec(dllimport)
+#ifdef __linux__
+#undef CTOAST_IMPORT
+#define CTOAST_IMPORT extern
 #endif
-
+#endif
+#ifdef CTOAST_BUNDLED
+#undef CTOAST_IMPORT
+#define CTOAST_IMPORT
+#endif
+#ifdef __linux__
+#include <X11/X.h>
+typedef XID XWindow;
+#endif
 /*
 Alias for CinnamonToast
 */

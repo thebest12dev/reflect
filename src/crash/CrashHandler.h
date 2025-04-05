@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <exception>
 #include <string>
+#ifdef _WIN32
 #include <windows.h>
 
 #define CRASH_UNHANDLED_EXCEPTION 0x10
@@ -66,3 +67,48 @@ namespace Utilities {
 bool checkBit(unsigned int num, int n);
 }
 } // namespace CinnamonToast
+#elif __linux__
+#define CRASH_UNHANDLED_EXCEPTION 0x10
+#define CRASH_INVOKE 0x100
+#define CRASH_SEGFAULT 0x1
+typedef void (*CrashFunction)();
+
+namespace CinnamonToast {
+struct CrashConfig {
+  uint32_t messageType;
+  uint32_t crashType;
+};
+class CrashHandler {
+private:
+  CrashFunction customCrash;
+  bool active;
+  bool throwHandle;
+  bool throwCrash;
+  CrashConfig config;
+  CTOAST_API void activate();
+  CTOAST_API void deactivate();
+
+public:
+  CTOAST_API CrashHandler(CrashConfig cf);
+  CTOAST_API void setCustomCrashHandler(CrashFunction func);
+  CTOAST_API void invokeCrash(std::string crashMessage);
+
+  // Note: explicitly need to define try-catch block and to call this method
+  CTOAST_API void invokeUnhandledExceptionCrash(std::exception &ex);
+  CTOAST_API void setUnhandledExceptionCrashFunction(CrashFunction function);
+
+  friend class CrashManager;
+};
+class CrashManager {
+private:
+  static CrashHandler *handler;
+
+public:
+  CTOAST_API static void setActiveCrashHandler(CrashHandler *handler_);
+  CTOAST_API static CrashHandler *getActiveCrashHandler();
+};
+namespace Utilities {
+bool checkBit(unsigned int num, int n);
+}
+} // namespace CinnamonToast
+#endif
