@@ -34,6 +34,13 @@ jobs:
     # - name: Install Ninja
     #   run: |
     #     choco install ninja 
+    - name: Cache vcpkg
+      uses: actions/cache@v2
+      with:
+        path: vcpkg
+        key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+        restore-keys: |
+          ${{ runner.os }}-vcpkg-
     - name: Set up vcpkg
       run: |
         # Install required tools and dependencies
@@ -48,7 +55,7 @@ jobs:
         cd..
         
         ./vcpkg/vcpkg install
-   
+    
     - name: Configure with CMake
       run: |
         mkdir build
@@ -74,6 +81,8 @@ jobs:
     - name: Prepare build artifacts
       run: |
         cd build
+        dir
+        cd Release
         Get-ChildItem -File | Where-Object { $_.Extension -eq '.dll' -or $_.Extension -eq '.exe' } | Compress-Archive -DestinationPath ctoast_nightly-${{ github.run_id }}.zip
 
     - name: Create GitHub release
@@ -88,6 +97,6 @@ jobs:
 
           Please note that these builds are not signed.
         files: |
-          build/ctoast_nightly-${{ github.run_id }}.zip
+          build/Release/ctoast_nightly-${{ github.run_id }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
