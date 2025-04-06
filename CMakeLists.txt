@@ -112,13 +112,13 @@ set(LUAJIT_LIBRARIES "${LIB_FILE_DIR}/${LUAJIT_LIBRARIES}.lib")
 message(STATUS "LuaJIT binaries: ${LUAJIT_LIBRARIES}")
 file(GLOB DLL_FILE_DIR "${CMAKE_BINARY_DIR}/vcpkg_installed/${TRIPLET}/bin/*")
 
-foreach(file ${DLL_FILE_DIR})
-    if(NOT IS_DIRECTORY ${file})
-        # Copy the file if it is not a directory
-        message(STATUS "Copying file ${file}...")
-        file(COPY ${file} DESTINATION ".")
-    endif()
-endforeach()
+#foreach(file ${DLL_FILE_DIR})
+#    if(NOT IS_DIRECTORY ${file})
+#        # Copy the file if it is not a directory
+#        message(STATUS "Copying file ${file}...")
+#        file(COPY ${file} DESTINATION ".")
+#    endif()
+#endforeach()
 if(UNIX)
     set(LUAJIT_LIBRARIES "${CMAKE_BINARY_DIR}/vcpkg_installed/${TRIPLET}/lib/libluajit-5.1.so")
 
@@ -136,7 +136,6 @@ else()
     target_link_libraries(CinnamonToast.Core PRIVATE ${LUAJIT_LIBRARIES})
     target_link_libraries(CinnamonToast.Core PRIVATE CinnamonToast.LuaAPI)
     target_link_libraries(CinnamonToast.Networking PRIVATE OpenSSL::SSL ws2_32)
-    target_link_options(CinnamonToast.Networking PRIVATE /OPT:REF /OPT:ICF)
 endif()
 # do not let main() of program conflict with main() of gtest
 target_compile_definitions(ctoastt PRIVATE CTOAST_TESTS=1)
