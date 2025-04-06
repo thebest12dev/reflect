@@ -71,7 +71,7 @@ jobs:
         ctest -C Release --output-on-failure  # Run tests and output on failure
     - name: Prepare build artifacts
       run: |
-        cd out/build/x64-Release/
+        cd build
         Get-ChildItem -File | Where-Object { $_.Extension -eq '.dll' -or $_.Extension -eq '.exe' } | Compress-Archive -DestinationPath ctoast_nightly-${{ github.run_id }}.zip
 
     - name: Create GitHub release
@@ -86,6 +86,6 @@ jobs:
 
           Please note that these builds are not signed.
         files: |
-          ./out/build/x64-Release/ctoast_nightly-${{ github.run_id }}.zip
+          ./build/ctoast_nightly-${{ github.run_id }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
