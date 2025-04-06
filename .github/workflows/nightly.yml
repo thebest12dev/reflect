@@ -87,5 +87,5 @@ jobs:
           Please note that these builds are not signed.
         files: |
           ./out/build/x64-Release/ctoast_nightly-${{ github.run_id }}.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
