@@ -6,6 +6,8 @@ on:
       - dev  # for now
   schedule:
   - cron: 0 1 * * * 
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -86,6 +88,6 @@ jobs:
 
           Please note that these builds are not signed.
         files: |
-          ./build/ctoast_nightly-${{ github.run_id }}.zip
+          build/ctoast_nightly-${{ github.run_id }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
