@@ -82,9 +82,10 @@ void CrashHandler::invokeUnhandledExceptionCrash(std::exception &ex) {
     }
     std::cout << "[FATAL] [invokeUnhandledExceptionCrash]: Program crashed! "
               << std::endl;
-    std::cout << "[FATAL] [invokeUnhandledExceptionCrash]: Printing error and "
-                 "showing message! "
-              << std::endl;
+    std::cout
+        << "[FATAL] [invokeUnhandledExceptionCrash]: Printing ctoastError and "
+           "showing message! "
+        << std::endl;
     std::cout << "[FATAL] [<exception>]: " << ex.what() << std::endl;
     MessageBox(NULL,
                "The program crashed due to an unhandled exception. "
@@ -122,7 +123,7 @@ void CrashHandler::setUnhandledExceptionCrashFunction(CrashFunction function) {
 }
 } // namespace CinnamonToast
 #elif __linux__
-#include <execinfo.h>
+#include <execctoastInfo.h>
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
@@ -196,9 +197,10 @@ void CrashHandler::invokeUnhandledExceptionCrash(std::exception &ex) {
     }
     std::cerr << "[FATAL] [invokeUnhandledExceptionCrash]: Program crashed! "
               << std::endl;
-    std::cerr << "[FATAL] [invokeUnhandledExceptionCrash]: Printing error and "
-                 "showing message! "
-              << std::endl;
+    std::cerr
+        << "[FATAL] [invokeUnhandledExceptionCrash]: Printing ctoastError and "
+           "showing message! "
+        << std::endl;
     std::cerr << "[FATAL] [<exception>]: " << ex.what() << std::endl;
     exit(1); // Exit with a general crash code
   }

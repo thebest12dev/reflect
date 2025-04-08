@@ -46,8 +46,7 @@ public:
   SocketInitializer() {
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-      CinnamonToast::Console::error("failed to initialize winsock",
-                                    "SocketInitializer");
+      ctoastError("failed to initialize winsock", "SocketInitializer");
       exit(1);
     }
     SSL_library_init();
@@ -137,13 +136,13 @@ void HttpRequest::initiateRequest() {
   if (url.rfind("https://", 0) == 0) {
     // If the URL starts with "https://", use SSL
     if (SSL_set_fd(ssl, sock) == 0) {
-      Console::error("cannot set socket with SSL!", "initiateRequest");
+      ctoastError("cannot set socket with SSL!", "initiateRequest");
       success = false;
       closesocket(sock);
       return;
     }
     if (SSL_connect(ssl) <= 0) {
-      Console::error("SSL connection failed!", "initiateRequest");
+      ctoastError("SSL connection failed!", "initiateRequest");
       success = false;
       closesocket(sock);
       return;

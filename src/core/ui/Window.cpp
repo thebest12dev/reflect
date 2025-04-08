@@ -57,10 +57,10 @@ void ctoast Window::setColor(Color3Array color) {
 }
 
 void initializeDirect2D(HWND hwnd) {
-  debug("initializing Direct2D...", "initializeDirect2D");
+  ctoastDebug("initializing Direct2D...");
   // Create the Direct2D factory
   if (!pFactory) {
-    debug("creating d2d1 factory...", "initializeDirect2D");
+    ctoastDebug("creating d2d1 factory...");
     D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory);
   }
 
@@ -69,7 +69,7 @@ void initializeDirect2D(HWND hwnd) {
   GetClientRect(hwnd, &rc);
 
   // Create the render target
-  debug("creating renderer target...", "initializeDirect2D");
+  ctoastDebug("creating renderer target...");
   if (!pRenderTarget) {
     pFactory->CreateHwndRenderTarget(
         D2D1::RenderTargetProperties(),
@@ -84,13 +84,13 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
   CinnamonToast::Window *pThis = nullptr;
 
   if (uMsg == WM_CREATE) {
-    debug("message type: WM_CREATE", "windowProc");
+    ctoastDebug("message type: WM_CREATE");
     CREATESTRUCT *pCreate = reinterpret_cast<CREATESTRUCT *>(lParam);
     pThis = reinterpret_cast<ctoast Window *>(pCreate->lpCreateParams);
     SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
 
     // Initialize Direct2D
-    debug("calling initializeDirect2D...", "windowProc");
+    ctoastDebug("calling initializeDirect2D...");
     initializeDirect2D(hwnd);
   } else {
     pThis = reinterpret_cast<ctoast Window *>(
@@ -103,9 +103,9 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 
     switch (uMsg) {
     case WM_DESTROY:
-      debug("message type: WM_DESTROY", "windowProc");
+      ctoastDebug("message type: WM_DESTROY");
       PostQuitMessage(0);
-      info("Exiting...", "windowProc");
+      ctoastInfo("Exiting...");
       return 0;
     case WM_SIZE:
       if (pRenderTarget) {
@@ -130,12 +130,11 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
           pThis->glCtx->initializeContext(*pThis);
         }
         HGLRC currentContext = wglGetCurrentContext();
-        debug("checking if OpenGL is initialized...", "windowProc");
+        ctoastDebug("checking if OpenGL is initialized...");
         if (currentContext) {
-          debug("context found, rendering with OpenGL...", "windowProc");
+          ctoastDebug("context found, rendering with OpenGL...");
         } else {
-          debug("OpenGL context not found, falling back to Direct2D...",
-                "windowProc");
+          ctoastDebug("OpenGL context not found, falling back to Direct2D...");
         }
       }
       if (currentContext != nullptr && direct2dRendering != true) {
@@ -156,7 +155,7 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
         // Create a clipping region for the child controls
         HRGN hrgn = CreateRectRgn(0, 0, 0, 0);
         int regionType = GetWindowRgn(
-            hwnd, hrgn); // Get the window's region (valid or error)
+            hwnd, hrgn); // Get the window's region (valid or ctoastError)
         if (regionType != ERROR) {
           RECT controlRect;
           HWND hChild = GetWindow(hwnd, GW_CHILD); // Get the first child window
@@ -262,12 +261,12 @@ void ctoast Window::showNotification(Notification &notif) {
 //     }
 // }
 void ctoast Window::add(ctoast Component &comp) {
-  debug("added new component", "add");
+  ctoastDebug("added new component");
   comp.winstance = this->winstance;
   comp.render(this->hwnd, this->hwnd);
 }
 void ctoast Window::add(ctoast Component &comp, std::string id) {
-  debug("added new component", "add");
+  ctoastDebug("added new component");
   if (Components::gchildren[id] == nullptr) {
     Components::gchildren[id] = &comp;
 
@@ -276,7 +275,7 @@ void ctoast Window::add(ctoast Component &comp, std::string id) {
   }
 }
 void ctoast Window::setSize(Vector2 size) {
-  debug("resized window", "setSize");
+  ctoastDebug("resized window");
   SetWindowPos(hwnd,   // Handle to the window
                NULL,   // Z-order (NULL if not changing the order)
                100,    // New X position
@@ -288,7 +287,7 @@ void ctoast Window::setSize(Vector2 size) {
 }
 ctoast Window::Window(HINSTANCE instance)
     : winstance(instance), useGL(false), glCtx(nullptr) {
-  debug("initializing win32 parameters...", "Window");
+  ctoastDebug("initializing win32 parameters...");
   WNDCLASS wc = {};
   wc.lpfnWndProc = windowProc; // Window procedure
   wc.hInstance = instance;
@@ -298,13 +297,13 @@ ctoast Window::Window(HINSTANCE instance)
   RegisterClass(&wc);
 
   // Create window
-  debug("calling CreateWindowEx...", "Window");
-  hwnd = CreateWindowEx(0, wc.lpszClassName, "Window", WS_OVERLAPPEDWINDOW,
+  ctoastDebug("calling CreateWindowEx...");
+  hwnd = CreateWindowEx(0, "WindowClass", wc.lpszClassName, WS_OVERLAPPEDWINDOW,
                         CW_USEDEFAULT, CW_USEDEFAULT, 100, 100, nullptr,
                         nullptr, instance, this);
 
   if (hwnd == nullptr) {
-    debug("whoops, hwnd is nullptr", "Window");
+    ctoastDebug("whoops, hwnd is nullptr");
     MessageBox(nullptr, "Window creation failed!", "Error",
                MB_OK | MB_ICONERROR);
     exit(1);
@@ -312,7 +311,7 @@ ctoast Window::Window(HINSTANCE instance)
 }
 ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx)
     : winstance(instance), useGL(true), glCtx(&ctx) {
-  debug("initializing win32 parameters...", "Window");
+  ctoastDebug("initializing win32 parameters...");
   WNDCLASS wc = {};
   wc.lpfnWndProc = windowProc; // Window procedure
   wc.hInstance = instance;
@@ -322,20 +321,20 @@ ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx)
   RegisterClass(&wc);
 
   // Create window
-  debug("calling CreateWindowEx...", "Window");
-  hwnd = CreateWindowEx(0, wc.lpszClassName, "Window", WS_OVERLAPPEDWINDOW,
+  ctoastDebug("calling CreateWindowEx...");
+  hwnd = CreateWindowEx(0, "WindowClass", wc.lpszClassName, WS_OVERLAPPEDWINDOW,
                         CW_USEDEFAULT, CW_USEDEFAULT, 100, 100, nullptr,
                         nullptr, instance, this);
 
   if (hwnd == nullptr) {
-    debug("whoops, hwnd is nullptr", "Window");
+    ctoastDebug("whoops, hwnd is nullptr");
     MessageBox(nullptr, "Window creation failed!", "Error",
                MB_OK | MB_ICONERROR);
     exit(1);
   }
 }
 ctoast Window::~Window() {
-  debug("releasing memory...", "~Window");
+  ctoastDebug("releasing memory...");
   if (pRenderTarget) {
     pRenderTarget->Release();
   }
@@ -345,12 +344,12 @@ ctoast Window::~Window() {
 }
 
 void ctoast Window::setTitle(std::string title) {
-  debug("window title set", "setTitle");
+  ctoastDebug("window title set");
   SetWindowText(this->hwnd, title.c_str());
 }
 
 void ctoast Window::setVisible(bool flag) {
-  debug("window visible = " + flag ? "true" : "false", "setVisible");
+  ctoastDebug("window visible = " + (std::string(flag ? "true" : "false")));
   ShowWindow(hwnd, flag ? SW_SHOW : SW_HIDE);
 }
 ctoast Window::operator WindowHandle() const { return this->hwnd; }
@@ -361,9 +360,9 @@ void ctoast Window::render(HWND &parentHWND, HWND &windowHWND) {
        "Render");
   // do nothing
 }
-void ctoast Window::close() { PostMessage(hwnd, WM_DESTROY, 0, 0); }
+void ctoast Window::close() { PostMessage(hwnd, WM_DESTROY, 0, 0); };
 int ctoast Window::run(void (*func)(Window &win)) {
-  info("Running window...", "run");
+  ctoastInfo("Running window...");
   MSG msg;
   bool isExecuted = false;
   while (true) {
@@ -401,7 +400,7 @@ ctoast Window::Window(Display *instance) {
   winstance = instance;
   if (!winstance) {
     std::cerr << "Cannot open winstance." << std::endl;
-    exit(error_linux_x11_not_initialized);
+    exit(ctoastError_linux_x11_not_initialized);
   }
 
   // Create a window
@@ -411,7 +410,7 @@ ctoast Window::Window(Display *instance) {
                                WhitePixel(winstance, screen));
 
   // Set window title
-  XStoreName(winstance, window, "Window");
+  XStoreName(winstance, window);
 
   // Select input events
   XSelectInput(winstance, window, ExposureMask | KeyPressMask);
@@ -423,7 +422,7 @@ ctoast Window::Window(Display *instance) {
   font = XftFontOpenName(winstance, screen, "Ubuntu-20");
   if (!font) {
     std::cerr << "Font not found!" << std::endl;
-    exit(error_font_not_found);
+    exit(ctoastError_font_not_found);
   }
 
   // Create XftDraw for drawing text

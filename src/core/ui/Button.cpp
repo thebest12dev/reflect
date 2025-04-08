@@ -37,7 +37,7 @@ void ctoast Button::setFont(std::string font) {
 void ctoast Button::setFontSize(int size) { fontSize = size; }
 void ctoast Button::render(HWND &parentHWND, HWND &windowHWND) {
   if (!IsWindow(parentHWND)) {
-    error("parent HWND is invalid!");
+    ctoastError("parent HWND is invalid!");
     std::exit(CTOAST_ERROR_WIN_PARENT_HWND_INVALID);
   }
 
@@ -152,8 +152,8 @@ void ctoast Button::setFont(std::string font) {
 void ctoast Button::setFontSize(int size) { fontSize = size; }
 void ctoast Button::render(Window &parentHWND, Window &windowHWND) {
   // if (!IsWindow(parentHWND)) {
-  //     error("parent HWND is invalid!");
-  //     std::exit(error_win_parent_hwnd_invalid);
+  //     ctoastError("parent HWND is invalid!");
+  //     std::exit(ctoastError_win_parent_hwnd_invalid);
   // }
 
   // hwnd = CreateWindow(

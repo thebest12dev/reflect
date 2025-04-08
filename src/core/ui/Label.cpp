@@ -37,7 +37,7 @@ void ctoast Label::setFontSize(int size) { fontSize = size; }
 std::string ctoast Label::getText() { return text; }
 void ctoast Label::render(HWND &parentHWND, HWND &windowHWND) {
   if (!IsWindow(parentHWND)) {
-    error("parent HWND is invalid!");
+    ctoastError("parent HWND is invalid!");
     std::exit(CTOAST_ERROR_WIN_PARENT_HWND_INVALID);
   }
 

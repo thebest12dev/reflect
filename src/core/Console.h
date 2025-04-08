@@ -22,6 +22,12 @@
 #include <iostream>
 #include <string>
 
+#define ctoastPrint(obj) CinnamonToast::Console::print(obj);
+#define ctoastPrintln(obj) CinnamonToast::Console::println(obj);
+#define ctoastError(obj) CinnamonToast::Console::error(obj, __func__);
+#define ctoastInfo(obj) CinnamonToast::Console::info(obj, __func__);
+#define ctoastWarn(obj) CinnamonToast::Console::warn(obj, __func__);
+#define ctoastDebug(obj) CinnamonToast::Console::debug(obj, __func__);
 namespace CinnamonToast {
 namespace Console {
 

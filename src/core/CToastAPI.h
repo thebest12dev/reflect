@@ -20,6 +20,7 @@
 typedef unsigned char byte;
 #include "TypeDefinitions.h"
 #include "ui/Colors.h"
+#include <cstdint>
 #ifdef _WIN32
 #include <Windows.h>
 #endif

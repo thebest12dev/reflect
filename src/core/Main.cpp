@@ -38,9 +38,9 @@ typedef unsigned char byte;
 // other libraries
 #include "tinyxml2.h"
 #ifdef CTOAST_LUA
-extern "C" {
+
 #include "../api/lua/CToastLua.h"
-}
+
 #endif
 
 // our header files here
@@ -99,7 +99,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
   tinyxml2::XMLDocument doc;
 
   // platform
-  info("platform: " + getOSPlatformAndVersion(), "cliMain");
+  ctoastInfo("platform: " + getOSPlatformAndVersion(), "cliMain");
 
   // common control stuff
   INITCOMMONCONTROLSEX icex;
@@ -110,62 +110,62 @@ int ctoast invokeExecutable(std::string xmlFile) {
 
   // file doesnt exist
   if (!fs::exists(xmlFile)) {
-    // error and return
-    Console::error("file not found!");
+    // ctoastError and return
+    ctoastError("file not found!");
     return ERROR_FILE_NOT_FOUND;
   }
 
-  // debug print and load xml file
-  Console::debug("loading XML file...", "invokeExecutable");
+  // ctoastDebug print and load xml file
+  ctoastDebug("loading XML file...");
   tinyxml2::XMLError eResult = doc.LoadFile(xmlFile.c_str());
 
-  // error handling
+  // ctoastError handling
   if (eResult != tinyxml2::XML_SUCCESS) {
-    Console::error(
+    ctoastError(
         std::string("cannot load XML file: " + std::string(doc.ErrorStr())));
     return CTOAST_ERROR_GENERIC_XML_ERROR;
   }
 
   // get the root element
-  Console::debug("getting root...", "invokeExecutable");
+  ctoastDebug("getting root...");
   tinyxml2::XMLElement *root = doc.FirstChildElement("root");
   // handling
   if (root == nullptr) {
-    error("no root element found.");
+    ctoastError("no root element found.");
     return CTOAST_ERROR_XML_NO_ROOT;
   }
 
   // checking compat
-  Console::debug("file is compatible with app?", "invokeExecutable");
+  ctoastDebug("file is compatible with app?");
   const uint32_t version = std::stoi(root->Attribute("version"));
   if (version > APP_INTERNAL_VERSION) {
     // handle and return
-    error("file not compatible! please upgrade to a newer version.");
+    ctoastError("file not compatible! please upgrade to a newer version.");
     return CTOAST_ERROR_XML_NOT_COMPATIBLE;
   }
   tinyxml2::XMLElement *winXml = root->FirstChildElement("window");
   if (winXml == nullptr) {
-    error("no window element found.");
+    ctoastError("no window element found.");
     return CTOAST_ERROR_XML_NO_WINDOW;
   }
 
 #ifdef _WIN32
-  debug("getting HINSTANCE...", "invokeExecutable");
+  ctoastDebug("getting HINSTANCE...");
   HINSTANCE hInstance = GetModuleHandle(nullptr);
-  debug("creating window...", "invokeExecutable");
+  ctoastDebug("creating window...");
   OpenGLContext ctx;
   Window win(hInstance, ctx);
 
 #endif
 
-  Console::debug("window title: " + std::string(winXml->Attribute("title")),
-                 "invokeExecutable");
+  ctoastDebug("window title: " + std::string(winXml->Attribute("title")),
+              "invokeExecutable");
   win.setTitle(winXml->Attribute("title"));
-  Console::debug("resizing window...", "invokeExecutable");
+  ctoastDebug("resizing window...");
   win.setSize(Vector2(std::stoi(winXml->Attribute("width")),
                       std::stoi(winXml->Attribute("height"))));
   std::string bgColor = winXml->Attribute("bgColor");
-  Console::debug("setting window background color...", "invokeExecutable");
+  ctoastDebug("setting window background color...");
   if (bgColor == "systemDefault") {
     win.setColor(255, 255, 255);
   } else {
@@ -179,11 +179,11 @@ int ctoast invokeExecutable(std::string xmlFile) {
       const Color3 color = {r, g, b};
       win.setColor(color);
     } else {
-      error("invalid hex color representation");
+      ctoastError("invalid hex color representation");
       return CTOAST_ERROR_HEX_COLOR_MALFORMED;
     }
   }
-  Console::debug("parsing labels...", "invokeExecutable");
+  ctoastDebug("parsing labels...");
   for (tinyxml2::XMLElement *label = winXml->FirstChildElement("label");
        label != nullptr; label = label->NextSiblingElement("label")) {
     // Access attributes
@@ -197,7 +197,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
     labelComp->setFontSize(std::stoi(label->Attribute("fontSize")));
     win.add(*labelComp, id);
   }
-  Console::debug("parsing buttons...", "invokeExecutable");
+  ctoastDebug("parsing buttons...");
   for (tinyxml2::XMLElement *button = winXml->FirstChildElement("button");
        button != nullptr; button = button->NextSiblingElement("button")) {
     std::string contents = button->GetText();
@@ -209,7 +209,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
     buttonComp.setFontSize(std::stoi(button->Attribute("fontSize")));
     win.add(buttonComp, id);
   }
-  Console::debug("loading libraries...", "invokeExecutable");
+  ctoastDebug("loading libraries...");
 #ifdef CTOAST_LUA
   LuaInstance *lua = nullptr;
 #endif
@@ -223,17 +223,17 @@ int ctoast invokeExecutable(std::string xmlFile) {
                   "\\" + sharedLib->Attribute("location"))
               .c_str());
       if (!hDll) {
-        Console::error("cannot load shared library", "invokeExecutable");
+        ctoastError("cannot load shared library");
         return CTOAST_ERROR_CANNOT_LOAD_SHARED_LIBRARY;
       }
-      Console::debug("loaded shared library!", "invokeExecutable");
+      ctoastDebug("loaded shared library!");
 
       // Get the address of the Add function
       CinnamonToast::SharedLibraryMain mainFunc =
           (CinnamonToast::SharedLibraryMain)GetProcAddress(hDll, "CToastMain");
       if (!mainFunc) {
-        Console::error("cannot find CToastMain function of library!",
-                       "invokeExecutable");
+        ctoastError("cannot find CToastMain function of library!",
+                    "invokeExecutable");
 
         FreeLibrary(hDll); // Free the DLL
         return CTOAST_ERROR_CANNOT_LOAD_LIBRARY_FUNCTION;
@@ -251,9 +251,9 @@ int ctoast invokeExecutable(std::string xmlFile) {
     }
 #ifdef CTOAST_LUA
     else if (std::string(sharedLib->Attribute("type")) == "lua") {
-      Console::debug("loading lua file...", "invokeExecutable");
+      ctoastDebug("loading lua file...");
       if (lua == nullptr) {
-        Console::debug("initializing lua...", "invokeExecutable");
+        ctoastDebug("initializing lua...");
         lua = new LuaInstance();
         lua->initializeLuaApis(injectLuaApis);
       }
@@ -275,7 +275,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
     win.add(*menuBar);
   }
 
-  Console::debug("entering main loop...", "invokeExecutable");
+  ctoastDebug("entering main loop...");
   win.setVisible(true);
 
   return win.run(onExecute);
@@ -288,14 +288,14 @@ int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
   CinnamonToast::CrashManager::setActiveCrashHandler(ch);
 
   try {
-    println(APP_NAME + std::string(" ") + APP_VERSION);
+    ctoastPrintln(APP_NAME + std::string(" ") + APP_VERSION);
     if (argc == 1) {
-      Console::error(
-          "error: no files specified. please pass an argument to a valid file");
-      Console::error("error code: ERROR_NO_FILES_SPECIFIED");
+      ctoastError("ctoastError: no files specified. please pass an argument to "
+                  "a valid file");
+      ctoastError("ctoastError code: ERROR_NO_FILES_SPECIFIED");
       return CTOAST_ERROR_NO_FILES_SPECIFIED;
     } else {
-      Console::info("launching executable...", "cliMain");
+      ctoastInfo("launching executable...");
       return CinnamonToast::invokeExecutable(argv[1]);
     }
   } catch (std::exception e) {
@@ -321,54 +321,54 @@ namespace fs = std::filesystem;
 int ctoast invokeExecutable(std::string xmlFile) {
   tinyxml2::XMLDocument doc;
   // Load the XML file
-  info("Platform: " + GetOSPlatformAndVersion(), "CLIMain");
+  ctoastInfo("Platform: " + GetOSPlatformAndVersion(), "CLIMain");
   if (!fs::exists(xmlFile)) {
-    error("file not found!");
-    return error_file_not_found;
+    ctoastError("file not found!");
+    return ctoastError_file_not_found;
   }
-  debug("loading XML file...", "invokeExecutable");
+  ctoastDebug("loading XML file...");
   tinyxml2::XMLError eResult = doc.LoadFile(xmlFile.c_str());
 
   if (eResult != tinyxml2::XML_SUCCESS) {
-    error(string("cannot load XML file: " + std::string(doc.ErrorStr())));
-    return error_generic_xml_error;
+    ctoastError(string("cannot load XML file: " + std::string(doc.ErrorStr())));
+    return ctoastError_generic_xml_ctoastError;
   }
 
   // Get the root element
-  debug("getting root...", "invokeExecutable");
+  ctoastDebug("getting root...");
   tinyxml2::XMLElement *root = doc.FirstChildElement("root");
   if (root == nullptr) {
-    error("no root element found.");
-    return error_xml_no_root;
+    ctoastError("no root element found.");
+    return ctoastError_xml_no_root;
   }
-  debug("file is compatible with app?", "invokeExecutable");
+  ctoastDebug("file is compatible with app?");
   const uint32_t version = stoi(root->Attribute("version"));
   if (version > app_internal_version) {
-    error("file not compatible! please upgrade to a newer version.");
+    ctoastError("file not compatible! please upgrade to a newer version.");
   }
   tinyxml2::XMLElement *winXml = root->FirstChildElement("window");
   if (winXml == nullptr) {
-    error("no window element found.");
-    return error_xml_no_window;
+    ctoastError("no window element found.");
+    return ctoastError_xml_no_window;
   }
 
 #ifdef _WIN32
-  debug("getting HINSTANCE...", "invokeExecutable");
+  ctoastDebug("getting HINSTANCE...");
   HINSTANCE hInstance = GetModuleHandle(nullptr);
-  debug("creating window...", "invokeExecutable");
+  ctoastDebug("creating window...");
   Window win(hInstance);
 #elif __linux__
   Window win(XOpenDisplay(NULL));
 #endif
 
-  debug("window title: " + std::string(winXml->Attribute("title")),
-        "invokeExecutable");
+  ctoastDebug("window title: " + std::string(winXml->Attribute("title")),
+              "invokeExecutable");
   win.SetTitle(winXml->Attribute("title"));
-  debug("resizing window...", "invokeExecutable");
+  ctoastDebug("resizing window...");
   win.SetSize(Vector2(stoi(winXml->Attribute("width")),
                       stoi(winXml->Attribute("height"))));
   std::string bgColor = winXml->Attribute("bgColor");
-  debug("setting window background color...", "invokeExecutable");
+  ctoastDebug("setting window background color...");
   if (bgColor == "systemDefault") {
     win.SetColor(255, 255, 255);
   } else {
@@ -382,11 +382,11 @@ int ctoast invokeExecutable(std::string xmlFile) {
 
       win.SetColor(r, g, b);
     } else {
-      error("invalid hex color representation");
-      return error_hex_color_malformed;
+      ctoastError("invalid hex color representation");
+      return ctoastError_hex_color_malformed;
     }
   }
-  debug("parsing labels...", "invokeExecutable");
+  ctoastDebug("parsing labels...");
   for (tinyxml2::XMLElement *label = winXml->FirstChildElement("label");
        label != nullptr; label = label->NextSiblingElement("label")) {
     // Access attributes
@@ -398,7 +398,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
 
     win.Add(labelComp);
   }
-  debug("entering main loop...", "invokeExecutable");
+  ctoastDebug("entering main loop...");
   win.SetVisible(true);
 
   return win.Run();
@@ -406,11 +406,12 @@ int ctoast invokeExecutable(std::string xmlFile) {
 int ctoast CLIMain(const uint8_t argc, const vector<string> argv) {
   println(app_name + string(" ") + app_version);
   if (argv.size() == 1) {
-    error("error: no files specified. please pass an argument to a valid file");
-    error("error code: ERROR_NO_FILES_SPECIFIED");
-    return error_no_files_specified;
+    ctoastError("ctoastError: no files specified. please pass an argument to a "
+                "valid file");
+    ctoastError("ctoastError code: ERROR_NO_FILES_SPECIFIED");
+    return ctoastError_no_files_specified;
   } else {
-    info("launching executable...", "CLIMain");
+    ctoastInfo("launching executable...", "CLIMain");
     return CinnamonToast::invokeExecutable(argv[1]);
   }
 }

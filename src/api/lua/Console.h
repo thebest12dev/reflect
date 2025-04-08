@@ -31,11 +31,11 @@ template <typename T> CTOAST_API void println(const T &obj) {
   std::cout << obj << std::endl;
 };
 template <typename T>
-CTOAST_API void error(const T &obj, std::string ctx = "default") {
+CTOAST_API void ctoastError(const T &obj, std::string ctx = "default") {
   std::cerr << "[ERROR] " << "[" << ctx << "]: " << obj << std::endl;
 };
 template <typename T>
-CTOAST_API void info(const T &obj, std::string ctx = "default") {
+CTOAST_API void ctoastInfo(const T &obj, std::string ctx = "default") {
   std::cout << "[INFO] " << "[" << ctx << "]: " << obj << std::endl;
 };
 template <typename T>

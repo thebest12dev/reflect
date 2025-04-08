@@ -11,22 +11,22 @@ bool luaReadWrite = false;
 }
 int LuaAPI::luaInfo(lua_State *L) {
   const char *msg = lua_tostring(L, 1);
-  Console::info(msg);
+  Console::info(msg, "Lua");
   return 0;
 }
 int LuaAPI::luaWarn(lua_State *L) {
   const char *msg = lua_tostring(L, 1);
-  Console::warn(msg);
+  Console::warn(msg, "Lua");
   return 0;
 }
 int LuaAPI::luaCError(lua_State *L) {
   const char *msg = lua_tostring(L, 1);
-  Console::error(msg);
+  Console::error(msg, "Lua");
   return 0;
 }
 int LuaAPI::luaDebug(lua_State *L) {
   const char *msg = lua_tostring(L, 1);
-  Console::debug(msg);
+  Console::debug(msg, "Lua");
   return 0;
 }
 int LuaAPI::luaGetComponentText(lua_State *L) {
@@ -114,9 +114,9 @@ void CinnamonToast::injectLuaApis(LuaInstance *self) {
                          LuaAPI::getComponentById);
   self->registerFunction("CinnamonToast", "requestPermission",
                          LuaAPI::luaRequestPermission);
-  self->registerFunction("info", LuaAPI::luaInfo);
+  self->registerFunction("ctoastInfo", LuaAPI::luaInfo);
   self->registerFunction("warn", LuaAPI::luaWarn);
-  self->registerFunction("cerror", LuaAPI::luaCError);
+  self->registerFunction("cctoastError", LuaAPI::luaCError);
   self->registerFunction("debug", LuaAPI::luaDebug);
   self->registerFunction("writeFile", LuaAPI::luaWriteFile);
   self->registerFunction("readFile", LuaAPI::luaReadFile);

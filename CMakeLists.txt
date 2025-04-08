@@ -6,7 +6,10 @@ message(STATUS "vcpkg toolchain location: ${CMAKE_TOOLCHAIN_FILE}")
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
   cmake_policy(SET CMP0141 NEW)
-  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+  if (CMAKE_C_COMPILER_ID STREQUAL "MSVC" AND CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+  endif()
+  
 endif()
 
 # Define the project
@@ -18,7 +21,7 @@ file(GLOB_RECURSE CTOAST_CORE "src/core/*.cpp" "src/core/*.h")
 file(GLOB_RECURSE CTOAST_NET "src/net/*.cpp" "src/net/*.h" )
 file(GLOB_RECURSE CTOAST_CRASHHANDLER "src/crash/*.cpp" "src/crash/*.h")
 file(GLOB_RECURSE CTOAST_CLI 
-    "src/cli/*.cpp" "src/cli/*.h" "src/windows/ctoasti.rc"
+    "src/cli/*.cpp" "src/cli/*.h" "src/windows/ti.rc"
 )
 file(GLOB_RECURSE CTOAST_TEST 
     "test/*.cpp"
@@ -73,6 +76,7 @@ else()
     add_library(CinnamonToast.Networking SHARED ${CTOAST_NET})
     add_library(CinnamonToast.Core SHARED ${CTOAST_CORE} "src/windows/CinnamonToast.Core.rc") 
     target_compile_definitions(CinnamonToast.Core PRIVATE CTOAST_SHARED_LIBRARY=1)
+    target_compile_definitions(CinnamonToast.Core PRIVATE CTOAST_EXT_NETWORKING=1)
     target_compile_definitions(CinnamonToast.CrashHandler PRIVATE CTOAST_SHARED_LIBRARY=1)
 
     target_compile_definitions(CinnamonToast.Core PRIVATE CTOAST_LUA=1)
@@ -182,7 +186,7 @@ else()
     target_link_libraries(ctoastt PRIVATE CinnamonToast.CrashHandler)
 endif()
 
-if(MSVC)
+if(WIN32)
     if(DEFINED CTOAST_BUNDLE)
         target_link_libraries(CinnamonToast PRIVATE d2d1 gdi32 comctl32 opengl32 ws2_32)
     else()

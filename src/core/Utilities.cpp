@@ -78,18 +78,19 @@ HFONT ctoast Utilities::getFont(std::string fontName, int size, int fontWeight,
   return hFont;
 }
 std::string ctoast Utilities::getLastErrorAsString() {
-  DWORD errorMessageID = ::GetLastError(); // Get the last error code
-  if (errorMessageID == 0) {
-    return "No error"; // No error occurred
+  DWORD ctoastErrorMessageID =
+      ::GetLastError(); // Get the last ctoastError code
+  if (ctoastErrorMessageID == 0) {
+    return "No ctoastError"; // No ctoastError occurred
   }
 
   LPSTR messageBuffer = nullptr;
 
-  // Format the error message
+  // Format the ctoastError message
   size_t size = FormatMessageA(
       FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
           FORMAT_MESSAGE_IGNORE_INSERTS,
-      NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+      NULL, ctoastErrorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
       (LPSTR)&messageBuffer, 0, NULL);
 
   std::string message(messageBuffer, size);
