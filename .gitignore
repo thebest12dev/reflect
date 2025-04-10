@@ -15,6 +15,7 @@
 
 # Mono auto generated files
 mono_crash.*
+RC*20616
 
 # Build results
 [Dd]ebug/
@@ -145,7 +146,7 @@ _TeamCity*
 # Coverlet is a free, cross platform Code Coverage Tool
 coverage*.json
 coverage*.xml
-coverage*.info
+coverage*.ctoastInfo
 
 # Visual Studio code coverage results
 *.coverage
@@ -188,7 +189,7 @@ publish/
 *.publishproj
 
 # Microsoft Azure Web App publish settings. Comment the next line if you want to
-# checkin your Azure Web App publish settings, but sensitive information contained
+# checkin your Azure Web App publish settings, but sensitive ctoastInformation contained
 # in these scripts will be unencrypted
 PublishScripts/
 
@@ -218,7 +219,7 @@ rcf/
 AppPackages/
 BundleArtifacts/
 Package.StoreAssociation.xml
-_pkginfo.txt
+_pkgctoastInfo.txt
 *.appx
 *.appxbundle
 *.appxupload
@@ -252,8 +253,8 @@ orleans.codegen.cs
 Generated_Code/
 main.dll
 main.xml
+CMakeSettings.json
 lib
-vcpkg.json
 # Backup & report files from converting an old project file
 # to a newer Visual Studio version. Backup files are not needed,
 # because we have git ;-)
@@ -344,7 +345,7 @@ ASALocalRun/
 # MSBuild Binary and Structured Log
 *.binlog
 
-# NVidia Nsight GPU debugger configuration file
+# NVidia Nsight GPU ctoastDebugger configuration file
 *.nvuser
 
 # MFractors (Xamarin productivity tool) working folder
@@ -367,3 +368,6 @@ FodyWeavers.xsd
 
 # 32067
 secret/
+/.vscode
+build 
+/.github/workflows/nightly.yml

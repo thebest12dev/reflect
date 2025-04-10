@@ -1,0 +1,6 @@
+{
+  "name": "cinnamontoast",
+  "version": "1.4.0",
+  "dependencies": [ "tinyxml2", "gtest", "luajit", "pkgconf", "opengl", "openssl"],
+  "builtin-baseline": "2960d7d80e8d09c84ae8abf15c12196c2ca7d39a"
+}

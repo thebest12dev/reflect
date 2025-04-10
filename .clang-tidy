@@ -1,0 +1,3 @@
+Checks:		'llvm-*'
+ExtraArgs:
+  - '-Iout/x64-Debug/vcpkg_installed/x64-windows/include'

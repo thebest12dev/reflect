@@ -1,6 +1,11 @@
+<!--
+-->
 <root version="1" uiVersion="1.0.0">
     <window title="CinnamonToast Demo" width="800" height="500" bgColor="systemDefault" id="mainWindow" >
-      <library location="main.lua" type="lua"/>
-      <label x="330" y="60" font="Segoe UI" fontSize="16" id="test">test</label>
+      <library location="main.dll" type="native"/>
+      <menuBar>
+          <menuItem>hi</menuItem>
+      </menuBar>
+      <label x="330" y="60" font="Segoe UI" fontSize="16" id="btn1">test</label>
     </window>
 </root>

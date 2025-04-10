@@ -70,7 +70,7 @@ cmake -G "Visual Studio xx xxxx" -A x64
 ```
 If you're using Ninja, run
 ```cmd
-cmake -G "Ninja"
+cmake -G "Ninja -DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/cmake"
 ```
 5. Now, build the project
 ```cmd
@@ -80,7 +80,6 @@ cmake --build . --config Release
 1. Open a terminal
 2. Install CMake, g++ and Python if you haven't already: `sudo apt install cmake g++ python3`
 3. Navigate to the project directory
-4. Run `python3 DownloadLibraries.py` to download the libraries source (like tinyxml2)
 5. Run `cmake .`
 6. Run `make`
 
