@@ -46,7 +46,7 @@ public:
   SocketInitializer() {
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-      ctoastError("failed to initialize winsock", "SocketInitializer");
+      ctoastError("failed to initialize winsock");
       exit(1);
     }
     SSL_library_init();
@@ -136,13 +136,13 @@ void HttpRequest::initiateRequest() {
   if (url.rfind("https://", 0) == 0) {
     // If the URL starts with "https://", use SSL
     if (SSL_set_fd(ssl, sock) == 0) {
-      ctoastError("cannot set socket with SSL!", "initiateRequest");
+      ctoastError("cannot set socket with SSL!");
       success = false;
       closesocket(sock);
       return;
     }
     if (SSL_connect(ssl) <= 0) {
-      ctoastError("SSL connection failed!", "initiateRequest");
+      ctoastError("SSL connection failed!");
       success = false;
       closesocket(sock);
       return;

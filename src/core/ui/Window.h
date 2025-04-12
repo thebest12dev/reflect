@@ -40,32 +40,26 @@ protected:
   HWND hwnd;
 
 private:
-  float bgColor[3];
   bool useGL;
+  bool customPipeline;
   OpenGLContext *glCtx;
 
 public:
+  COMPONENT_DECL(Window);
   CTOAST_API Window(HINSTANCE instance);
-  CTOAST_API Window(HINSTANCE instance, OpenGLContext ctx);
+  CTOAST_API Window(HINSTANCE instance, OpenGLContext ctx,
+                    bool customPipeline = false);
   CTOAST_API void setTitle(std::string title);
   // // void SetSize(Vector2 dim);
   CTOAST_API static LRESULT CALLBACK windowProc(HWND hwnd, UINT uMsg,
                                                 WPARAM wParam, LPARAM lParam);
 
-  CTOAST_API void setColor(uint8_t r, uint8_t g, uint8_t b);
-  CTOAST_API void setColor(Color3 color);
-  CTOAST_API void setColor(Color3Array color);
-  CTOAST_API void setVisible(bool flag);
-  CTOAST_API void add(Component &comp);
   CTOAST_API void add(Component &comp, std::string id);
-  CTOAST_API void setSize(Vector2 size);
-  CTOAST_API void render(HWND &parentHWND, HWND &windowHWND);
-  CTOAST_API void showNotification(Notification &notif);
-  CTOAST_API void setVisible(int cmd);
+  CTOAST_API void showNotification(CinnamonToast::Notification &notif);
   CTOAST_API int run(void (*func)(Window &win));
   CTOAST_API void close();
-  CTOAST_API operator WindowHandle() const;
-  CTOAST_API ~Window();
+  CTOAST_API operator HWND() const;
+
   friend class Component;
   friend class Label;
   friend class OpenGLContext;

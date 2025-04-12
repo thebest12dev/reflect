@@ -3,8 +3,8 @@
 #include "Windows.h"
 
 namespace CinnamonToast {
-void OpenGLContext::initializeContext(WindowHandle hwnd) {
-  HDC hdc = GetDC(hwnd);
+void OpenGLContext::initializeContext(WindowHandle hwnd, HDC hdc) {
+
   if (!hdc) {
     std::cerr << "Failed to get device context!" << std::endl;
     return;
@@ -44,9 +44,10 @@ void OpenGLContext::initializeContext(WindowHandle hwnd) {
     return;
   }
 
-  // Step 6: Make the rendering context current
   if (!wglMakeCurrent(hdc, hglrc)) {
     std::cerr << "Failed to make OpenGL context current!" << std::endl;
+    wglDeleteContext(hglrc);
+    ReleaseDC(hwnd, hdc);
     return;
   }
 
@@ -56,6 +57,7 @@ void OpenGLContext::initializeContext(WindowHandle hwnd) {
   // Now OpenGL is initialized for the window, you can render
   CinnamonToast::Console::debug("OpenGL initialized successfully!",
                                 "initializeContext");
+  ReleaseDC(hwnd, hdc);
   return;
 }
 } // namespace CinnamonToast

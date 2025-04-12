@@ -31,6 +31,7 @@
 #include <string>
 #ifdef _WIN32
 #include "Notification.h"
+#include <cstdio>
 #include <d2d1.h>
 
 using namespace CinnamonToast::Console;
@@ -38,6 +39,7 @@ using namespace CinnamonToast::Console;
 ID2D1Factory *pFactory = nullptr;
 ID2D1HwndRenderTarget *pRenderTarget = nullptr;
 // Due to floating point operations, may not produce exact color
+
 void ctoast Window::setColor(uint8_t r, uint8_t g, uint8_t b) {
   this->bgColor[0] = r / 255.0f;
   this->bgColor[1] = g / 255.0f;
@@ -45,10 +47,16 @@ void ctoast Window::setColor(uint8_t r, uint8_t g, uint8_t b) {
 }
 // Due to floating point operations, may not produce exact color
 void ctoast Window::setColor(Color3 color) {
-  this->bgColor[0] = color.r / 255.0f;
-  this->bgColor[1] = color.g / 255.0f;
-  this->bgColor[2] = color.b / 255.0f;
+  this->bgColor.r = color.r / 255.0f;
+  this->bgColor.g = color.g / 255.0f;
+  this->bgColor.b = color.b / 255.0f;
 }
+ctoast Color3 ctoast Window::getColor() {
+  return {static_cast<unsigned char>(bgColor[0] * 255),
+          static_cast<unsigned char>(bgColor[1] * 255),
+          static_cast<unsigned char>(bgColor[2] * 255)};
+}
+
 // Due to floating point operations, may not produce exact color
 void ctoast Window::setColor(Color3Array color) {
   this->bgColor[0] = color[0] / 255.0f;
@@ -57,28 +65,50 @@ void ctoast Window::setColor(Color3Array color) {
 }
 
 void initializeDirect2D(HWND hwnd) {
-  ctoastDebug("initializing Direct2D...");
-  // Create the Direct2D factory
-  if (!pFactory) {
-    ctoastDebug("creating d2d1 factory...");
-    D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory);
-  }
+  if (!pFactory && !pRenderTarget) {
 
-  // Get window dimensions
-  RECT rc;
-  GetClientRect(hwnd, &rc);
+    ctoastDebug("initializing Direct2D...");
+    // Create the Direct2D factory
+    if (!pFactory) {
+      ctoastDebug("creating d2d1 factory...");
+      D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory);
+    }
 
-  // Create the render target
-  ctoastDebug("creating renderer target...");
-  if (!pRenderTarget) {
-    pFactory->CreateHwndRenderTarget(
-        D2D1::RenderTargetProperties(),
-        D2D1::HwndRenderTargetProperties(
-            hwnd, D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top)),
-        &pRenderTarget);
+    // Get window dimensions
+    RECT rc;
+    GetClientRect(hwnd, &rc);
+
+    // Create the render target
+    ctoastDebug("creating renderer target...");
+    if (!pRenderTarget) {
+      pFactory->CreateHwndRenderTarget(
+          D2D1::RenderTargetProperties(),
+          D2D1::HwndRenderTargetProperties(
+              hwnd, D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top)),
+          &pRenderTarget);
+    }
   }
 };
+
+namespace {
+void safeResize(ID2D1HwndRenderTarget *pRenderTarget, D2D1_SIZE_U size) {
+  __try {
+    HRESULT hr = pRenderTarget->Resize(size);
+    if (FAILED(hr)) {
+      // Handle HRESULT errors if needed
+    }
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+    DWORD exceptionCode = GetExceptionCode();
+    // Use printf instead of std::cout for SEH restrictions
+    std::printf("[WARN] [safeResize]: Exception occurred while resizing "
+                "Direct2D render target: 0x%08X\n",
+                exceptionCode);
+  }
+}
+} // namespace
 bool openglRendering = false, direct2dRendering = false, firstUpdate = true;
+HGLRC currentContext = nullptr;
+HDC glHdc = nullptr;
 LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                                            LPARAM lParam) {
   CinnamonToast::Window *pThis = nullptr;
@@ -90,8 +120,11 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
     SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
 
     // Initialize Direct2D
-    ctoastDebug("calling initializeDirect2D...");
-    initializeDirect2D(hwnd);
+    if (!pThis->useGL) {
+      ctoastDebug("calling initializeDirect2D...");
+      initializeDirect2D(hwnd);
+    }
+
   } else {
     pThis = reinterpret_cast<ctoast Window *>(
         GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -107,47 +140,57 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
       PostQuitMessage(0);
       ctoastInfo("Exiting...");
       return 0;
-    case WM_SIZE:
+    case WM_SIZE: {
+
       if (pRenderTarget) {
         RECT rc;
         GetClientRect(hwnd, &rc);
-        pRenderTarget->Resize(
-            D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top));
+        D2D1_SIZE_U size = {static_cast<UINT32>(rc.right - rc.left),
+                            static_cast<UINT32>(rc.bottom - rc.top)};
+        ::safeResize(pRenderTarget, size);
       }
+      // Set the clear color
+
       InvalidateRect(hwnd, NULL,
                      TRUE); // Mark the entire window as needing a repaint
       break;
+    }
     case WM_MOVE:
       InvalidateRect(hwnd, NULL,
                      TRUE); // Mark the entire window as needing a repaint
       break;
+    case WM_SIZING: {
+      glViewport(0, 0, LOWORD(lParam), HIWORD(lParam));
+      return 0;
+      break;
+    }
     case WM_PAINT: {
       PAINTSTRUCT ps;
       HDC hdc = BeginPaint(hwnd, &ps);
-      HGLRC currentContext = nullptr;
+
       if (!openglRendering && firstUpdate) {
+        glHdc = GetDC(hwnd);
         if (pThis->useGL) {
-          pThis->glCtx->initializeContext(*pThis);
+          ctoastDebug("a");
+          pThis->glCtx->initializeContext(*pThis, hdc);
         }
-        HGLRC currentContext = wglGetCurrentContext();
+        currentContext = wglGetCurrentContext();
         ctoastDebug("checking if OpenGL is initialized...");
         if (currentContext) {
           ctoastDebug("context found, rendering with OpenGL...");
+          openglRendering = true;
         } else {
           ctoastDebug("OpenGL context not found, falling back to Direct2D...");
+          direct2dRendering = true;
         }
-      }
-      if (currentContext != nullptr && direct2dRendering != true) {
-        openglRendering = true;
-        // Handle the situation where there's no current OpenGL context.
-        glClear(GL_COLOR_BUFFER_BIT);
+        firstUpdate = false;
+      } /*else {
+        currentContext = wglGetCurrentContext();
+      }*/
+      if (currentContext != nullptr && openglRendering) {
 
-        glClearColor(pThis->bgColor[0], pThis->bgColor[1], pThis->bgColor[2],
-                     1.0);
-        glFlush();
+      } else if (!openglRendering && direct2dRendering) {
 
-      } else if (!openglRendering) {
-        direct2dRendering = true;
         if (!pRenderTarget) {
           initializeDirect2D(hwnd);
         }
@@ -196,7 +239,7 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
       }
 
       EndPaint(hwnd, &ps);
-      firstUpdate = false;
+
       break;
     }
     }
@@ -309,8 +352,10 @@ ctoast Window::Window(HINSTANCE instance)
     exit(1);
   }
 }
-ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx)
-    : winstance(instance), useGL(true), glCtx(&ctx) {
+ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx,
+                      bool customPipeline)
+    : winstance(instance), useGL(true), glCtx(&ctx),
+      customPipeline(customPipeline) {
   ctoastDebug("initializing win32 parameters...");
   WNDCLASS wc = {};
   wc.lpfnWndProc = windowProc; // Window procedure
@@ -341,6 +386,9 @@ ctoast Window::~Window() {
   if (pFactory) {
     pFactory->Release();
   }
+  // set to nullptr to avoid dangling pointers
+  pRenderTarget = nullptr;
+  pFactory = nullptr;
 }
 
 void ctoast Window::setTitle(std::string title) {
@@ -352,6 +400,7 @@ void ctoast Window::setVisible(bool flag) {
   ctoastDebug("window visible = " + (std::string(flag ? "true" : "false")));
   ShowWindow(hwnd, flag ? SW_SHOW : SW_HIDE);
 }
+bool ctoast Window::getVisible() { return IsWindowVisible(hwnd); }
 ctoast Window::operator WindowHandle() const { return this->hwnd; }
 void ctoast Window::setVisible(int cmd) { ShowWindow(hwnd, cmd); }
 void ctoast Window::render(HWND &parentHWND, HWND &windowHWND) {
@@ -371,9 +420,17 @@ int ctoast Window::run(void (*func)(Window &win)) {
       if (msg.message == WM_QUIT) {
         break; // Exit the loop when receiving WM_QUIT
       }
-
+      /*  glClearColor(1.0, 0.0, 1.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        SwapBuffers(glHdc);*/
       TranslateMessage(&msg);
       DispatchMessage(&msg);
+    }
+    if (openglRendering && currentContext != nullptr) {
+      glClearColor(bgColor[0], bgColor[1], bgColor[2], 1.0);
+      glClear(GL_COLOR_BUFFER_BIT);
+      // Clear the color buffer
+      SwapBuffers(glHdc);
     }
 
     // Perform other tasks here while the message loop is running

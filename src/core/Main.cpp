@@ -99,7 +99,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
   tinyxml2::XMLDocument doc;
 
   // platform
-  ctoastInfo("platform: " + getOSPlatformAndVersion(), "cliMain");
+  ctoastInfo("platform: " + getOSPlatformAndVersion());
 
   // common control stuff
   INITCOMMONCONTROLSEX icex;
@@ -148,26 +148,44 @@ int ctoast invokeExecutable(std::string xmlFile) {
     ctoastError("no window element found.");
     return CTOAST_ERROR_XML_NO_WINDOW;
   }
-
+  tinyxml2::XMLElement *gctx = winXml->FirstChildElement("graphicsContext");
 #ifdef _WIN32
-  ctoastDebug("getting HINSTANCE...");
-  HINSTANCE hInstance = GetModuleHandle(nullptr);
-  ctoastDebug("creating window...");
-  OpenGLContext ctx;
-  Window win(hInstance, ctx);
+  Window *win = nullptr;
+  if (gctx == nullptr) {
+    ctoastDebug("getting HINSTANCE...");
+    HINSTANCE hInstance = GetModuleHandle(nullptr);
+    ctoastDebug("creating window...");
+    // OpenGLContext ctx;
+    win = new Window(hInstance);
+  } else {
+    ctoastDebug("graphics context found!");
+    std::string ctx = gctx->Attribute("type");
+    if (ctx == "opengl") {
+      ctoastDebug("using custom OpenGL context...");
+      ctoastWarn(
+          "Since a custom graphics context is specified, UI controls (buttons, "
+          "labels, etc.) will not render. This is only for if you want to "
+          "develop things like games or simulations. (To disable this "
+          "warning, set contextSetWarning to false in your XML file.");
+      ctoastDebug("getting HINSTANCE...");
+      HINSTANCE hInstance = GetModuleHandle(nullptr);
+      ctoastDebug("creating window...");
+      OpenGLContext ctx;
+      win = new Window(hInstance, ctx, true);
+    }
+  }
 
 #endif
 
-  ctoastDebug("window title: " + std::string(winXml->Attribute("title")),
-              "invokeExecutable");
-  win.setTitle(winXml->Attribute("title"));
+  ctoastDebug("window title: " + std::string(winXml->Attribute("title")));
+  win->setTitle(winXml->Attribute("title"));
   ctoastDebug("resizing window...");
-  win.setSize(Vector2(std::stoi(winXml->Attribute("width")),
-                      std::stoi(winXml->Attribute("height"))));
+  win->setSize(Vector2(std::stoi(winXml->Attribute("width")),
+                       std::stoi(winXml->Attribute("height"))));
   std::string bgColor = winXml->Attribute("bgColor");
   ctoastDebug("setting window background color...");
   if (bgColor == "systemDefault") {
-    win.setColor(255, 255, 255);
+    win->setColor(255, 255, 255);
   } else {
     if (bgColor.at(0) == '#' && bgColor.length() == 7) {
 
@@ -177,7 +195,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
       const uint8_t g = stoi(hex.substr(2, 2), nullptr, 16);
       const uint8_t b = stoi(hex.substr(4, 2), nullptr, 16);
       const Color3 color = {r, g, b};
-      win.setColor(color);
+      win->setColor(color);
     } else {
       ctoastError("invalid hex color representation");
       return CTOAST_ERROR_HEX_COLOR_MALFORMED;
@@ -195,7 +213,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
     Label *labelComp = new Label(*contents, position);
     labelComp->setFont(label->Attribute("font"));
     labelComp->setFontSize(std::stoi(label->Attribute("fontSize")));
-    win.add(*labelComp, id);
+    win->add(*labelComp, id);
   }
   ctoastDebug("parsing buttons...");
   for (tinyxml2::XMLElement *button = winXml->FirstChildElement("button");
@@ -207,7 +225,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
     Button buttonComp(contents, position);
     buttonComp.setFont(button->Attribute("font"));
     buttonComp.setFontSize(std::stoi(button->Attribute("fontSize")));
-    win.add(buttonComp, id);
+    win->add(buttonComp, id);
   }
   ctoastDebug("loading libraries...");
 #ifdef CTOAST_LUA
@@ -232,8 +250,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
       CinnamonToast::SharedLibraryMain mainFunc =
           (CinnamonToast::SharedLibraryMain)GetProcAddress(hDll, "CToastMain");
       if (!mainFunc) {
-        ctoastError("cannot find CToastMain function of library!",
-                    "invokeExecutable");
+        ctoastError("cannot find CToastMain function of library!");
 
         FreeLibrary(hDll); // Free the DLL
         return CTOAST_ERROR_CANNOT_LOAD_LIBRARY_FUNCTION;
@@ -272,13 +289,13 @@ int ctoast invokeExecutable(std::string xmlFile) {
       MenuItem *item = new MenuItem(menuItem->GetText());
       menuBar->add(*item);
     }
-    win.add(*menuBar);
+    win->add(*menuBar);
   }
 
   ctoastDebug("entering main loop...");
-  win.setVisible(true);
+  win->setVisible(true);
 
-  return win.run(onExecute);
+  return win->run(onExecute);
 }
 int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
   CinnamonToast::CrashConfig config = {};
@@ -289,7 +306,7 @@ int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
 
   try {
     ctoastPrintln(APP_NAME + std::string(" ") + APP_VERSION);
-    if (argc == 1) {
+    if (argc <= 1) {
       ctoastError("ctoastError: no files specified. please pass an argument to "
                   "a valid file");
       ctoastError("ctoastError code: ERROR_NO_FILES_SPECIFIED");

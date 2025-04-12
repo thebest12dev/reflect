@@ -24,6 +24,37 @@
 #include "Vector2.h"
 #include <cstdint>
 #include <windows.h>
+#define COMPONENT_COMMON(classname)                                            \
+  ctoast Vector2 classname::getSize() { return size; };                        \
+  ctoast Vector2 classname::getPosition() { return position; };                \
+  ctoast Color3 classname::getColor() { return color; };                       \
+  void classname::setColor(Color3 color) { this->color = color; }              \
+  void classname::setColor(Color3Array color) {                                \
+    this->color.r = color[0];                                                  \
+    this->color.g = color[1];                                                  \
+    this->color.b = color[2];                                                  \
+  }                                                                            \
+  void classname::setColor(uint8_t r, uint8_t g, uint8_t b) {                  \
+    this->color.r = r;                                                         \
+    this->color.g = g;                                                         \
+    this->color.b = b;                                                         \
+  }
+
+#define COMPONENT_DECL(classname)                                              \
+  CTOAST_API void render(HWND &parentHWND, HWND &windowHWND);                  \
+  CTOAST_API void setVisible(bool flag);                                       \
+  CTOAST_API void add(Component &comp);                                        \
+  CTOAST_API void setSize(Vector2 size);                                       \
+  CTOAST_API void setVisible(int cmd);                                         \
+  CTOAST_API void setColor(uint8_t r, uint8_t g, uint8_t b);                   \
+  CTOAST_API void setColor(Color3 color);                                      \
+  CTOAST_API void setColor(Color3Array color);                                 \
+  CTOAST_API virtual ~classname();                                             \
+  CTOAST_API Vector2 getPosition();                                            \
+  CTOAST_API Vector2 getSize();                                                \
+  CTOAST_API bool getVisible();                                                \
+  CTOAST_API Color3 getColor()
+
 namespace CinnamonToast {
 class Component {
 protected:
@@ -45,7 +76,7 @@ protected:
 
   /// @brief The color of the
   /// component in RGB.
-  Color3 color;
+  Color3Float bgColor;
 
 public:
   /**
@@ -137,11 +168,7 @@ public:
    * @returns The component's color.
    */
   CTOAST_API Color3 getColor();
-  /**
-   * @brief Returns the component's text.
-   * @returns The component's text.
-   */
-  CTOAST_API std::string getText();
+
   friend class Window;
   friend class Label;
   friend class Button;

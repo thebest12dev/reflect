@@ -17,12 +17,47 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #pragma once
+#include <stdexcept>
 namespace CinnamonToast {
 struct Color3 {
   unsigned char r, g, b;
   Color3() {}
   Color3(unsigned char r, unsigned char g, unsigned char b)
       : r(r), g(g), b(b) {}
+};
+struct Color3Float {
+  union {
+    struct {
+      float r, g, b;
+    };
+    float data[3]; // allows array-style access
+  };
+  Color3Float() {};
+  Color3Float(float r, float g, float b) : r(r), g(g), b(b) {};
+  operator Color3() {
+    return Color3(static_cast<unsigned char>(r * 255),
+                  static_cast<unsigned char>(g * 255),
+                  static_cast<unsigned char>(b * 255));
+  }
+  Color3Float &operator=(const Color3 color) {
+    r = static_cast<float>(color.r) / 255;
+    g = static_cast<float>(color.g) / 255;
+    b = static_cast<float>(color.b) / 255;
+    return *this;
+  }
+  // Array-style access (read/write)
+  float &operator[](size_t index) {
+    if (index >= 3)
+      throw std::out_of_range("Color3Float index out of range");
+    return data[index];
+  }
+
+  // Array-style access (read-only version)
+  const float &operator[](size_t index) const {
+    if (index >= 3)
+      throw std::out_of_range("Color3Float index out of range");
+    return data[index];
+  }
 };
 typedef unsigned char Color3Array[3];
 } // namespace CinnamonToast
