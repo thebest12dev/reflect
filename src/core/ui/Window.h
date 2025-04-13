@@ -47,8 +47,7 @@ private:
 public:
   COMPONENT_DECL(Window);
   CTOAST_API Window(HINSTANCE instance);
-  CTOAST_API Window(HINSTANCE instance, OpenGLContext ctx,
-                    bool customPipeline = false);
+  CTOAST_API Window(HINSTANCE instance, OpenGLContext ctx);
   CTOAST_API void setTitle(std::string title);
   // // void SetSize(Vector2 dim);
   CTOAST_API static LRESULT CALLBACK windowProc(HWND hwnd, UINT uMsg,

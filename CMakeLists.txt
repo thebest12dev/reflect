@@ -55,8 +55,8 @@ if(UNIX)
     set(JNI_INCLUDE_DIR "$ENV{JAVA_HOME}/include/linux" "$ENV{JAVA_HOME}/include")
 endif(UNIX)
 if(DEFINED CTOAST_BUNDLE) 
-    file(GLOB_RECURSE CTOAST_COMMONS "src/common/*.cpp" "src/common/*.h")
-    
+    file(GLOB_RECURSE CTOAST_COMMONS "src/common/*.h" )
+    file(GLOB_RECURSE CTOAST_COMMONS_CORE "src/common/*.h"  "src/common/*.cpp")
     add_library(CinnamonToast SHARED ${CTOAST_CSTYLE} 
                 ${CTOAST_CRASHHANDLER} 
                 ${CTOAST_LUA}
@@ -67,14 +67,16 @@ if(DEFINED CTOAST_BUNDLE)
     target_compile_definitions(CinnamonToast PRIVATE CTOAST_LUA=1)
     target_compile_definitions(CinnamonToast PRIVATE CTOAST_BUILDING=1)
     target_compile_definitions(CinnamonToast PRIVATE CTOAST_BUNDLED=1)
+
 else()
+    file(GLOB_RECURSE CTOAST_COMMONS_CORE "src/common/*.h"  "src/common/*.cpp")
     # Add the source files for the specific DLLs
     add_library(CinnamonToast.CStyleAPI SHARED ${CTOAST_CSTYLE} "src/windows/CinnamonToast.CStyleAPI.rc")
     add_library(CinnamonToast.CrashHandler SHARED ${CTOAST_CRASHHANDLER} "src/windows/CinnamonToast.CrashHandler.rc")
     add_library(CinnamonToast.LuaAPI SHARED ${CTOAST_LUA} "src/windows/CinnamonToast.LuaAPI.rc")
     add_library(CinnamonToast.JavaAPI SHARED ${CTOAST_JAVA} "src/windows/CinnamonToast.JavaAPI.rc")
     add_library(CinnamonToast.Networking SHARED ${CTOAST_NET})
-    add_library(CinnamonToast.Core SHARED ${CTOAST_CORE} "src/windows/CinnamonToast.Core.rc") 
+    add_library(CinnamonToast.Core SHARED ${CTOAST_CORE} ${CTOAST_COMMONS_CORE} "src/windows/CinnamonToast.Core.rc") 
     target_compile_definitions(CinnamonToast.Core PRIVATE CTOAST_SHARED_LIBRARY=1)
     target_compile_definitions(CinnamonToast.Core PRIVATE CTOAST_EXT_NETWORKING=1)
     target_compile_definitions(CinnamonToast.CrashHandler PRIVATE CTOAST_SHARED_LIBRARY=1)
@@ -145,7 +147,7 @@ endif()
 target_compile_definitions(ctoastt PRIVATE CTOAST_TESTS=1)
 # add tests
 target_link_libraries(ctoastt PRIVATE GTest::gtest GTest::gtest_main)
-
+ 
 if(DEFINED CTOAST_BUNDLE)
     target_include_directories(CinnamonToast PRIVATE ${JNI_INCLUDE_DIR})
     target_include_directories(CinnamonToast PRIVATE "${CMAKE_SOURCE_DIR}/src/common")

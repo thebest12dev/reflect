@@ -1,13 +1,18 @@
 <!--
 -->
 <root version="1" uiVersion="1.0.0">
-    <window title="CinnamonToast Demo" width="800" height="500" bgColor="systemDefault" id="mainWindow" >
-      <library location="main.dll" type="native"/>
-      <graphicsContext type="opengl"/>
+    <window title="CToasti" width="800" height="500" bgColor="systemDefault" id="mainWindow" >
+      <!-- <library location="main.dll" type="native"/> -->
+      <!-- <graphicsContext type="opengl"/> -->
       <menuBar>
-          <menuItem>hi</menuItem>
+          <menuItem>File</menuItem>
+          <menuItem>Edit</menuItem>
+          <menuItem>Help</menuItem>
       </menuBar>
-      <label x="330" y="60" font="Segoe UI" fontSize="16" id="btn1">test</label>
+      <button x="330" y="180" font="Segoe UI" fontSize="16" id="btn3">This is a button.</button>
+      <label x="330" y="60" font="Segoe UI" fontSize="16" id="btn1">This is a label.</label>
+      <label x="330" y="90" font="Consolas" fontSize="13" id="btn2">This is a label, in another font.</label>
+      <progressBar x="100" y="200" width="200" height="20" value="50" min="0" max="100" id="pb1"/>
     </window>
 </root>
 <!-- <root version="1" uiVersion="1.0.0">

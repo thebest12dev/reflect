@@ -18,8 +18,8 @@
  */
 #ifdef _WIN32
 #include "Label.h"
-#include "../Console.h"
 #include "../Utilities.h"
+#include "Console.h"
 #include "Definitions.h"
 #include "TypeDefinitions.h"
 #include <iostream>

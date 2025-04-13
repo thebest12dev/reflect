@@ -1,5 +1,5 @@
 #include "OpenGLContext.h"
-#include "../Console.h"
+#include "Console.h"
 #include "Windows.h"
 
 namespace CinnamonToast {

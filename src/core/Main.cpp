@@ -27,6 +27,7 @@ typedef unsigned char byte;
 #endif
 
 // standard libraries we need
+#include "logging/LogBuffer.h"
 #include <cstdint>
 #include <exception>
 #include <filesystem>
@@ -72,6 +73,7 @@ typedef unsigned char byte;
 // standard libs
 #include "ui/MenuBar.h"
 #include "ui/Notification.h"
+#include "ui/ProgressBar.h"
 #include <cstdint>
 #include <filesystem>
 #include <iostream>
@@ -171,7 +173,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
       HINSTANCE hInstance = GetModuleHandle(nullptr);
       ctoastDebug("creating window...");
       OpenGLContext ctx;
-      win = new Window(hInstance, ctx, true);
+      win = new Window(hInstance, ctx);
     }
   }
 
@@ -214,6 +216,23 @@ int ctoast invokeExecutable(std::string xmlFile) {
     labelComp->setFont(label->Attribute("font"));
     labelComp->setFontSize(std::stoi(label->Attribute("fontSize")));
     win->add(*labelComp, id);
+  }
+  ctoastDebug("parsing progress bars...");
+  for (tinyxml2::XMLElement *label = winXml->FirstChildElement("progressBar");
+       label != nullptr; label = label->NextSiblingElement("progressBar")) {
+    // Access attributes
+    std::string id = label->Attribute("id");
+    Vector2 position(std::stoi(label->Attribute("x")),
+                     std::stoi(label->Attribute("y")));
+    Vector2 size(std::stoi(label->Attribute("width")),
+                 std::stoi(label->Attribute("height")));
+    ProgressBar *pb = new ProgressBar();
+    pb->setMininumValue(std::stof(label->Attribute("min")));
+    pb->setMaximumValue(std::stof(label->Attribute("max")));
+    pb->setValue(std::stoi(label->Attribute("value")));
+    pb->setPosition(position);
+    pb->setSize(size);
+    win->add(*pb, id);
   }
   ctoastDebug("parsing buttons...");
   for (tinyxml2::XMLElement *button = winXml->FirstChildElement("button");
@@ -285,7 +304,8 @@ int ctoast invokeExecutable(std::string xmlFile) {
   if (menu) {
     MenuBar *menuBar = new MenuBar();
     for (tinyxml2::XMLElement *menuItem = menu->FirstChildElement("menuItem");
-         menuItem != nullptr; menuItem = menu->NextSiblingElement("menuItem")) {
+         menuItem != nullptr;
+         menuItem = menuItem->NextSiblingElement("menuItem")) {
       MenuItem *item = new MenuItem(menuItem->GetText());
       menuBar->add(*item);
     }
@@ -304,14 +324,34 @@ int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
   CinnamonToast::CrashHandler *ch = new CinnamonToast::CrashHandler(config);
   CinnamonToast::CrashManager::setActiveCrashHandler(ch);
 
+  LogBuffer logbuf;
+
+  std::cout.rdbuf(&logbuf);
   try {
-    ctoastPrintln(APP_NAME + std::string(" ") + APP_VERSION);
+
     if (argc <= 1) {
+
       ctoastError("ctoastError: no files specified. please pass an argument to "
                   "a valid file");
       ctoastError("ctoastError code: ERROR_NO_FILES_SPECIFIED");
       return CTOAST_ERROR_NO_FILES_SPECIFIED;
     } else {
+      for (std::string arg : argv) {
+        if (arg == "--help" || arg == "-h") {
+          ctoastPrintln("usage: " + argv[0] + " <file/url> [--verbose]");
+          ctoastPrintln("options:");
+          ctoastPrintln("  --help, -h         show this help message");
+          ctoastPrintln("  --verbose          shows debug info");
+          ctoastPrintln("  --version, -v      shows version");
+          return 0;
+        } else if (arg == "--verbose") {
+          ctoastDebugEnabled(true);
+          ctoastInfo("verbose enabled, debug logs shown");
+        } else if (arg == "--version" || arg == "-v") {
+          ctoastPrintln(APP_NAME + std::string(" ") + APP_VERSION);
+          return 0;
+        }
+      }
       ctoastInfo("launching executable...");
       return CinnamonToast::invokeExecutable(argv[1]);
     }

@@ -18,6 +18,7 @@
  */
 #pragma once
 
+#include "ConsoleHelper.h"
 #include "TypeDefinitions.h"
 #include <iostream>
 #include <string>
@@ -27,9 +28,9 @@
 #define ctoastInfo(obj) CinnamonToast::Console::info(obj, __func__);
 #define ctoastWarn(obj) CinnamonToast::Console::warn(obj, __func__);
 #define ctoastDebug(obj) CinnamonToast::Console::debug(obj, __func__);
+#define ctoastDebugEnabled CinnamonToast::Console::setDebugEnabled
 namespace CinnamonToast {
 namespace Console {
-
 template <typename T> CTOAST_API void print(const T &obj) { std::cout << obj; };
 template <typename T> CTOAST_API void println(const T &obj) {
   std::cout << obj << std::endl;
@@ -48,7 +49,9 @@ CTOAST_API void warn(const T &obj, std::string ctx = "default") {
 };
 template <typename T>
 CTOAST_API void debug(const T &obj, std::string ctx = "default") {
-  std::cout << "[DEBUG] " << "[" << ctx << "]: " << obj << std::endl;
+  if (getDebugEnabled()) {
+    std::cout << "[DEBUG] " << "[" << ctx << "]: " << obj << std::endl;
+  }
 };
 } // namespace Console
 } // namespace CinnamonToast

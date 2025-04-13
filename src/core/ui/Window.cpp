@@ -171,7 +171,6 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
       if (!openglRendering && firstUpdate) {
         glHdc = GetDC(hwnd);
         if (pThis->useGL) {
-          ctoastDebug("a");
           pThis->glCtx->initializeContext(*pThis, hdc);
         }
         currentContext = wglGetCurrentContext();
@@ -304,11 +303,21 @@ void ctoast Window::showNotification(Notification &notif) {
 //     }
 // }
 void ctoast Window::add(ctoast Component &comp) {
+  if (customPipeline) {
+    ctoastWarn("Since a custom pipeline is used, the component will not be "
+               "rendered.");
+    return;
+  }
   ctoastDebug("added new component");
   comp.winstance = this->winstance;
   comp.render(this->hwnd, this->hwnd);
 }
 void ctoast Window::add(ctoast Component &comp, std::string id) {
+  if (customPipeline) {
+    ctoastWarn("Since a custom pipeline is used, the component will not be "
+               "rendered.");
+    return;
+  }
   ctoastDebug("added new component");
   if (Components::gchildren[id] == nullptr) {
     Components::gchildren[id] = &comp;
@@ -329,7 +338,7 @@ void ctoast Window::setSize(Vector2 size) {
   );
 }
 ctoast Window::Window(HINSTANCE instance)
-    : winstance(instance), useGL(false), glCtx(nullptr) {
+    : winstance(instance), useGL(false), glCtx(nullptr), customPipeline(false) {
   ctoastDebug("initializing win32 parameters...");
   WNDCLASS wc = {};
   wc.lpfnWndProc = windowProc; // Window procedure
@@ -352,10 +361,8 @@ ctoast Window::Window(HINSTANCE instance)
     exit(1);
   }
 }
-ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx,
-                      bool customPipeline)
-    : winstance(instance), useGL(true), glCtx(&ctx),
-      customPipeline(customPipeline) {
+ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx)
+    : winstance(instance), useGL(true), glCtx(&ctx), customPipeline(true) {
   ctoastDebug("initializing win32 parameters...");
   WNDCLASS wc = {};
   wc.lpfnWndProc = windowProc; // Window procedure
@@ -426,12 +433,12 @@ int ctoast Window::run(void (*func)(Window &win)) {
       TranslateMessage(&msg);
       DispatchMessage(&msg);
     }
-    if (openglRendering && currentContext != nullptr) {
-      glClearColor(bgColor[0], bgColor[1], bgColor[2], 1.0);
-      glClear(GL_COLOR_BUFFER_BIT);
-      // Clear the color buffer
-      SwapBuffers(glHdc);
-    }
+    // if (openglRendering && currentContext != nullptr) {
+    //   glClearColor(bgColor[0], bgColor[1], bgColor[2], 1.0);
+    //   glClear(GL_COLOR_BUFFER_BIT);
+    //   // Clear the color buffer
+    //   SwapBuffers(glHdc);
+    // }
 
     // Perform other tasks here while the message loop is running
     // Example: process background tasks, update UI, etc.
