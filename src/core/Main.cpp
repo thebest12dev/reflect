@@ -324,9 +324,9 @@ int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
   CinnamonToast::CrashHandler *ch = new CinnamonToast::CrashHandler(config);
   CinnamonToast::CrashManager::setActiveCrashHandler(ch);
 
-  LogBuffer logbuf;
+  /*LogBuffer logbuf;
 
-  std::cout.rdbuf(&logbuf);
+  std::cout.rdbuf(&logbuf);*/
   try {
 
     if (argc <= 1) {

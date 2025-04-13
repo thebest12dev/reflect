@@ -45,6 +45,7 @@ void ctoast Window::setColor(uint8_t r, uint8_t g, uint8_t b) {
   this->bgColor[1] = g / 255.0f;
   this->bgColor[2] = b / 255.0f;
 }
+CinnamonToast::Vector2 ctoast Window::getSize() { return size; }
 // Due to floating point operations, may not produce exact color
 void ctoast Window::setColor(Color3 color) {
   this->bgColor.r = color.r / 255.0f;
@@ -326,14 +327,15 @@ void ctoast Window::add(ctoast Component &comp, std::string id) {
     comp.render(this->hwnd, this->hwnd);
   }
 }
-void ctoast Window::setSize(Vector2 size) {
+void ctoast Window::setSize(Vector2 size_) {
   ctoastDebug("resized window");
-  SetWindowPos(hwnd,   // Handle to the window
-               NULL,   // Z-order (NULL if not changing the order)
-               100,    // New X position
-               100,    // New Y position
-               size.x, // New width
-               size.y, // New height
+  size = size_;
+  SetWindowPos(hwnd,    // Handle to the window
+               NULL,    // Z-order (NULL if not changing the order)
+               100,     // New X position
+               100,     // New Y position
+               size_.x, // New width
+               size_.y, // New height
                SWP_NOZORDER | SWP_NOACTIVATE // Flags
   );
 }

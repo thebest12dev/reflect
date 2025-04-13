@@ -29,12 +29,16 @@ using byte = unsigned char;
     linker,                                                                    \
     "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version = '6.0.0.0' processorArchitecture = '*' publicKeyToken = '6595b64144ccf1df' language = '*'\"")
 #endif
+#include "../core/logging/LogBuffer.h"
 #include "Main.h"
 #include "Utilities.h"
 
 // main function
 int main(int argc, char const *argv[]) {
   // expression to load ctoast
+  CinnamonToast::LogBuffer logbuf;
+
+  std::cout.rdbuf(&logbuf);
   return CinnamonToast::cliMain(
       argc, CinnamonToast::Utilities::cstrArrToVector(argv));
 }

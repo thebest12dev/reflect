@@ -47,15 +47,17 @@ struct Color3Float {
   }
   // Array-style access (read/write)
   float &operator[](size_t index) {
-    if (index >= 3)
-      throw std::out_of_range("Color3Float index out of range");
+    if (index >= 3) {
+      float value = 0.0f;
+      return value;
+    }
     return data[index];
   }
 
   // Array-style access (read-only version)
   const float &operator[](size_t index) const {
     if (index >= 3)
-      throw std::out_of_range("Color3Float index out of range");
+      return 0;
     return data[index];
   }
 };
