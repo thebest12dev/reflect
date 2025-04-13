@@ -41,74 +41,19 @@ void ctoast Button::render(HWND &parentHWND, HWND &windowHWND) {
     std::exit(CTOAST_ERROR_WIN_PARENT_HWND_INVALID);
   }
 
+  // Create the button window
   hwnd = CreateWindow(
       "BUTTON",                        // Predefined class for a Button
       text.c_str(),                    // Button text
       WS_VISIBLE | WS_CHILD | BS_FLAT, // Styles: visible and child window
       position.x, position.y,          // Position (x, y)
-      size.y, size.y,                  // Size (width, height)
+      size.x, size.y,                  // Size (width, height)
       parentHWND,                      // Parent window handle
       NULL,                            // No menu or child ID
       winstance,                       // Instance handle
       NULL                             // Additional application data
   );
-  if (size.x == 0 && size.y == 0) {
-    // Get the device context of the Button
-    HDC hdc = GetDC(hwnd);
 
-    // Get the font used by the Button
-    HFONT hFont = (HFONT)SendMessage(hwnd, WM_GETFONT, 0, 0);
-    if (hFont) {
-      SelectObject(hdc, hFont); // Select the font into the device context
-    }
-
-    // Calculate the size of the text
-    SIZE textSize;
-    GetTextExtentPoint32(hdc, text.c_str(), (int)text.length(), &textSize);
-    // // Get device context of the Button
-    // RECT parentRect;
-    // GetClientRect(windowHWND, &parentRect); // Get the client area of the
-    // parent window
-
-    // // Calculate the maximum available width for the Button
-    // int maxWidth = parentRect.right;
-
-    // RECT ButtonRect;
-    // GetWindowRect(hwnd, &ButtonRect);
-    // MapWindowPoints(NULL, windowHWND, (LPPOINT)&ButtonRect, 2); // Convert to
-    // client coordinates int ButtonX = ButtonRect.left;
-
-    // int availableWidth = maxWidth - ButtonX; // Remaining width from the
-    // Button's position
-
-    // // Use DrawText to calculate the required dimensions
-    // RECT textRect = { 0, 0, availableWidth, 0 }; // Limit width to the
-    // available space DrawText(hdc, text.c_str(), -1, &textRect, DT_CALCRECT |
-    // DT_WORDBREAK);
-
-    // // The textRect now contains the required width and height
-    // int textWidth = textRect.right - textRect.left;
-    // int textHeight = textRect.bottom - textRect.top;
-
-    // // Retrieve font metrics for accurate line height
-    // TEXTMETRIC textMetric;
-    // GetTextMetrics(hdc, &textMetric);
-    // int lineHeight = textMetric.tmHeight; // Height of a single line (ascent
-    // + descent)
-
-    // // Calculate the number of lines (total height / line height)
-    // int totalLines = textHeight / lineHeight;
-    // Release the device context
-    ReleaseDC(hwnd, hdc);
-
-    SetWindowPos(hwnd,                         // Handle to the Button
-                 NULL,                         // No z-order change
-                 position.x, position.y,       // X and Y (ignored here)
-                 textSize.cx + (fontSize * 2), // New width
-                 fontSize,                     // New height
-                 SWP_NOZORDER | SWP_NOMOVE // Don't change z-order or position
-    );
-  }
   if (!hwnd) {
     std::cout << getLastErrorAsString();
     return;
@@ -118,8 +63,32 @@ void ctoast Button::render(HWND &parentHWND, HWND &windowHWND) {
   HFONT hFont = ctoast Utilities::getFont(fontStr, fontSize);
 
   if (hFont) {
-    // Set the font for the Button
+    // Set the font for the button
     SendMessage(hwnd, WM_SETFONT, (WPARAM)hFont, TRUE);
+  }
+
+  // Resize the button based on the text and font size
+  HDC hdc = GetDC(hwnd);
+  if (hdc) {
+    // Select the font into the device context
+    HFONT oldFont = (HFONT)SelectObject(hdc, hFont);
+
+    // Calculate the size of the text
+    SIZE textSize;
+    GetTextExtentPoint32(hdc, text.c_str(), (int)text.length(), &textSize);
+
+    // Update the button's size
+    SetWindowPos(hwnd,                         // Handle to the button
+                 NULL,                         // No z-order change
+                 position.x, position.y,       // X and Y (ignored here)
+                 textSize.cx + (fontSize * 2), // New width (padding added)
+                 textSize.cy + (fontSize / 2), // New height (padding added)
+                 SWP_NOZORDER | SWP_NOMOVE // Don't change z-order or position
+    );
+
+    // Restore the old font and release the device context
+    SelectObject(hdc, oldFont);
+    ReleaseDC(hwnd, hdc);
   }
 }
 

@@ -9,9 +9,9 @@
           <menuItem>Edit</menuItem>
           <menuItem>Help</menuItem>
       </menuBar>
-      <button x="330" y="180" font="Segoe UI" fontSize="16" id="btn3">This is a button.</button>
-      <label x="330" y="60" font="Segoe UI" fontSize="16" id="btn1">This is a label.</label>
-      <label x="330" y="90" font="Consolas" fontSize="13" id="btn2">This is a label, in another font.</label>
+      <button x="330" y="180" font="Segoe UI" fontSize="36" id="btn3">This is a button.</button>
+      <label x="330" y="60" font="Segoe UI" fontSize="31" id="btn1">This is a label. Foo bar baz foo bar baz. hsafhdskajhfdsahfkdshfalkjdshfjldsahflksadhflkjdsahfkjsadhflkjdsahflkjdashflkjdshflkjsadhfkjdshfksdhf</label>
+      <label x="330" y="90" font="Consolas" fontSize="32" id="btn2">This is a label, in another font.</label>
       <progressBar x="100" y="200" width="200" height="20" value="50" min="0" max="100" id="pb1"/>
     </window>
 </root>
@@ -24,4 +24,7 @@
 
       </shader>
     </resources>
-</root> -->
+</root> 
+
+
+-->
