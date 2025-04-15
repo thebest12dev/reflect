@@ -23,7 +23,24 @@
 #pragma once
 
 namespace CinnamonToast {
+/**
+ * @brief Loads and executes the specified XML file.
+ */
 CTOAST_API int invokeExecutable(std::string xmlFile);
+
+/**
+ * @brief Main entry point for the CLI application.
+ */
 CTOAST_API int cliMain(const uint8_t argc, const std::vector<std::string> argv);
 } // namespace CinnamonToast
+
+/**
+ * @brief Console entry point.
+ */
 int main(const int argc, const char *argv[]);
+
+/**
+ * @brief Windows entry point.
+ */
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                   LPSTR lpCmdLine, int nCmdShow);

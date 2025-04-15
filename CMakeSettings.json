@@ -12,7 +12,7 @@
       "cmakeCommandArgs": "",
       "ctestCommandArgs": ""
     },
-    {
+    { 
       "name": "x64-Release",
       "generator": "Ninja",
       "configurationType": "Release",

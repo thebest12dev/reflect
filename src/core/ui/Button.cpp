@@ -16,32 +16,50 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifdef _WIN32
-#include <windows.h> // or any other conflicting headers
 
+#ifdef _WIN32
+#include "Button.h"
 #include "../Utilities.h"
 #include "Console.h"
 #include "Definitions.h"
 #include "TypeDefinitions.h"
 #include <iostream>
+#include <windows.h>
 
-#include "Button.h"
 using namespace CinnamonToast::Console;
 using namespace CinnamonToast::Utilities;
+
+/**
+ * @brief Sets the font of the button.
+ *
+ * @param font The font name to set. If "default", the default font is used.
+ */
 void ctoast Button::setFont(std::string font) {
   fontStr = font;
   if (font == "default") {
     fontStr = DEFAULT_FONT;
   }
 }
+
+/**
+ * @brief Sets the font size of the button.
+ *
+ * @param size The font size to set.
+ */
 void ctoast Button::setFontSize(int size) { fontSize = size; }
+
+/**
+ * @brief Renders the button on the parent window.
+ *
+ * @param parentHWND The handle to the parent window.
+ * @param windowHWND The handle to the window.
+ */
 void ctoast Button::render(HWND &parentHWND, HWND &windowHWND) {
   if (!IsWindow(parentHWND)) {
     ctoastError("parent HWND is invalid!");
     std::exit(CTOAST_ERROR_WIN_PARENT_HWND_INVALID);
   }
 
-  // Create the button window
   hwnd = CreateWindow(
       "BUTTON",                        // Predefined class for a Button
       text.c_str(),                    // Button text
@@ -59,56 +77,61 @@ void ctoast Button::render(HWND &parentHWND, HWND &windowHWND) {
     return;
   }
 
-  // Create a custom font
   HFONT hFont = ctoast Utilities::getFont(fontStr, fontSize);
 
   if (hFont) {
-    // Set the font for the button
     SendMessage(hwnd, WM_SETFONT, (WPARAM)hFont, TRUE);
   }
 
-  // Resize the button based on the text and font size
   HDC hdc = GetDC(hwnd);
   if (hdc) {
-    // Select the font into the device context
     HFONT oldFont = (HFONT)SelectObject(hdc, hFont);
-
-    // Calculate the size of the text
     SIZE textSize;
     GetTextExtentPoint32(hdc, text.c_str(), (int)text.length(), &textSize);
 
-    // Update the button's size
-    SetWindowPos(hwnd,                         // Handle to the button
-                 NULL,                         // No z-order change
-                 position.x, position.y,       // X and Y (ignored here)
-                 textSize.cx + (fontSize * 2), // New width (padding added)
-                 textSize.cy + (fontSize / 2), // New height (padding added)
-                 SWP_NOZORDER | SWP_NOMOVE // Don't change z-order or position
-    );
+    SetWindowPos(hwnd, NULL, position.x, position.y,
+                 textSize.cx + (fontSize * 2), textSize.cy + (fontSize / 2),
+                 SWP_NOZORDER | SWP_NOMOVE);
 
-    // Restore the old font and release the device context
     SelectObject(hdc, oldFont);
     ReleaseDC(hwnd, hdc);
   }
 }
 
+/**
+ * @brief Sets the visibility of the button.
+ *
+ * @param flag True to show the button, false to hide it.
+ */
 void ctoast Button::setVisible(bool flag) {
   ShowWindow(this->hwnd, flag ? SW_SHOW : SW_HIDE);
 }
+
+/**
+ * @brief Gets the text of the button.
+ *
+ * @return The text of the button.
+ */
 std::string ctoast Button::getText() { return text; }
+
+/**
+ * @brief Constructs a Button object with the specified text and position.
+ *
+ * @param text The text to display on the button.
+ * @param pos The position of the button.
+ */
 ctoast Button::Button(std::string text, Vector2 pos)
     : position(pos), size(Vector2(0, 0)), text(text) {}
 #elif __linux__
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-
 #include "../Console.h"
 #include "../Definitions.h"
 #include "../TypeDefinitions.h"
 #include "../Utilities.h"
+#include "Button.h"
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <iostream>
 
-#include "Button.h"
 using namespace CinnamonToast::Console;
 using namespace CinnamonToast::Utilities;
 void ctoast Button::setFont(std::string font) {

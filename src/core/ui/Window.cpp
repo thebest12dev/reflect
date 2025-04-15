@@ -247,7 +247,11 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 
   return DefWindowProc(hwnd, uMsg, wParam, lParam);
 };
-void ctoast Window::showNotification(Notification &notif) {
+bool ctoast Window::showNotification(Notification &notif) {
+  if (!IsWindow(hwnd)) {
+    ctoastError("Window handle is invalid!", "showNotification");
+    return false;
+  }
   NOTIFYICONDATA nid = {};
   nid.cbSize = sizeof(NOTIFYICONDATA);
   nid.hWnd = hwnd;
@@ -260,7 +264,7 @@ void ctoast Window::showNotification(Notification &notif) {
   nid.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 
   strcpy_s(nid.szInfo, notif.text.c_str());
-  strcpy_s(nid.szTip, "");
+  strcpy_s(nid.szTip, "Tooltip");
   strcpy_s(nid.szInfoTitle, notif.title.c_str());
   // wcsncpy_s(nid.szInfoTitle, wTitle.c_str(), ARRAYSIZE(nid.szInfoTitle) - 1);
   // wcsncpy_s(nid.szInfo, wText.c_str(), ARRAYSIZE(nid.szInfo) - 1);
@@ -269,11 +273,20 @@ void ctoast Window::showNotification(Notification &notif) {
   /*wcsncpy_s(nid.szTip, tooltip.c_str(), ARRAYSIZE(nid.szTip) - 1);*/
 
   nid.dwInfoFlags = NIIF_INFO;
+  if (!Shell_NotifyIcon(NIM_ADD, &nid)) {
+    ctoastError("Failed to add notification icon! (" +
+                    std::to_string(GetLastError()) + ")",
+                "showNotification");
+    return false;
+  }
 
   // Modify the notification icon to show the balloon tip
-  if (!Shell_NotifyIcon(NIM_MODIFY, &nid)) {
-    warn("Failed to modify notification icon!", "showNotification");
-  }
+  /*if (!Shell_NotifyIcon(NIM_MODIFY, &nid)) {
+    error("Failed to modify notification icon! (" +
+              std::to_string(GetLastError()) + ")",
+          "showNotification");
+  }*/
+  return true;
 }
 
 // void ctoast Window::ShowNotification(Notification&  notif) {

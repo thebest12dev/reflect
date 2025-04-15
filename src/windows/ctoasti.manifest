@@ -1,0 +1,35 @@
+   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+   <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+       <assemblyIdentity
+            name="CinnamonToast"
+            version="1.6.0.0"
+            processorArchitecture="*"
+            type="win32"
+        />
+       <description>CinnamonToast CLI</description>
+       <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+        <application>
+            <!-- Supported Windows Versions -->
+            <supportedOS Id="{d8f102e7-9244-4f7e-8c7d-7d7a3b994d6a}"/> <!-- Windows 11 -->
+            
+            <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/> <!-- Windows 10 -->
+            <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/> <!-- Windows 8.1 -->
+            <supportedOS Id="{4f476d8e-5e6e-4d74-8a0a-8e1f6b4c5b5b}"/> <!-- Windows 8 -->
+            <supportedOS Id="{1e3126dc-6a7d-4b6d-8a0a-8e1f6b4c5b5b}"/> <!-- Windows 7 -->
+        </application>
+       </compatibility>
+       <dependency>
+           <dependentAssembly>
+               <assemblyIdentity
+                   type="win32"
+                   name="Microsoft.Windows.Common-Controls"
+                   version="6.0.0.0"
+                   processorArchitecture="*"
+                   publicKeyToken="6595b64144ccf1df"
+                   language="*"
+               />
+           </dependentAssembly>
+       </dependency>
+       
+   </assembly>
+   

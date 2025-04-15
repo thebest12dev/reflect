@@ -54,7 +54,7 @@ public:
                                                 WPARAM wParam, LPARAM lParam);
 
   CTOAST_API void add(Component &comp, std::string id);
-  CTOAST_API void showNotification(CinnamonToast::Notification &notif);
+  CTOAST_API bool showNotification(CinnamonToast::Notification &notif);
   CTOAST_API int run(void (*func)(Window &win));
   CTOAST_API void close();
   CTOAST_API operator HWND() const;

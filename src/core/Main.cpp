@@ -178,7 +178,6 @@ int ctoast invokeExecutable(std::string xmlFile) {
   }
 
 #endif
-
   ctoastDebug("window title: " + std::string(winXml->Attribute("title")));
   win->setTitle(winXml->Attribute("title"));
   ctoastDebug("resizing window...");
@@ -474,10 +473,3 @@ int ctoast CLIMain(const uint8_t argc, const vector<string> argv) {
 }
 #endif
 // Main entrypoint
-
-#ifndef CTOAST_API_library
-int main(const int argc, const char *argv[]) {
-  return CinnamonToast::cliMain(
-      argc, CinnamonToast::Utilities::cstrArrToVector(argv));
-}
-#endif

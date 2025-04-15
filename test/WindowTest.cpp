@@ -42,7 +42,11 @@ TEST_F(WindowTestFixture, WindowSetColorTest) {
   EXPECT_EQ(color.g, 128);
   EXPECT_EQ(color.b, 128);
 }
-
+TEST_F(WindowTestFixture, WindowNotificationTest) {
+  CinnamonToast::Notification notification("Test title", "Lorem ipsum dolor sit amet, consectetur adipiscing elit.");
+  bool result = window->showNotification(notification);
+  EXPECT_TRUE(result);
+}
 TEST_F(WindowTestFixture, WindowVisibilityTest) {
   window->setVisible(true);
   EXPECT_TRUE(window->getVisible());
