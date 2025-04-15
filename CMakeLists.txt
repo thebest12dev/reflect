@@ -139,7 +139,7 @@ target_include_directories(ctoastw PRIVATE "${CMAKE_SOURCE_DIR}/src/common")
 target_compile_definitions(ctoastw PRIVATE CTOAST_NO_CONSOLE=1)
 set_target_properties(ctoastw PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
      
-target_link_libraries(ctoastw PRIVATE CinnamonToast.CinnamonToast.Core)
+target_link_libraries(ctoastw PRIVATE CinnamonToast.Core)
 add_executable(ctoastt ${CTOAST_TEST})
 
 
