@@ -1,7 +1,6 @@
 #include "ProgressBar.h"
 #include <CommCtrl.h>
 #include <Windows.h>
-#define IDC_PROGRESS 101
 namespace CinnamonToast {
 ProgressBar::ProgressBar()
     : winstance(GetModuleHandle(nullptr)), hwnd(nullptr), maxValue(100.0f),
@@ -18,7 +17,7 @@ void ProgressBar::setPosition(Vector2 pos) {
 void ProgressBar::render(HWND &parentHWND, HWND &windowHWND) {
   hwnd = CreateWindowEx(0, PROGRESS_CLASS, NULL, WS_CHILD | WS_VISIBLE,
                         position.x, position.y, size.x, size.y, parentHWND,
-                        (HMENU)IDC_PROGRESS, winstance, NULL);
+                        NULL, winstance, NULL);
   SendMessage(hwnd, PBM_SETRANGE32, (WPARAM)minValue, (LPARAM)maxValue);
   SendMessage(hwnd, PBM_SETPOS, (WPARAM)value, 0);
 }

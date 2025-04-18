@@ -37,11 +37,16 @@ protected:
 
   Vector2 position;
   Vector2 size;
+  void (*clickCallback)(Button &);
 
 private:
   std::string text;
   std::string fontStr;
   int fontSize;
+  CTOAST_API static LRESULT CALLBACK buttonProc(HWND hwnd, UINT uMsg,
+                                                WPARAM wParam, LPARAM lParam,
+                                                UINT_PTR uIdSubclass,
+                                                DWORD_PTR dwRefData);
 
 public:
   friend class Component;
@@ -54,6 +59,7 @@ public:
   CTOAST_API void setFont(std::string font);
   CTOAST_API void setText(std::string text);
   CTOAST_API std::string getText();
+  CTOAST_API void onClick(void (*callback)(Button &));
   CTOAST_API void setColor(uint8_t r, uint8_t g, uint8_t b);
 };
 } // namespace CinnamonToast

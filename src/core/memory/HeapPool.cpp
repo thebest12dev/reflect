@@ -70,7 +70,7 @@ void *HeapPool::allocate(std::size_t size) {
   void *ptr = loc;
   loc += size;
   usedMemory += size; // Increase used memory
-  
+
   return ptr;
 }
 

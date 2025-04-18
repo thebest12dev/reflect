@@ -23,6 +23,7 @@
 #include "Console.h"
 #include "Definitions.h"
 #include "TypeDefinitions.h"
+#include <commctrl.h>
 #include <iostream>
 #include <windows.h>
 
@@ -48,6 +49,27 @@ void ctoast Button::setFont(std::string font) {
  */
 void ctoast Button::setFontSize(int size) { fontSize = size; }
 
+WNDPROC originalBtnProc = nullptr;
+void ctoast Button::onClick(void (*callback)(Button &)) {
+  this->clickCallback = callback;
+}
+long long CALLBACK ctoast Button::buttonProc(HWND hwnd, UINT uMsg,
+                                             WPARAM wParam, LPARAM lParam,
+                                             UINT_PTR uIdSubclass,
+                                             DWORD_PTR dwRefData) {
+  Button *pThis = nullptr;
+  pThis =
+      reinterpret_cast<ctoast Button *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+  switch (uMsg) {
+  case WM_LBUTTONUP: {
+    if (pThis->clickCallback) {
+      pThis->clickCallback(*pThis);
+    }
+  }
+  }
+  return DefSubclassProc(hwnd, uMsg, wParam, lParam);
+}
 /**
  * @brief Renders the button on the parent window.
  *
@@ -69,14 +91,15 @@ void ctoast Button::render(HWND &parentHWND, HWND &windowHWND) {
       parentHWND,                      // Parent window handle
       NULL,                            // No menu or child ID
       winstance,                       // Instance handle
-      NULL                             // Additional application data
+      this                             // Additional application data
   );
 
   if (!hwnd) {
     std::cout << getLastErrorAsString();
     return;
   }
-
+  SetWindowSubclass(hwnd, buttonProc, 0, 0);
+  SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
   HFONT hFont = ctoast Utilities::getFont(fontStr, fontSize);
 
   if (hFont) {

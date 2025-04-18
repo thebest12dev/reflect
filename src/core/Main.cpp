@@ -52,6 +52,7 @@ typedef unsigned char byte;
 #include "Main.h"
 #include "TypeDefinitions.h"
 #include "Utilities.h"
+#include "ui/TextField.h"
 // ui components
 #include "ui/Button.h"
 #include "ui/Colors.h"
@@ -88,7 +89,6 @@ using namespace CinnamonToast::Utilities;
 namespace fs = std::filesystem;
 
 namespace {
-
 void onExecute(CinnamonToast::Window &win) { /*win.Close();*/ }
 std::vector<void *> heapAllocations;
 struct Cleaner {
@@ -107,7 +107,12 @@ Cleaner cleaner;
  */
 int ctoast invokeExecutable(std::string xmlFile) {
   // if lua enabled
+  /*INITCOMMONCONTROLSEX icex;
+  icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
+  icex.dwICC = ICC_STANDARD_CLASSES | ICC_WIN95_CLASSES;
 
+  InitCommonControlsEx(&icex);*/
+  InitCommonControls();
   // load the xml file
   tinyxml2::XMLDocument doc;
 
@@ -115,11 +120,6 @@ int ctoast invokeExecutable(std::string xmlFile) {
   ctoastInfo("platform: " + getOSPlatformAndVersion());
 
   // common control stuff
-  INITCOMMONCONTROLSEX icex;
-  icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
-  icex.dwICC = ICC_STANDARD_CLASSES;
-
-  InitCommonControlsEx(&icex);
 
   // file doesnt exist
   if (!fs::exists(xmlFile)) {
@@ -187,8 +187,9 @@ int ctoast invokeExecutable(std::string xmlFile) {
       win = new Window(hInstance, ctx);
     }
   }
-
+  win->addStyle(STYLE_DARK_TITLE_BAR);
 #endif
+
   ctoastDebug("window title: " + std::string(winXml->Attribute("title")));
   win->setTitle(winXml->Attribute("title"));
   ctoastDebug("resizing window...");
@@ -227,6 +228,20 @@ int ctoast invokeExecutable(std::string xmlFile) {
     labelComp->setFont(label->Attribute("font"));
     labelComp->setFontSize(std::stoi(label->Attribute("fontSize")));
     win->add(*labelComp, id);
+  }
+  ctoastDebug("parsing text fields...");
+  for (tinyxml2::XMLElement *field = winXml->FirstChildElement("textField");
+       field != nullptr; field = field->NextSiblingElement("textField")) {
+    // Access attributes
+    std::string id = field->Attribute("id");
+    Vector2 position(std::stoi(field->Attribute("x")),
+                     std::stoi(field->Attribute("y")));
+    TextField *fieldComp = new TextField();
+    heapAllocations.push_back(fieldComp);
+    fieldComp->setSize(Vector2(std::stoi(field->Attribute("width")),
+                               std::stoi(field->Attribute("height"))));
+    fieldComp->setPosition(position);
+    win->add(*fieldComp, id);
   }
   ctoastDebug("parsing progress bars...");
   for (tinyxml2::XMLElement *label = winXml->FirstChildElement("progressBar");

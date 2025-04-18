@@ -10,7 +10,9 @@
        <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
         <application>
             <!-- Supported Windows Versions -->
-            <supportedOS Id="{d8f102e7-9244-4f7e-8c7d-7d7a3b994d6a}"/> <!-- Windows 11 -->
+			<useLegacyVisualStyles value="false"/>
+
+			<supportedOS Id="{d8f102e7-9244-4f7e-8c7d-7d7a3b994d6a}"/> <!-- Windows 11 -->
             
             <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/> <!-- Windows 10 -->
             <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/> <!-- Windows 8.1 -->

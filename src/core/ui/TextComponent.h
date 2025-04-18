@@ -37,8 +37,6 @@ protected:
   Vector2 position;
   Vector2 size;
   Color3 color;
-
-private:
   std::string text;
   std::string fontStr;
   int fontSize;
@@ -48,7 +46,6 @@ public:
   CTOAST_API virtual void render(HWND &parentHWND, HWND &windowHWND) = 0;
   CTOAST_API void setVisible(bool flag);
   CTOAST_API void add(Component &comp);
-  CTOAST_API void setSize(Vector2 size);
   CTOAST_API void setVisible(int cmd);
   CTOAST_API void setColor(uint8_t r, uint8_t g, uint8_t b);
   CTOAST_API void setColor(Color3 color);

@@ -34,6 +34,7 @@
 
 #include "Vector2.h"
 namespace CinnamonToast {
+enum WindowStyle { STYLE_DARK_TITLE_BAR };
 class Window : public Component {
 protected:
   HINSTANCE winstance;
@@ -49,6 +50,7 @@ public:
   CTOAST_API Window(HINSTANCE instance);
   CTOAST_API Window(HINSTANCE instance, OpenGLContext ctx);
   CTOAST_API void setTitle(std::string title);
+  CTOAST_API void addStyle(WindowStyle style);
   // // void SetSize(Vector2 dim);
   CTOAST_API static LRESULT CALLBACK windowProc(HWND hwnd, UINT uMsg,
                                                 WPARAM wParam, LPARAM lParam);

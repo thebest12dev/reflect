@@ -33,13 +33,33 @@
 #include "Notification.h"
 #include <cstdio>
 #include <d2d1.h>
-
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
 using namespace CinnamonToast::Console;
 // Direct2D-specific members
 ID2D1Factory *pFactory = nullptr;
 ID2D1HwndRenderTarget *pRenderTarget = nullptr;
 // Due to floating point operations, may not produce exact color
+void ctoast Window::addStyle(WindowStyle style) {
+  switch (style) {
+  case STYLE_DARK_TITLE_BAR:
+    ctoastDebug("enabling dark title bar...")
+        // Enable dark mode title bar
+        BOOL dark = TRUE;
+    DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &dark,
+                          sizeof(dark));
 
+    // Enable rounded corners
+    DWM_WINDOW_CORNER_PREFERENCE cornerPreference = DWMWCP_ROUND;
+    DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE,
+                          &cornerPreference, sizeof(cornerPreference));
+
+    // Enable Mica background
+    DWM_SYSTEMBACKDROP_TYPE backdropType = DWMSBT_MAINWINDOW;
+    DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &backdropType,
+                          sizeof(backdropType));
+  }
+}
 void ctoast Window::setColor(uint8_t r, uint8_t g, uint8_t b) {
   this->bgColor[0] = r / 255.0f;
   this->bgColor[1] = g / 255.0f;
