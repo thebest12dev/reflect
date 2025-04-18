@@ -11,6 +11,10 @@ if (POLICY CMP0141)
   endif()
   
 endif()
+# Enable exceptions in MSVC
+if(MSVC)
+    add_compile_options(/EHsc)
+endif()
 
 # Define the project
 set(TRIPLET "x64-windows")
@@ -105,7 +109,7 @@ else()
 endif()
 #link_directories("${CMAKE_BINARY_DIR}/vcpkg_installed/${TRIPLET}/lib")
 
-set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
+#set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 file(GLOB_RECURSE CTOAST_FILES "src/*.cpp" "src/*.c" "src/*.h")
 
 # Define a custom target to run clang-format
@@ -141,8 +145,6 @@ set_target_properties(ctoastw PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
      
 target_link_libraries(ctoastw PRIVATE CinnamonToast.Core)
 add_executable(ctoastt ${CTOAST_TEST})
-
-
 find_package(tinyxml2 CONFIG REQUIRED)
 find_package(GTest REQUIRED)
 find_package(OpenSSL REQUIRED)

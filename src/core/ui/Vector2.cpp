@@ -19,4 +19,68 @@
 #include "Vector2.h"
 #include "TypeDefinitions.h"
 
-ctoast Vector2::Vector2(int v1, int v2) : x(v1), y(v2) {};
+namespace CinnamonToast {
+
+Vector2::Vector2() = default;
+
+Vector2::Vector2(int x, int y) : x(x), y(y) {}
+
+Vector2 Vector2::operator+(const Vector2 &vec) const noexcept {
+  return Vector2(this->x + vec.x, this->y + vec.y);
+}
+
+Vector2 Vector2::operator-(const Vector2 &vec) const noexcept {
+  return Vector2(this->x - vec.x, this->y - vec.y);
+}
+
+Vector2 Vector2::operator*(const Vector2 &vec) const noexcept {
+  return Vector2(this->x * vec.x, this->y * vec.y);
+}
+
+Vector2 Vector2::operator/(const Vector2 &vec) const noexcept {
+  return Vector2(this->x / vec.x, this->y / vec.y);
+}
+
+Vector2 &Vector2::operator+=(const Vector2 &vec) noexcept {
+  this->x += vec.x;
+  this->y += vec.y;
+  return *this;
+}
+
+Vector2 &Vector2::operator-=(const Vector2 &vec) noexcept {
+  this->x -= vec.x;
+  this->y -= vec.y;
+  return *this;
+}
+
+Vector2 &Vector2::operator*=(const Vector2 &vec) noexcept {
+  this->x *= vec.x;
+  this->y *= vec.y;
+  return *this;
+}
+
+Vector2 &Vector2::operator/=(const Vector2 &vec) noexcept {
+  this->x /= vec.x;
+  this->y /= vec.y;
+  return *this;
+}
+
+Vector2 Vector2::operator<<(int shift) const noexcept {
+  return Vector2(this->x << shift, this->y << shift);
+}
+
+Vector2 Vector2::operator>>(int shift) const noexcept {
+  return Vector2(this->x >> shift, this->y >> shift);
+}
+
+Vector2 Vector2::operator&(const Vector2 &vec) const noexcept {
+  return Vector2(this->x & vec.x, this->y & vec.y);
+}
+
+Vector2 Vector2::operator|(const Vector2 &vec) const noexcept {
+  return Vector2(this->x | vec.x, this->y | vec.y);
+}
+Vector2::operator std::vector<int>() const noexcept {
+  return std::vector<int>{x, y};
+}
+} // namespace CinnamonToast

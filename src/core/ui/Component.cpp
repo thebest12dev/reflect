@@ -17,12 +17,12 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #include "Component.h"
+#include "../memory/HeapPool.h"
 #include "Colors.h"
 #include "TypeDefinitions.h"
 #include "Vector2.h"
 #include <cstdint>
 #include <string>
-
 ctoast Component::Component()
     : position(Vector2(0, 0)), size(Vector2(0, 0)),
       bgColor(Color3Float(1, 1, 1)) {}
@@ -54,6 +54,40 @@ void ctoast Component::setColor(uint8_t r, uint8_t g, uint8_t b) {
 }
 ctoast Vector2 ctoast Component::getPosition() { return position; };
 ctoast Vector2 ctoast Component::getSize() { return size; };
+namespace CinnamonToast {
+void *Component::operator new(std::size_t size) {
+  if (!getHeapPool()) {
+    throw std::bad_alloc(); // Handle allocation failure
+  }
+  void *ptr = getHeapPool()->allocate(size);
+  if (!ptr) {
+    throw std::bad_alloc(); // Handle allocation failure
+  }
+  return ptr;
+}
+
+void Component::operator delete(void *ptr) noexcept {
+  if (!getHeapPool()) {
+    throw std::bad_alloc(); // Handle deallocation failure
+  }
+  getHeapPool()->deallocate(ptr, sizeof(ptr));
+}
+
+void *Component::operator new[](std::size_t size) {
+  if (!getHeapPool()) {
+    throw std::bad_alloc(); // Handle deallocation failure
+  }
+  void *ptr = getHeapPool()->allocate(size);
+  return ptr;
+}
+
+void Component::operator delete[](void *ptr) noexcept {
+  if (!getHeapPool()) {
+    throw std::bad_alloc(); // Handle deallocation failure
+  }
+  getHeapPool()->deallocate(ptr, sizeof(ptr));
+}
+} // namespace CinnamonToast
 #ifdef __linux__
 
 // std::string ctoast Component::GetProperty(std::string property) {

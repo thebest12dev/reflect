@@ -168,6 +168,10 @@ public:
    * @returns The component's color.
    */
   CTOAST_API Color3 getColor();
+  CTOAST_API void *operator new(std::size_t size);
+  CTOAST_API void operator delete(void *ptr) noexcept;
+  CTOAST_API void *operator new[](std::size_t size);
+  CTOAST_API void operator delete[](void *ptr) noexcept;
 
   friend class Window;
   friend class Label;

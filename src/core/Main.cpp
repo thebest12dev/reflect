@@ -71,6 +71,7 @@ typedef unsigned char byte;
 #include <commctrl.h>
 
 // standard libs
+#include "memory/HeapPool.h"
 #include "ui/MenuBar.h"
 #include "ui/Notification.h"
 #include "ui/ProgressBar.h"
@@ -80,7 +81,6 @@ typedef unsigned char byte;
 #include <memory> // for std::unique_ptr
 #include <string>
 #include <vector>
-
 // using namespaces and alias
 using namespace CinnamonToast::Console;
 using namespace CinnamonToast::Utilities;
@@ -88,7 +88,18 @@ using namespace CinnamonToast::Utilities;
 namespace fs = std::filesystem;
 
 namespace {
+
 void onExecute(CinnamonToast::Window &win) { /*win.Close();*/ }
+std::vector<void *> heapAllocations;
+struct Cleaner {
+  ~Cleaner() {
+    for (void *ptr : heapAllocations) {
+      CinnamonToast::getHeapPool()->deallocate(ptr, sizeof(ptr));
+    }
+  }
+};
+Cleaner cleaner;
+
 } // namespace
 /**
  * Invokes and loads a .xml file and also loads the specific libraries. It will
@@ -212,6 +223,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
     Vector2 position(std::stoi(label->Attribute("x")),
                      std::stoi(label->Attribute("y")));
     Label *labelComp = new Label(*contents, position);
+    heapAllocations.push_back(labelComp);
     labelComp->setFont(label->Attribute("font"));
     labelComp->setFontSize(std::stoi(label->Attribute("fontSize")));
     win->add(*labelComp, id);
@@ -226,6 +238,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
     Vector2 size(std::stoi(label->Attribute("width")),
                  std::stoi(label->Attribute("height")));
     ProgressBar *pb = new ProgressBar();
+    heapAllocations.push_back(pb);
     pb->setMininumValue(std::stof(label->Attribute("min")));
     pb->setMaximumValue(std::stof(label->Attribute("max")));
     pb->setValue(std::stoi(label->Attribute("value")));
@@ -240,10 +253,11 @@ int ctoast invokeExecutable(std::string xmlFile) {
     std::string id = button->Attribute("id");
     Vector2 position(std::stoi(button->Attribute("x")),
                      std::stoi(button->Attribute("y")));
-    Button buttonComp(contents, position);
-    buttonComp.setFont(button->Attribute("font"));
-    buttonComp.setFontSize(std::stoi(button->Attribute("fontSize")));
-    win->add(buttonComp, id);
+    Button *buttonComp = new Button(contents, position);
+    heapAllocations.push_back(buttonComp);
+    buttonComp->setFont(button->Attribute("font"));
+    buttonComp->setFontSize(std::stoi(button->Attribute("fontSize")));
+    win->add(*buttonComp, id);
   }
   ctoastDebug("loading libraries...");
 #ifdef CTOAST_LUA
@@ -290,6 +304,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
       if (lua == nullptr) {
         ctoastDebug("initializing lua...");
         lua = new LuaInstance();
+        heapAllocations.push_back(lua);
         lua->initializeLuaApis(injectLuaApis);
       }
 
@@ -302,10 +317,12 @@ int ctoast invokeExecutable(std::string xmlFile) {
   tinyxml2::XMLElement *menu = winXml->FirstChildElement("menuBar");
   if (menu) {
     MenuBar *menuBar = new MenuBar();
+    heapAllocations.push_back(menuBar);
     for (tinyxml2::XMLElement *menuItem = menu->FirstChildElement("menuItem");
          menuItem != nullptr;
          menuItem = menuItem->NextSiblingElement("menuItem")) {
       MenuItem *item = new MenuItem(menuItem->GetText());
+      heapAllocations.push_back(item);
       menuBar->add(*item);
     }
     win->add(*menuBar);
@@ -317,6 +334,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
   return win->run(onExecute);
 }
 int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
+
   CinnamonToast::CrashConfig config = {};
   config.crashType = CRASH_INVOKE | CRASH_SEGFAULT | CRASH_UNHANDLED_EXCEPTION;
 
@@ -335,13 +353,23 @@ int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
       ctoastError("ctoastError code: ERROR_NO_FILES_SPECIFIED");
       return CTOAST_ERROR_NO_FILES_SPECIFIED;
     } else {
+      size_t size = 64 * 1024 * 1024;
       for (std::string arg : argv) {
         if (arg == "--help" || arg == "-h") {
           ctoastPrintln("usage: " + argv[0] + " <file/url> [--verbose]");
           ctoastPrintln("options:");
-          ctoastPrintln("  --help, -h         show this help message");
-          ctoastPrintln("  --verbose          shows debug info");
-          ctoastPrintln("  --version, -v      shows version");
+          ctoastPrintln("  --help, -h ");
+          ctoastPrintln("    shows the list of arguments");
+          ctoastPrintln("  --verbose");
+          ctoastPrintln("    enables verbose logging");
+          ctoastPrintln("  --version, -v");
+          ctoastPrintln("    shows the version");
+          ctoastPrintln("  --heap=<size>, -H<size>");
+          ctoastPrintln("    sets the heap size. must be a valid");
+          ctoastPrintln("    number. default is 64MB.");
+          ctoastPrintln("  --ignore-version-compat, -ivc");
+          ctoastPrintln("    ignores version compatibility check");
+          ctoastPrintln("    (use at your own risk)");
           return 0;
         } else if (arg == "--verbose") {
           ctoastDebugEnabled(true);
@@ -349,9 +377,64 @@ int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
         } else if (arg == "--version" || arg == "-v") {
           ctoastPrintln(APP_NAME + std::string(" ") + APP_VERSION);
           return 0;
+        } else if (arg.starts_with("--heap=")) {
+          std::string heapSize = arg.substr(arg.find("=") + 1);
+          if (heapSize.empty()) {
+            ctoastError("heap size not specified");
+            return 1;
+          }
+          // MB, KB, etc.
+
+          std::string abbr = heapSize.substr(heapSize.length() - 2);
+          if (abbr == "mb" || abbr == "MB") {
+            heapSize = heapSize.substr(0, heapSize.length() - 1);
+            std::string::size_type sz;
+            size = std::stoul(heapSize, &sz);
+            if (size > 0) {
+              size *= 1024 * 1024;
+            }
+          } else if (abbr == "gb" || abbr == "GB") {
+            heapSize = heapSize.substr(0, heapSize.length() - 1);
+            std::string::size_type sz;
+            size = std::stoul(heapSize, &sz);
+            if (size > 0) {
+              size *= 1024 * 1024 * 1024;
+            }
+          }
+          // set the heap size
+
+        } else if (arg.starts_with("-H")) {
+
+          std::string heapSize = arg.substr(arg.find("-H") + 2);
+          if (heapSize.empty()) {
+            ctoastError("heap size not specified");
+            return 1;
+          }
+
+          std::string abbr = heapSize.substr(heapSize.length() - 2);
+
+          if (abbr == "mb" || abbr == "MB") {
+            heapSize = heapSize.substr(0, heapSize.length() - 1);
+            std::string::size_type sz;
+            size = std::stoul(heapSize, &sz);
+            if (size > 0) {
+              size *= 1024 * 1024;
+            }
+          } else if (abbr == "gb" || abbr == "GB") {
+            heapSize = heapSize.substr(0, heapSize.length() - 1);
+            std::string::size_type sz;
+            size = std::stoul(heapSize, &sz);
+            if (size > 0) {
+              size *= 1024 * 1024 * 1024;
+            }
+          }
+          // set the heap size
+          initializeHeapPool(size);
         }
       }
+
       ctoastInfo("launching executable...");
+      initializeHeapPool(size);
       return CinnamonToast::invokeExecutable(argv[1]);
     }
   } catch (std::exception e) {

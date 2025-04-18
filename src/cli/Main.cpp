@@ -32,9 +32,9 @@ using byte = unsigned char;
 //'6595b64144ccf1df' language = '*'\"")
 #endif
 #include "../core/logging/LogBuffer.h"
+#include "../core/memory/HeapPool.h"
 #include "Main.h"
 #include "Utilities.h"
-
 #ifdef CTOAST_NO_CONSOLE
 // use windows APIs intead of int main
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
