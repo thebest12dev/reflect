@@ -13,7 +13,8 @@ protected:
   CinnamonToast::Window *window;
 
   void SetUp() override {
-    window = new CinnamonToast::Window(GetModuleHandle(nullptr));
+    HINSTANCE instance = GetModuleHandle(nullptr);
+    window = new CinnamonToast::Window(instance, "win");
   }
 
   void TearDown() override { delete window; }

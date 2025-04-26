@@ -1,3 +1,7 @@
+# v1.6.0 (2025-04-24)
+- Resolved issues #5, #6, #7, #8
+- Bug fixes
+
 # v1.5.0 (2025-04-08)
 - Added networking module (optional)
 - Added a bunch of resource files

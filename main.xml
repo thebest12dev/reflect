@@ -11,7 +11,7 @@
       <progressBar x="130" y="410" width="200" height="20" value="50" min="0" max="100" id="pb1"/>
     </window>
 </root>
-<!-- <root version="1" uiVersion="1.0.0">
+<root version="1" uiVersion="1.0.0">
     <window title="CinnamonToast Demo" width="800" height="500" bgColor="systemDefault" id="mainWindow">
       <graphicsContext type="opengl"/>
     </window>
@@ -23,4 +23,3 @@
 </root> 
 
 
--->

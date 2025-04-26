@@ -73,7 +73,7 @@ namespace CinnamonToast {}
 // if defined
 #undef CTOAST_SHARED_LIBRARY
 #define CTOAST_SHARED_LIBRARY
-#ifdef CTOAST_SHARED_LIBRARY
+#if defined(CTOAST_SHARED_LIBRARY) && !defined(CTOAST_EXTERNAL)
 #ifdef _WIN32
 #undef CTOAST_API
 #define CTOAST_API __declspec(dllexport)

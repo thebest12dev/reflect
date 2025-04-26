@@ -119,7 +119,7 @@ void ctoast Button::render(HWND &parentHWND, HWND &windowHWND) {
     SelectObject(hdc, oldFont);
     ReleaseDC(hwnd, hdc);
   }
-}
+};
 
 /**
  * @brief Sets the visibility of the button.

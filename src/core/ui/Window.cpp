@@ -84,7 +84,7 @@ void ctoast Window::setColor(Color3Array color) {
   this->bgColor[1] = color[1] / 255.0f;
   this->bgColor[2] = color[2] / 255.0f;
 }
-
+void ctoast Window::setRenderLoop(void (*loop)(Window &)) { renderLoop = loop; }
 void initializeDirect2D(HWND hwnd) {
   if (!pFactory && !pRenderTarget) {
 
@@ -161,6 +161,25 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
       PostQuitMessage(0);
       ctoastInfo("Exiting...");
       return 0;
+    // case WM_KEYDOWN: {
+    //   UINT scanCode = MapVirtualKey(wParam, MAPVK_VK_TO_CHAR);
+    //   char ch = (char)scanCode;
+    //   std::cout << ch << std::endl;
+    //   // wParam contains the virtual key code of the key that was pressed
+
+    //  pThis->pressedKeys[ch] = true;
+    //  return 0;
+    //}
+    // case WM_KEYUP: {
+
+    //  UINT scanCode = MapVirtualKey(wParam, MAPVK_VK_TO_CHAR);
+    //  char ch = (char)scanCode;
+
+    //  // wParam contains the virtual key code of the key that was pressed
+
+    //  pThis->pressedKeys[ch] = false;
+    //  return 0;
+    //}
     case WM_SIZE: {
 
       if (pRenderTarget) {
@@ -181,24 +200,25 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                      TRUE); // Mark the entire window as needing a repaint
       break;
     case WM_SIZING: {
-      glViewport(0, 0, LOWORD(lParam), HIWORD(lParam));
-      return 0;
+      if (pThis->beforeRenderLoop)
+        pThis->callInit = true;
       break;
     }
     case WM_PAINT: {
       PAINTSTRUCT ps;
       HDC hdc = BeginPaint(hwnd, &ps);
-
       if (!openglRendering && firstUpdate) {
         glHdc = GetDC(hwnd);
         if (pThis->useGL) {
-          pThis->glCtx->initializeContext(*pThis, hdc);
+          pThis->glCtx->initializeContext(*pThis, glHdc);
         }
         currentContext = wglGetCurrentContext();
         ctoastDebug("checking if OpenGL is initialized...");
         if (currentContext) {
           ctoastDebug("context found, rendering with OpenGL...");
           openglRendering = true;
+          wglDeleteContext(currentContext);
+          pThis->callInit = true;
         } else {
           ctoastDebug("OpenGL context not found, falling back to Direct2D...");
           direct2dRendering = true;
@@ -207,6 +227,7 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
       } /*else {
         currentContext = wglGetCurrentContext();
       }*/
+
       if (currentContext != nullptr && openglRendering) {
 
       } else if (!openglRendering && direct2dRendering) {
@@ -266,6 +287,10 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
   }
 
   return DefWindowProc(hwnd, uMsg, wParam, lParam);
+};
+bool renderContextInitialized = false;
+bool ctoast Window::isKeyPressed(char key) {
+  return GetAsyncKeyState(key) & 0x8000;
 };
 bool ctoast Window::showNotification(Notification &notif) {
   if (!IsWindow(hwnd)) {
@@ -372,7 +397,7 @@ void ctoast Window::setSize(Vector2 size_) {
                SWP_NOZORDER | SWP_NOACTIVATE // Flags
   );
 }
-ctoast Window::Window(HINSTANCE instance)
+ctoast Window::Window(HINSTANCE instance, std::string id)
     : winstance(instance), useGL(false), glCtx(nullptr), customPipeline(false) {
   ctoastDebug("initializing win32 parameters...");
   WNDCLASS wc = {};
@@ -395,8 +420,9 @@ ctoast Window::Window(HINSTANCE instance)
                MB_OK | MB_ICONERROR);
     exit(1);
   }
+  CinnamonToast::Components::gchildren[id] = this;
 }
-ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx)
+ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx, std::string id)
     : winstance(instance), useGL(true), glCtx(&ctx), customPipeline(true) {
   ctoastDebug("initializing win32 parameters...");
   WNDCLASS wc = {};
@@ -419,6 +445,7 @@ ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx)
                MB_OK | MB_ICONERROR);
     exit(1);
   }
+  CinnamonToast::Components::gchildren[id] = this;
 }
 ctoast Window::~Window() {
   ctoastDebug("releasing memory...");
@@ -452,6 +479,7 @@ void ctoast Window::render(HWND &parentHWND, HWND &windowHWND) {
   // do nothing
 }
 void ctoast Window::close() { PostMessage(hwnd, WM_DESTROY, 0, 0); };
+HDC renderHdc = nullptr;
 int ctoast Window::run(void (*func)(Window &win)) {
   ctoastInfo("Running window...");
   MSG msg;
@@ -467,13 +495,40 @@ int ctoast Window::run(void (*func)(Window &win)) {
         SwapBuffers(glHdc);*/
       TranslateMessage(&msg);
       DispatchMessage(&msg);
+      // if (openglRendering && currentContext != nullptr && customPipeline &&
+      //    renderLoop) {
+      //  renderRunning = true;
+      //}
     }
-    // if (openglRendering && currentContext != nullptr) {
-    //   glClearColor(bgColor[0], bgColor[1], bgColor[2], 1.0);
-    //   glClear(GL_COLOR_BUFFER_BIT);
-    //   // Clear the color buffer
-    //   SwapBuffers(glHdc);
-    // }
+
+    if (customPipeline && openglRendering && !renderThread)
+      renderThread = new std::thread([this, func, msg]() {
+        while (msg.message != WM_QUIT) {
+          if (!renderHdc) {
+            renderHdc = GetDC(hwnd);
+            this->glCtx->initializeContext(hwnd, renderHdc);
+          }
+          // Check if the render loop should be executed
+          if (callInit) {
+            beforeRenderLoop(*this);
+            callInit = false;
+          }
+          //   if (renderRunning) {
+          // Perform the rendering task
+          if (openglRendering && wglGetCurrentContext() != nullptr &&
+              customPipeline && renderLoop) {
+            renderLoop(*this);
+          }
+
+          // Reset render flag
+          //    renderRunning = false;
+          // }
+        }
+      });
+    /*if (openglRendering && currentContext != nullptr && customPipeline &&
+        renderLoop) {
+      renderLoop(*this);
+    }*/
 
     // Perform other tasks here while the message loop is running
     // Example: process background tasks, update UI, etc.
@@ -486,7 +541,13 @@ int ctoast Window::run(void (*func)(Window &win)) {
   }
   return static_cast<int>(msg.wParam);
 }
-
+void ctoast Window::setBeforeRenderLoop(void (*callback)(Window &)) {
+  this->beforeRenderLoop = callback;
+}
+void ctoast Window::swapBuffers() {
+  if (renderHdc)
+    SwapBuffers(renderHdc);
+}
 #elif __linux__
 #include "Label.h"
 #include <X11/Xft/Xft.h>

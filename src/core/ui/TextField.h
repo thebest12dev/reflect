@@ -15,7 +15,7 @@ protected:
   HWND hwnd;
 
   Vector2 position;
-
+  std::map<std::string, bool> pressedKeys;
   Vector2 size;
   Color3Float bgColor;
   void (*focusCallback)(TextField &);

@@ -1,7 +1,8 @@
 #include "OpenGLContext.h"
 #include "Console.h"
 #include "Windows.h"
-
+#include <GL/glew.h>
+#include <GL/wglew.h>
 namespace CinnamonToast {
 void OpenGLContext::initializeContext(WindowHandle hwnd, HDC hdc) {
 
@@ -50,6 +51,24 @@ void OpenGLContext::initializeContext(WindowHandle hwnd, HDC hdc) {
     ReleaseDC(hwnd, hdc);
     return;
   }
+  glewExperimental = GL_TRUE; // Important for core profile features
+
+  if (glewInit() != GLEW_OK) {
+    MessageBoxA(0, "Failed to initialize GLEW!", "Error", MB_ICONERROR | MB_OK);
+    return;
+  }
+  int attribs[] = {WGL_CONTEXT_MAJOR_VERSION_ARB,
+                   3,
+                   WGL_CONTEXT_MINOR_VERSION_ARB,
+                   3,
+                   WGL_CONTEXT_PROFILE_MASK_ARB,
+                   WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+                   0};
+
+  HGLRC modernContext = wglCreateContextAttribsARB(hdc, 0, attribs);
+  wglMakeCurrent(NULL, NULL);
+  wglDeleteContext(hglrc);            // Kill the dummy
+  wglMakeCurrent(hdc, modernContext); // Use the new context
 
   // Step 7: Optionally, initialize OpenGL extensions (if needed)
   // You can use GLEW or another extension loader library here, if necessary
@@ -57,7 +76,6 @@ void OpenGLContext::initializeContext(WindowHandle hwnd, HDC hdc) {
   // Now OpenGL is initialized for the window, you can render
   CinnamonToast::Console::debug("OpenGL initialized successfully!",
                                 "initializeContext");
-  ReleaseDC(hwnd, hdc);
-  return;
+  // ReleaseDC(hwnd, hdc);
 }
 } // namespace CinnamonToast

@@ -76,6 +76,8 @@ typedef unsigned char byte;
 #include "ui/MenuBar.h"
 #include "ui/Notification.h"
 #include "ui/ProgressBar.h"
+#include <GL/glew.h>
+#include <GL/wglew.h>
 #include <cstdint>
 #include <filesystem>
 #include <iostream>
@@ -105,7 +107,7 @@ Cleaner cleaner;
  * Invokes and loads a .xml file and also loads the specific libraries. It will
  * setup the GUI as well as registering APIs for the libraries to use.
  */
-int ctoast invokeExecutable(std::string xmlFile) {
+int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
   // if lua enabled
   /*INITCOMMONCONTROLSEX icex;
   icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
@@ -161,6 +163,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
     ctoastError("no window element found.");
     return CTOAST_ERROR_XML_NO_WINDOW;
   }
+  std::string winId = winXml->Attribute("id");
   tinyxml2::XMLElement *gctx = winXml->FirstChildElement("graphicsContext");
 #ifdef _WIN32
   Window *win = nullptr;
@@ -169,7 +172,18 @@ int ctoast invokeExecutable(std::string xmlFile) {
     HINSTANCE hInstance = GetModuleHandle(nullptr);
     ctoastDebug("creating window...");
     // OpenGLContext ctx;
-    win = new Window(hInstance);
+    win = new Window(hInstance, winId);
+    /*win->setBeforeRenderLoop([](Window &win) {
+      wglSwapIntervalEXT(1);
+      int i = 12;
+      std::cout << "i" << std::endl;
+    });
+    win->setRenderLoop([](Window &win) {
+      ctoastDebug(win.isKeyPressed('W'));
+      glClearColor(1.0, 0.0, 1.0, 1.0);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      win.swapBuffers();
+    });*/
   } else {
     ctoastDebug("graphics context found!");
     std::string ctx = gctx->Attribute("type");
@@ -184,7 +198,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
       HINSTANCE hInstance = GetModuleHandle(nullptr);
       ctoastDebug("creating window...");
       OpenGLContext ctx;
-      win = new Window(hInstance, ctx);
+      win = new Window(hInstance, ctx, winId);
     }
   }
   win->addStyle(STYLE_DARK_TITLE_BAR);
@@ -346,7 +360,11 @@ int ctoast invokeExecutable(std::string xmlFile) {
   ctoastDebug("entering main loop...");
   win->setVisible(true);
 
-  return win->run(onExecute);
+  if (blocking) {
+    return win->run(onExecute);
+  } else {
+    return 0;
+  }
 }
 int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
 
@@ -450,6 +468,7 @@ int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
 
       ctoastInfo("launching executable...");
       initializeHeapPool(size);
+
       return CinnamonToast::invokeExecutable(argv[1]);
     }
   } catch (std::exception e) {

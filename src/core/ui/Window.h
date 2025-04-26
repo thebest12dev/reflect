@@ -21,13 +21,13 @@
 #ifdef _WIN32
 #include <Windows.h>
 #undef byte
-#include <GL/gl.h>
-
 #include "Component.h"
 #include "Notification.h"
 #include "OpenGLContext.h"
-
 #include "TypeDefinitions.h"
+#include <condition_variable>
+#include <mutex>
+#include <thread>
 
 #include <cstdint>
 #include <string>
@@ -39,25 +39,37 @@ class Window : public Component {
 protected:
   HINSTANCE winstance;
   HWND hwnd;
+  // std::map<char, bool> pressedKeys;
+  std::thread *renderThread = nullptr;
+  std::condition_variable renderCondition;
+  std::mutex renderMutex;
+
+  bool renderRunning;
+  bool callInit;
 
 private:
   bool useGL;
   bool customPipeline;
   OpenGLContext *glCtx;
+  void (*renderLoop)(Window &);
+  void (*beforeRenderLoop)(Window &);
 
 public:
   COMPONENT_DECL(Window);
-  CTOAST_API Window(HINSTANCE instance);
-  CTOAST_API Window(HINSTANCE instance, OpenGLContext ctx);
+  CTOAST_API Window(HINSTANCE instance, std::string id);
+  CTOAST_API Window(HINSTANCE instance, OpenGLContext ctx, std::string id);
   CTOAST_API void setTitle(std::string title);
   CTOAST_API void addStyle(WindowStyle style);
   // // void SetSize(Vector2 dim);
   CTOAST_API static LRESULT CALLBACK windowProc(HWND hwnd, UINT uMsg,
                                                 WPARAM wParam, LPARAM lParam);
-
+  CTOAST_API void setBeforeRenderLoop(void (*callback)(Window &));
+  CTOAST_API void swapBuffers();
+  CTOAST_API bool isKeyPressed(char key);
   CTOAST_API void add(Component &comp, std::string id);
   CTOAST_API bool showNotification(CinnamonToast::Notification &notif);
   CTOAST_API int run(void (*func)(Window &win));
+  CTOAST_API void setRenderLoop(void (*loop)(Window &));
   CTOAST_API void close();
   CTOAST_API operator HWND() const;
 
