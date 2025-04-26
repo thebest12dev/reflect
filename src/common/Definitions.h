@@ -6,7 +6,7 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED
  * "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -16,101 +16,55 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
 #pragma once
-/*
-Default font for CinnamonToast to use.
-*/
+
+/**
+ * @brief Default font for the CinnamonToast framework.
+ */
 #define DEFAULT_FONT "Segoe UI"
 
 /**
- * External app name to be shown to the end user.
+ * @brief External application name to be shown to the end user.
  */
 #define APP_NAME "Project CinnamonToast"
 
 /**
- * Internal app version for compatibility checks.
+ * @brief Internal application version for compatibility checks.
  */
-#define APP_INTERNAL_VERSION 0x00000008L
+#define APP_INTERNAL_VERSION 0x9C000009L
 
 /**
- * External app version to be shown to the end user.
+ * @brief External application version to be shown to the end user.
  */
-#define APP_VERSION "1.5.0"
+#define APP_VERSION "1.6.0+snapshot-2025c02a"
 
 /**
- * Error code specification
+ * @brief Error codes used in the CinnamonToast framework.
  *
- * These ctoastError codes should be used to indicate a specific ctoastError.
- * Some ctoastErrors are platform-specific, and this is indicated by the second
- * leftmost digit of the ctoastError code. The valid values are: 0x0 -
- * Cross-platform 0x1 - Windows 0x2
- * - macOS 0x3 - Linux
- *
- * Examples are: 0x01000000 (an "ctoastError" code for a successful execution on
- * Windows, though this is only for demonstation purposes and SHOULD NOT be used
- * in code), 0x03badf00 (Linux), etc.
- *
- *
- * There are some reserved return codes like 0x0000002 which is ALWAYS the "file
- * not found" ctoastError. 0x00000000 is also another one of these codes. It's
- * not necessarily an "ctoastError" code, though it is a return code for
- * success.
+ * These error codes indicate specific issues, with platform-specific codes
+ * indicated by the second leftmost digit:
+ * - 0x0: Cross-platform
+ * - 0x1: Windows
+ * - 0x2: macOS
+ * - 0x3: Linux
  */
-
-/**
- * Comment/uncomment this to toggle Win32 ctoastErrors.
- */
-#ifdef _WIN32
-// Define Win32 ctoastError codes
-#define WIN32_ERROR_CODES
-#endif
-
-// Internal ctoastError codes and other things
-
-// Error for if there isn't a file specified.
 #define CTOAST_ERROR_NO_FILES_SPECIFIED 0x000003f0L
-
-// Error for an XML ctoastError that does not originate from the program.
 #define CTOAST_ERROR_GENERIC_XML_ERROR 0x000003f1L
-
-// Error for if the XML file does not have a root element.
 #define CTOAST_ERROR_XML_NO_ROOT 0x000003f2L
-
-// Error for if the XML file does not have a window element inside the root
-// element.
 #define CTOAST_ERROR_XML_NO_WINDOW 0x000003f3L
-
-// Error for if a file is not found.
 #define CTOAST_ERROR_FILE_NOT_FOUND 0x0000002L
-
-// Error for if a font is not found.
 #define CTOAST_ERROR_FONT_NOT_FOUND 0x0000003L
-
-// Error if a hex color (like #ffffff) is malformed.
 #define CTOAST_ERROR_HEX_COLOR_MALFORMED 0x000003f4L
-
-// A Linux-specific ctoastError that X11 isn't initialized.
 #define CTOAST_ERROR_LINUX_X11_NOT_INITIALIZED 0x030003f5L
-
-// Error if the shared library (.dll, .so, etc.) can't be loaded primarily due
-// to filesystem ctoastErrors or other reasons.
 #define CTOAST_ERROR_CANNOT_LOAD_SHARED_LIBRARY 0x000003f9L
-
-// Error if the shared library's `CToastMain` function does not exist or there
-// is another problem.
 #define CTOAST_ERROR_CANNOT_LOAD_LIBRARY_FUNCTION 0x000003faL
-
-// Error if the XML document's app version is above the current app version.
 #define CTOAST_ERROR_XML_NOT_COMPATIBLE 0x000003fbL
-
-// Error if an unhandled exception (std::exception) occurs.
 #define CTOAST_ERROR_UNHANDLED_EXCEPTION 0x000003fcL
 
-// Win32 specific ctoastErrors
-#if defined(_WIN32) && defined(WIN32_ERROR_CODES)
-
-// Error if the parent HWND (window handle) is invalid in Windows.
+#if defined(_WIN32)
+/**
+ * @brief Windows-specific error codes.
+ */
 #define CTOAST_ERROR_WIN_PARENT_HWND_INVALID 0x010003f5L
-
-// more ctoastErrors go here
 #endif

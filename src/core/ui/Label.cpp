@@ -18,8 +18,8 @@
  */
 #ifdef _WIN32
 #include "Label.h"
-#include "../Console.h"
 #include "../Utilities.h"
+#include "Console.h"
 #include "Definitions.h"
 #include "TypeDefinitions.h"
 #include <iostream>
@@ -35,12 +35,14 @@ void ctoast Label::setFont(std::string font) {
 }
 void ctoast Label::setFontSize(int size) { fontSize = size; }
 std::string ctoast Label::getText() { return text; }
+
 void ctoast Label::render(HWND &parentHWND, HWND &windowHWND) {
   if (!IsWindow(parentHWND)) {
     ctoastError("parent HWND is invalid!");
     std::exit(CTOAST_ERROR_WIN_PARENT_HWND_INVALID);
   }
 
+  // Create the label window
   hwnd = CreateWindow("STATIC",              // Predefined class for a label
                       text.c_str(),          // Label text
                       WS_VISIBLE | WS_CHILD, // Styles: visible and child window
@@ -51,63 +53,7 @@ void ctoast Label::render(HWND &parentHWND, HWND &windowHWND) {
                       winstance,              // Instance handle
                       NULL                    // Additional application data
   );
-  if (size.y == 0 && size.y == 0) {
-    // Get the device context of the label
-    HDC hdc = GetDC(hwnd);
 
-    // Get the font used by the label
-    HFONT hFont = (HFONT)SendMessage(hwnd, WM_GETFONT, 0, 0);
-    if (hFont) {
-      SelectObject(hdc, hFont); // Select the font into the device context
-    }
-
-    // Calculate the size of the text
-    SIZE textSize;
-    GetTextExtentPoint32(hdc, text.c_str(), (int)text.length(), &textSize);
-    // // Get device context of the label
-    // RECT parentRect;
-    // GetClientRect(windowHWND, &parentRect); // Get the client area of the
-    // parent window
-
-    // // Calculate the maximum available width for the label
-    // int maxWidth = parentRect.right;
-
-    // RECT labelRect;
-    // GetWindowRect(hwnd, &labelRect);
-    // MapWindowPoints(NULL, windowHWND, (LPPOINT)&labelRect, 2); // Convert to
-    // client coordinates int labelX = labelRect.left;
-
-    // int availableWidth = maxWidth - labelX; // Remaining width from the
-    // label's position
-
-    // // Use DrawText to calculate the required dimensions
-    // RECT textRect = { 0, 0, availableWidth, 0 }; // Limit width to the
-    // available space DrawText(hdc, text.c_str(), -1, &textRect, DT_CALCRECT |
-    // DT_WORDBREAK);
-
-    // // The textRect now contains the required width and height
-    // int textWidth = textRect.right - textRect.left;
-    // int textHeight = textRect.bottom - textRect.top;
-
-    // // Retrieve font metrics for accurate line height
-    // TEXTMETRIC textMetric;
-    // GetTextMetrics(hdc, &textMetric);
-    // int lineHeight = textMetric.tmHeight; // Height of a single line (ascent
-    // + descent)
-
-    // // Calculate the number of lines (total height / line height)
-    // int totalLines = textHeight / lineHeight;
-    // Release the device context
-    ReleaseDC(hwnd, hdc);
-
-    SetWindowPos(hwnd,                         // Handle to the label
-                 NULL,                         // No z-order change
-                 position.x, position.y,       // X and Y (ignored here)
-                 textSize.cx + (fontSize * 2), // New width
-                 fontSize,                     // New height
-                 SWP_NOZORDER | SWP_NOMOVE // Don't change z-order or position
-    );
-  }
   if (!hwnd) {
     std::cout << getLastErrorAsString();
     return;
@@ -119,6 +65,30 @@ void ctoast Label::render(HWND &parentHWND, HWND &windowHWND) {
   if (hFont) {
     // Set the font for the label
     SendMessage(hwnd, WM_SETFONT, (WPARAM)hFont, TRUE);
+  }
+
+  // Resize the label based on the text and font size
+  HDC hdc = GetDC(hwnd);
+  if (hdc) {
+    // Select the font into the device context
+    HFONT oldFont = (HFONT)SelectObject(hdc, hFont);
+
+    // Calculate the size of the text
+    SIZE textSize;
+    GetTextExtentPoint32(hdc, text.c_str(), (int)text.length(), &textSize);
+
+    // Update the label's size
+    SetWindowPos(hwnd,                         // Handle to the label
+                 NULL,                         // No z-order change
+                 position.x, position.y,       // X and Y (ignored here)
+                 textSize.cx + (fontSize * 2), // New width (padding added)
+                 textSize.cy,                  // New height
+                 SWP_NOZORDER | SWP_NOMOVE // Don't change z-order or position
+    );
+
+    // Restore the old font and release the device context
+    SelectObject(hdc, oldFont);
+    ReleaseDC(hwnd, hdc);
   }
 }
 

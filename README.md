@@ -29,13 +29,11 @@ Example:
 For the implementation (written in Lua), insert:
 ```lua
 -- main.lua
-function onInit()
-    print("Loaded!")
-    local label = CinnamonToast.getComponentById("label1")
-    print(label.getText())
-end
 
-CinnamonToast.registerEvent("start", onInit);
+print("Loaded!")
+local label = CinnamonToast.getComponentById("label1")
+print(label.getText())
+
 ```
 
 or you can directly use C++ (faster, but more complicated):
@@ -70,7 +68,7 @@ cmake -G "Visual Studio xx xxxx" -A x64
 ```
 If you're using Ninja, run
 ```cmd
-cmake -G "Ninja -DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/cmake"
+cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/cmake -DTRIPLET=x64-windows"
 ```
 5. Now, build the project
 ```cmd
@@ -78,14 +76,14 @@ cmake --build . --config Release
 ```
 ### If building on Linux
 1. Open a terminal
-2. Install CMake, g++ and Python if you haven't already: `sudo apt install cmake g++ python3`
+2. Install CMake and g++ if you haven't already: `sudo apt install cmake g++ ninja-build`
 3. Navigate to the project directory
-5. Run `cmake .`
-6. Run `make`
+5. Run `cmake . -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=<path to vcpkg.cmake> -DTRIPLET=x64-linux`
+6. Run `ninja`
 
 This will build the project and create the launcher (ctoasti) as well as the shared libraries (CinnamonToast.Core, etc.) that you can link with your projects.
 
 ## Security and sandboxing
 For native code, there isn't any sandboxing, so beware of malicious programs. 
 
-For Lua, it's partially sandboxed as it can still access standard libraries (like io or bit32), but it can't access CinnamonToast-specific APIs without proper permissions.
+For Lua, it's fully sandboxed, so it won't be able to access the filesystem or any other system resources. It can only access the CinnamonToast API and the Lua standard library.

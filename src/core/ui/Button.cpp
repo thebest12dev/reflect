@@ -16,25 +16,66 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifdef _WIN32
-#include <windows.h> // or any other conflicting headers
 
-#include "../Console.h"
+#ifdef _WIN32
+#include "Button.h"
 #include "../Utilities.h"
+#include "Console.h"
 #include "Definitions.h"
 #include "TypeDefinitions.h"
+#include <commctrl.h>
 #include <iostream>
+#include <windows.h>
 
-#include "Button.h"
 using namespace CinnamonToast::Console;
 using namespace CinnamonToast::Utilities;
+
+/**
+ * @brief Sets the font of the button.
+ *
+ * @param font The font name to set. If "default", the default font is used.
+ */
 void ctoast Button::setFont(std::string font) {
   fontStr = font;
   if (font == "default") {
     fontStr = DEFAULT_FONT;
   }
 }
+
+/**
+ * @brief Sets the font size of the button.
+ *
+ * @param size The font size to set.
+ */
 void ctoast Button::setFontSize(int size) { fontSize = size; }
+
+WNDPROC originalBtnProc = nullptr;
+void ctoast Button::onClick(void (*callback)(Button &)) {
+  this->clickCallback = callback;
+}
+long long CALLBACK ctoast Button::buttonProc(HWND hwnd, UINT uMsg,
+                                             WPARAM wParam, LPARAM lParam,
+                                             UINT_PTR uIdSubclass,
+                                             DWORD_PTR dwRefData) {
+  Button *pThis = nullptr;
+  pThis =
+      reinterpret_cast<ctoast Button *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+  switch (uMsg) {
+  case WM_LBUTTONUP: {
+    if (pThis->clickCallback) {
+      pThis->clickCallback(*pThis);
+    }
+  }
+  }
+  return DefSubclassProc(hwnd, uMsg, wParam, lParam);
+}
+/**
+ * @brief Renders the button on the parent window.
+ *
+ * @param parentHWND The handle to the parent window.
+ * @param windowHWND The handle to the window.
+ */
 void ctoast Button::render(HWND &parentHWND, HWND &windowHWND) {
   if (!IsWindow(parentHWND)) {
     ctoastError("parent HWND is invalid!");
@@ -46,100 +87,74 @@ void ctoast Button::render(HWND &parentHWND, HWND &windowHWND) {
       text.c_str(),                    // Button text
       WS_VISIBLE | WS_CHILD | BS_FLAT, // Styles: visible and child window
       position.x, position.y,          // Position (x, y)
-      size.y, size.y,                  // Size (width, height)
+      size.x, size.y,                  // Size (width, height)
       parentHWND,                      // Parent window handle
       NULL,                            // No menu or child ID
       winstance,                       // Instance handle
-      NULL                             // Additional application data
+      this                             // Additional application data
   );
-  if (size.x == 0 && size.y == 0) {
-    // Get the device context of the Button
-    HDC hdc = GetDC(hwnd);
 
-    // Get the font used by the Button
-    HFONT hFont = (HFONT)SendMessage(hwnd, WM_GETFONT, 0, 0);
-    if (hFont) {
-      SelectObject(hdc, hFont); // Select the font into the device context
-    }
-
-    // Calculate the size of the text
-    SIZE textSize;
-    GetTextExtentPoint32(hdc, text.c_str(), (int)text.length(), &textSize);
-    // // Get device context of the Button
-    // RECT parentRect;
-    // GetClientRect(windowHWND, &parentRect); // Get the client area of the
-    // parent window
-
-    // // Calculate the maximum available width for the Button
-    // int maxWidth = parentRect.right;
-
-    // RECT ButtonRect;
-    // GetWindowRect(hwnd, &ButtonRect);
-    // MapWindowPoints(NULL, windowHWND, (LPPOINT)&ButtonRect, 2); // Convert to
-    // client coordinates int ButtonX = ButtonRect.left;
-
-    // int availableWidth = maxWidth - ButtonX; // Remaining width from the
-    // Button's position
-
-    // // Use DrawText to calculate the required dimensions
-    // RECT textRect = { 0, 0, availableWidth, 0 }; // Limit width to the
-    // available space DrawText(hdc, text.c_str(), -1, &textRect, DT_CALCRECT |
-    // DT_WORDBREAK);
-
-    // // The textRect now contains the required width and height
-    // int textWidth = textRect.right - textRect.left;
-    // int textHeight = textRect.bottom - textRect.top;
-
-    // // Retrieve font metrics for accurate line height
-    // TEXTMETRIC textMetric;
-    // GetTextMetrics(hdc, &textMetric);
-    // int lineHeight = textMetric.tmHeight; // Height of a single line (ascent
-    // + descent)
-
-    // // Calculate the number of lines (total height / line height)
-    // int totalLines = textHeight / lineHeight;
-    // Release the device context
-    ReleaseDC(hwnd, hdc);
-
-    SetWindowPos(hwnd,                         // Handle to the Button
-                 NULL,                         // No z-order change
-                 position.x, position.y,       // X and Y (ignored here)
-                 textSize.cx + (fontSize * 2), // New width
-                 fontSize,                     // New height
-                 SWP_NOZORDER | SWP_NOMOVE // Don't change z-order or position
-    );
-  }
   if (!hwnd) {
     std::cout << getLastErrorAsString();
     return;
   }
-
-  // Create a custom font
+  SetWindowSubclass(hwnd, buttonProc, 0, 0);
+  SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
   HFONT hFont = ctoast Utilities::getFont(fontStr, fontSize);
 
   if (hFont) {
-    // Set the font for the Button
     SendMessage(hwnd, WM_SETFONT, (WPARAM)hFont, TRUE);
   }
-}
 
+  HDC hdc = GetDC(hwnd);
+  if (hdc) {
+    HFONT oldFont = (HFONT)SelectObject(hdc, hFont);
+    SIZE textSize;
+    GetTextExtentPoint32(hdc, text.c_str(), (int)text.length(), &textSize);
+
+    SetWindowPos(hwnd, NULL, position.x, position.y,
+                 textSize.cx + (fontSize * 2), textSize.cy + (fontSize / 2),
+                 SWP_NOZORDER | SWP_NOMOVE);
+
+    SelectObject(hdc, oldFont);
+    ReleaseDC(hwnd, hdc);
+  }
+};
+
+/**
+ * @brief Sets the visibility of the button.
+ *
+ * @param flag True to show the button, false to hide it.
+ */
 void ctoast Button::setVisible(bool flag) {
   ShowWindow(this->hwnd, flag ? SW_SHOW : SW_HIDE);
 }
+
+/**
+ * @brief Gets the text of the button.
+ *
+ * @return The text of the button.
+ */
 std::string ctoast Button::getText() { return text; }
+
+/**
+ * @brief Constructs a Button object with the specified text and position.
+ *
+ * @param text The text to display on the button.
+ * @param pos The position of the button.
+ */
 ctoast Button::Button(std::string text, Vector2 pos)
     : position(pos), size(Vector2(0, 0)), text(text) {}
 #elif __linux__
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-
 #include "../Console.h"
 #include "../Definitions.h"
 #include "../TypeDefinitions.h"
 #include "../Utilities.h"
+#include "Button.h"
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <iostream>
 
-#include "Button.h"
 using namespace CinnamonToast::Console;
 using namespace CinnamonToast::Utilities;
 void ctoast Button::setFont(std::string font) {

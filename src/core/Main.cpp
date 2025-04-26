@@ -27,6 +27,7 @@ typedef unsigned char byte;
 #endif
 
 // standard libraries we need
+#include "logging/LogBuffer.h"
 #include <cstdint>
 #include <exception>
 #include <filesystem>
@@ -51,6 +52,7 @@ typedef unsigned char byte;
 #include "Main.h"
 #include "TypeDefinitions.h"
 #include "Utilities.h"
+#include "ui/TextField.h"
 // ui components
 #include "ui/Button.h"
 #include "ui/Colors.h"
@@ -70,15 +72,18 @@ typedef unsigned char byte;
 #include <commctrl.h>
 
 // standard libs
+#include "memory/HeapPool.h"
 #include "ui/MenuBar.h"
 #include "ui/Notification.h"
+#include "ui/ProgressBar.h"
+#include <GL/glew.h>
+#include <GL/wglew.h>
 #include <cstdint>
 #include <filesystem>
 #include <iostream>
 #include <memory> // for std::unique_ptr
 #include <string>
 #include <vector>
-
 // using namespaces and alias
 using namespace CinnamonToast::Console;
 using namespace CinnamonToast::Utilities;
@@ -87,26 +92,36 @@ namespace fs = std::filesystem;
 
 namespace {
 void onExecute(CinnamonToast::Window &win) { /*win.Close();*/ }
+std::vector<void *> heapAllocations;
+struct Cleaner {
+  ~Cleaner() {
+    for (void *ptr : heapAllocations) {
+      CinnamonToast::getHeapPool()->deallocate(ptr, sizeof(ptr));
+    }
+  }
+};
+Cleaner cleaner;
+
 } // namespace
 /**
  * Invokes and loads a .xml file and also loads the specific libraries. It will
  * setup the GUI as well as registering APIs for the libraries to use.
  */
-int ctoast invokeExecutable(std::string xmlFile) {
+int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
   // if lua enabled
+  /*INITCOMMONCONTROLSEX icex;
+  icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
+  icex.dwICC = ICC_STANDARD_CLASSES | ICC_WIN95_CLASSES;
 
+  InitCommonControlsEx(&icex);*/
+  InitCommonControls();
   // load the xml file
   tinyxml2::XMLDocument doc;
 
   // platform
-  ctoastInfo("platform: " + getOSPlatformAndVersion(), "cliMain");
+  ctoastInfo("platform: " + getOSPlatformAndVersion());
 
   // common control stuff
-  INITCOMMONCONTROLSEX icex;
-  icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
-  icex.dwICC = ICC_STANDARD_CLASSES;
-
-  InitCommonControlsEx(&icex);
 
   // file doesnt exist
   if (!fs::exists(xmlFile)) {
@@ -148,26 +163,56 @@ int ctoast invokeExecutable(std::string xmlFile) {
     ctoastError("no window element found.");
     return CTOAST_ERROR_XML_NO_WINDOW;
   }
-
+  std::string winId = winXml->Attribute("id");
+  tinyxml2::XMLElement *gctx = winXml->FirstChildElement("graphicsContext");
 #ifdef _WIN32
-  ctoastDebug("getting HINSTANCE...");
-  HINSTANCE hInstance = GetModuleHandle(nullptr);
-  ctoastDebug("creating window...");
-  OpenGLContext ctx;
-  Window win(hInstance, ctx);
-
+  Window *win = nullptr;
+  if (gctx == nullptr) {
+    ctoastDebug("getting HINSTANCE...");
+    HINSTANCE hInstance = GetModuleHandle(nullptr);
+    ctoastDebug("creating window...");
+    // OpenGLContext ctx;
+    win = new Window(hInstance, winId);
+    /*win->setBeforeRenderLoop([](Window &win) {
+      wglSwapIntervalEXT(1);
+      int i = 12;
+      std::cout << "i" << std::endl;
+    });
+    win->setRenderLoop([](Window &win) {
+      ctoastDebug(win.isKeyPressed('W'));
+      glClearColor(1.0, 0.0, 1.0, 1.0);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      win.swapBuffers();
+    });*/
+  } else {
+    ctoastDebug("graphics context found!");
+    std::string ctx = gctx->Attribute("type");
+    if (ctx == "opengl") {
+      ctoastDebug("using custom OpenGL context...");
+      ctoastWarn(
+          "Since a custom graphics context is specified, UI controls (buttons, "
+          "labels, etc.) will not render. This is only for if you want to "
+          "develop things like games or simulations. (To disable this "
+          "warning, set contextSetWarning to false in your XML file.");
+      ctoastDebug("getting HINSTANCE...");
+      HINSTANCE hInstance = GetModuleHandle(nullptr);
+      ctoastDebug("creating window...");
+      OpenGLContext ctx;
+      win = new Window(hInstance, ctx, winId);
+    }
+  }
+  win->addStyle(STYLE_DARK_TITLE_BAR);
 #endif
 
-  ctoastDebug("window title: " + std::string(winXml->Attribute("title")),
-              "invokeExecutable");
-  win.setTitle(winXml->Attribute("title"));
+  ctoastDebug("window title: " + std::string(winXml->Attribute("title")));
+  win->setTitle(winXml->Attribute("title"));
   ctoastDebug("resizing window...");
-  win.setSize(Vector2(std::stoi(winXml->Attribute("width")),
-                      std::stoi(winXml->Attribute("height"))));
+  win->setSize(Vector2(std::stoi(winXml->Attribute("width")),
+                       std::stoi(winXml->Attribute("height"))));
   std::string bgColor = winXml->Attribute("bgColor");
   ctoastDebug("setting window background color...");
   if (bgColor == "systemDefault") {
-    win.setColor(255, 255, 255);
+    win->setColor(255, 255, 255);
   } else {
     if (bgColor.at(0) == '#' && bgColor.length() == 7) {
 
@@ -177,7 +222,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
       const uint8_t g = stoi(hex.substr(2, 2), nullptr, 16);
       const uint8_t b = stoi(hex.substr(4, 2), nullptr, 16);
       const Color3 color = {r, g, b};
-      win.setColor(color);
+      win->setColor(color);
     } else {
       ctoastError("invalid hex color representation");
       return CTOAST_ERROR_HEX_COLOR_MALFORMED;
@@ -193,9 +238,42 @@ int ctoast invokeExecutable(std::string xmlFile) {
     Vector2 position(std::stoi(label->Attribute("x")),
                      std::stoi(label->Attribute("y")));
     Label *labelComp = new Label(*contents, position);
+    heapAllocations.push_back(labelComp);
     labelComp->setFont(label->Attribute("font"));
     labelComp->setFontSize(std::stoi(label->Attribute("fontSize")));
-    win.add(*labelComp, id);
+    win->add(*labelComp, id);
+  }
+  ctoastDebug("parsing text fields...");
+  for (tinyxml2::XMLElement *field = winXml->FirstChildElement("textField");
+       field != nullptr; field = field->NextSiblingElement("textField")) {
+    // Access attributes
+    std::string id = field->Attribute("id");
+    Vector2 position(std::stoi(field->Attribute("x")),
+                     std::stoi(field->Attribute("y")));
+    TextField *fieldComp = new TextField();
+    heapAllocations.push_back(fieldComp);
+    fieldComp->setSize(Vector2(std::stoi(field->Attribute("width")),
+                               std::stoi(field->Attribute("height"))));
+    fieldComp->setPosition(position);
+    win->add(*fieldComp, id);
+  }
+  ctoastDebug("parsing progress bars...");
+  for (tinyxml2::XMLElement *label = winXml->FirstChildElement("progressBar");
+       label != nullptr; label = label->NextSiblingElement("progressBar")) {
+    // Access attributes
+    std::string id = label->Attribute("id");
+    Vector2 position(std::stoi(label->Attribute("x")),
+                     std::stoi(label->Attribute("y")));
+    Vector2 size(std::stoi(label->Attribute("width")),
+                 std::stoi(label->Attribute("height")));
+    ProgressBar *pb = new ProgressBar();
+    heapAllocations.push_back(pb);
+    pb->setMininumValue(std::stof(label->Attribute("min")));
+    pb->setMaximumValue(std::stof(label->Attribute("max")));
+    pb->setValue(std::stoi(label->Attribute("value")));
+    pb->setPosition(position);
+    pb->setSize(size);
+    win->add(*pb, id);
   }
   ctoastDebug("parsing buttons...");
   for (tinyxml2::XMLElement *button = winXml->FirstChildElement("button");
@@ -204,10 +282,11 @@ int ctoast invokeExecutable(std::string xmlFile) {
     std::string id = button->Attribute("id");
     Vector2 position(std::stoi(button->Attribute("x")),
                      std::stoi(button->Attribute("y")));
-    Button buttonComp(contents, position);
-    buttonComp.setFont(button->Attribute("font"));
-    buttonComp.setFontSize(std::stoi(button->Attribute("fontSize")));
-    win.add(buttonComp, id);
+    Button *buttonComp = new Button(contents, position);
+    heapAllocations.push_back(buttonComp);
+    buttonComp->setFont(button->Attribute("font"));
+    buttonComp->setFontSize(std::stoi(button->Attribute("fontSize")));
+    win->add(*buttonComp, id);
   }
   ctoastDebug("loading libraries...");
 #ifdef CTOAST_LUA
@@ -232,8 +311,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
       CinnamonToast::SharedLibraryMain mainFunc =
           (CinnamonToast::SharedLibraryMain)GetProcAddress(hDll, "CToastMain");
       if (!mainFunc) {
-        ctoastError("cannot find CToastMain function of library!",
-                    "invokeExecutable");
+        ctoastError("cannot find CToastMain function of library!");
 
         FreeLibrary(hDll); // Free the DLL
         return CTOAST_ERROR_CANNOT_LOAD_LIBRARY_FUNCTION;
@@ -255,6 +333,7 @@ int ctoast invokeExecutable(std::string xmlFile) {
       if (lua == nullptr) {
         ctoastDebug("initializing lua...");
         lua = new LuaInstance();
+        heapAllocations.push_back(lua);
         lua->initializeLuaApis(injectLuaApis);
       }
 
@@ -267,35 +346,129 @@ int ctoast invokeExecutable(std::string xmlFile) {
   tinyxml2::XMLElement *menu = winXml->FirstChildElement("menuBar");
   if (menu) {
     MenuBar *menuBar = new MenuBar();
+    heapAllocations.push_back(menuBar);
     for (tinyxml2::XMLElement *menuItem = menu->FirstChildElement("menuItem");
-         menuItem != nullptr; menuItem = menu->NextSiblingElement("menuItem")) {
+         menuItem != nullptr;
+         menuItem = menuItem->NextSiblingElement("menuItem")) {
       MenuItem *item = new MenuItem(menuItem->GetText());
+      heapAllocations.push_back(item);
       menuBar->add(*item);
     }
-    win.add(*menuBar);
+    win->add(*menuBar);
   }
 
   ctoastDebug("entering main loop...");
-  win.setVisible(true);
+  win->setVisible(true);
 
-  return win.run(onExecute);
+  if (blocking) {
+    return win->run(onExecute);
+  } else {
+    return 0;
+  }
 }
 int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
+
   CinnamonToast::CrashConfig config = {};
   config.crashType = CRASH_INVOKE | CRASH_SEGFAULT | CRASH_UNHANDLED_EXCEPTION;
 
   CinnamonToast::CrashHandler *ch = new CinnamonToast::CrashHandler(config);
   CinnamonToast::CrashManager::setActiveCrashHandler(ch);
 
+  /*LogBuffer logbuf;
+
+  std::cout.rdbuf(&logbuf);*/
   try {
-    ctoastPrintln(APP_NAME + std::string(" ") + APP_VERSION);
-    if (argc == 1) {
+
+    if (argc <= 1) {
+
       ctoastError("ctoastError: no files specified. please pass an argument to "
                   "a valid file");
       ctoastError("ctoastError code: ERROR_NO_FILES_SPECIFIED");
       return CTOAST_ERROR_NO_FILES_SPECIFIED;
     } else {
+      size_t size = 64 * 1024 * 1024;
+      for (std::string arg : argv) {
+        if (arg == "--help" || arg == "-h") {
+          ctoastPrintln("usage: " + argv[0] + " <file/url> [--verbose]");
+          ctoastPrintln("options:");
+          ctoastPrintln("  --help, -h ");
+          ctoastPrintln("    shows the list of arguments");
+          ctoastPrintln("  --verbose");
+          ctoastPrintln("    enables verbose logging");
+          ctoastPrintln("  --version, -v");
+          ctoastPrintln("    shows the version");
+          ctoastPrintln("  --heap=<size>, -H<size>");
+          ctoastPrintln("    sets the heap size. must be a valid");
+          ctoastPrintln("    number. default is 64MB.");
+          ctoastPrintln("  --ignore-version-compat, -ivc");
+          ctoastPrintln("    ignores version compatibility check");
+          ctoastPrintln("    (use at your own risk)");
+          return 0;
+        } else if (arg == "--verbose") {
+          ctoastDebugEnabled(true);
+          ctoastInfo("verbose enabled, debug logs shown");
+        } else if (arg == "--version" || arg == "-v") {
+          ctoastPrintln(APP_NAME + std::string(" ") + APP_VERSION);
+          return 0;
+        } else if (arg.starts_with("--heap=")) {
+          std::string heapSize = arg.substr(arg.find("=") + 1);
+          if (heapSize.empty()) {
+            ctoastError("heap size not specified");
+            return 1;
+          }
+          // MB, KB, etc.
+
+          std::string abbr = heapSize.substr(heapSize.length() - 2);
+          if (abbr == "mb" || abbr == "MB") {
+            heapSize = heapSize.substr(0, heapSize.length() - 1);
+            std::string::size_type sz;
+            size = std::stoul(heapSize, &sz);
+            if (size > 0) {
+              size *= 1024 * 1024;
+            }
+          } else if (abbr == "gb" || abbr == "GB") {
+            heapSize = heapSize.substr(0, heapSize.length() - 1);
+            std::string::size_type sz;
+            size = std::stoul(heapSize, &sz);
+            if (size > 0) {
+              size *= 1024 * 1024 * 1024;
+            }
+          }
+          // set the heap size
+
+        } else if (arg.starts_with("-H")) {
+
+          std::string heapSize = arg.substr(arg.find("-H") + 2);
+          if (heapSize.empty()) {
+            ctoastError("heap size not specified");
+            return 1;
+          }
+
+          std::string abbr = heapSize.substr(heapSize.length() - 2);
+
+          if (abbr == "mb" || abbr == "MB") {
+            heapSize = heapSize.substr(0, heapSize.length() - 1);
+            std::string::size_type sz;
+            size = std::stoul(heapSize, &sz);
+            if (size > 0) {
+              size *= 1024 * 1024;
+            }
+          } else if (abbr == "gb" || abbr == "GB") {
+            heapSize = heapSize.substr(0, heapSize.length() - 1);
+            std::string::size_type sz;
+            size = std::stoul(heapSize, &sz);
+            if (size > 0) {
+              size *= 1024 * 1024 * 1024;
+            }
+          }
+          // set the heap size
+          initializeHeapPool(size);
+        }
+      }
+
       ctoastInfo("launching executable...");
+      initializeHeapPool(size);
+
       return CinnamonToast::invokeExecutable(argv[1]);
     }
   } catch (std::exception e) {
@@ -417,10 +590,3 @@ int ctoast CLIMain(const uint8_t argc, const vector<string> argv) {
 }
 #endif
 // Main entrypoint
-
-#ifndef CTOAST_API_library
-int main(const int argc, const char *argv[]) {
-  return CinnamonToast::cliMain(
-      argc, CinnamonToast::Utilities::cstrArrToVector(argv));
-}
-#endif

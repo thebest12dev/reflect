@@ -17,6 +17,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #include "Component.h"
+#include "../memory/HeapPool.h"
 #include "Colors.h"
 #include "TypeDefinitions.h"
 #include "Vector2.h"
@@ -24,11 +25,11 @@
 #include <string>
 ctoast Component::Component()
     : position(Vector2(0, 0)), size(Vector2(0, 0)),
-      color(Color3(255, 255, 255)) {}
+      bgColor(Color3Float(1, 1, 1)) {}
 // ctoast Component::~Component()  {
 //
 // }
-ctoast Color3 ctoast Component::getColor() { return color; }
+ctoast Color3 ctoast Component::getColor() { return bgColor; }
 void ctoast Component::add(Component &comp) {
   // Do nothing
 }
@@ -40,19 +41,53 @@ void ctoast Component::setVisible(bool cmd) {
 }
 
 void ctoast Component::setSize(Vector2 size) { this->size = size; }
-void ctoast Component::setColor(Color3 color) { this->color = color; }
+void ctoast Component::setColor(Color3 color) { this->bgColor = color; }
 void ctoast Component::setColor(Color3Array color) {
-  this->color.r = color[0];
-  this->color.g = color[1];
-  this->color.b = color[2];
+  this->bgColor.r = color[0] / 255;
+  this->bgColor.g = color[1] / 255;
+  this->bgColor.b = color[2] / 255;
 }
 void ctoast Component::setColor(uint8_t r, uint8_t g, uint8_t b) {
-  this->color.r = r;
-  this->color.g = g;
-  this->color.b = b;
+  this->bgColor.r = r;
+  this->bgColor.g = g;
+  this->bgColor.b = b;
 }
 ctoast Vector2 ctoast Component::getPosition() { return position; };
 ctoast Vector2 ctoast Component::getSize() { return size; };
+namespace CinnamonToast {
+void *Component::operator new(std::size_t size) {
+  if (!getHeapPool()) {
+    throw std::bad_alloc(); // Handle allocation failure
+  }
+  void *ptr = getHeapPool()->allocate(size);
+  if (!ptr) {
+    throw std::bad_alloc(); // Handle allocation failure
+  }
+  return ptr;
+}
+
+void Component::operator delete(void *ptr) noexcept {
+  if (!getHeapPool()) {
+    throw std::bad_alloc(); // Handle deallocation failure
+  }
+  getHeapPool()->deallocate(ptr, sizeof(ptr));
+}
+
+void *Component::operator new[](std::size_t size) {
+  if (!getHeapPool()) {
+    throw std::bad_alloc(); // Handle deallocation failure
+  }
+  void *ptr = getHeapPool()->allocate(size);
+  return ptr;
+}
+
+void Component::operator delete[](void *ptr) noexcept {
+  if (!getHeapPool()) {
+    throw std::bad_alloc(); // Handle deallocation failure
+  }
+  getHeapPool()->deallocate(ptr, sizeof(ptr));
+}
+} // namespace CinnamonToast
 #ifdef __linux__
 
 // std::string ctoast Component::GetProperty(std::string property) {

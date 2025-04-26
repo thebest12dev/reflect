@@ -6,7 +6,7 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED
  * "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -16,50 +16,59 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#pragma once
-#include <stdexcept>
+#include "LogBuffer.h"
+#include <windows.h>
+
 namespace CinnamonToast {
-struct Color3 {
-  unsigned char r, g, b;
-  Color3() {}
-  Color3(unsigned char r, unsigned char g, unsigned char b)
-      : r(r), g(g), b(b) {}
-};
-struct Color3Float {
-  union {
-    struct {
-      float r, g, b;
-    };
-    float data[3]; // allows array-style access
-  };
-  Color3Float() {};
-  Color3Float(float r, float g, float b) : r(r), g(g), b(b) {};
-  operator Color3() {
-    return Color3(static_cast<unsigned char>(r * 255),
-                  static_cast<unsigned char>(g * 255),
-                  static_cast<unsigned char>(b * 255));
-  }
-  Color3Float &operator=(const Color3 color) {
-    r = static_cast<float>(color.r) / 255;
-    g = static_cast<float>(color.g) / 255;
-    b = static_cast<float>(color.b) / 255;
-    return *this;
-  }
-  // Array-style access (read/write)
-  float &operator[](size_t index) {
-    if (index >= 3) {
-      float value = 0.0f;
-      return value;
-    }
-    return data[index];
+
+/**
+ * @brief Constructs a LogBuffer object and initializes the file stream.
+ *
+ * Redirects `std::cout` to both the console and a log file.
+ */
+LogBuffer::LogBuffer() : fileStream("log.txt") {
+  sb1 = std::cout.rdbuf();
+  sb2 = fileStream.rdbuf();
+}
+
+/**
+ * @brief Handles overflow when writing to the buffer.
+ *
+ * @param c The character to write.
+ * @return The written character, or EOF on failure.
+ */
+int LogBuffer::overflow(int c) {
+  __try {
+    if (sb1 == nullptr || sb2 == nullptr)
+      return EOF;
+    if (c == EOF)
+      return !EOF;
+    if (sb1->sputc(c) == EOF)
+      return EOF;
+    if (sb2->sputc(c) == EOF)
+      return EOF;
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+    // Handle exception
+    return EOF;
   }
 
-  // Array-style access (read-only version)
-  const float &operator[](size_t index) const {
-    if (index >= 3)
-      return 0;
-    return data[index];
+  return c;
+}
+
+/**
+ * @brief Synchronizes the buffer with the output streams.
+ *
+ * @return 0 on success, -1 on failure.
+ */
+int LogBuffer::sync() {
+  __try {
+    if (sb1 == nullptr || sb2 == nullptr)
+      return -1;
+    return (sb1->pubsync() == 0 && sb2->pubsync() == 0) ? 0 : -1;
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+    // Handle exception
+    return -1;
   }
-};
-typedef unsigned char Color3Array[3];
+}
+
 } // namespace CinnamonToast

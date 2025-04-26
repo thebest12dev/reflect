@@ -25,17 +25,37 @@ using byte = unsigned char;
 #ifdef _WIN32
 #include <windows.h>
 // visual styles
-#pragma comment(                                                               \
+ // #pragma comment( \
     linker,                                                                    \
-    "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version = '6.0.0.0' processorArchitecture = '*' publicKeyToken = '6595b64144ccf1df' language = '*'\"")
+    "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls'
+// version = '6.0.0.0' processorArchitecture = '*' publicKeyToken =
+//'6595b64144ccf1df' language = '*'\"")
 #endif
+#include "../core/logging/LogBuffer.h"
+#include "../core/memory/HeapPool.h"
 #include "Main.h"
 #include "Utilities.h"
-
+#ifdef CTOAST_NO_CONSOLE
+// use windows APIs intead of int main
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                   LPSTR lpCmdLine, int nCmdShow) {
+  // expression to load ctoast
+  CinnamonToast::LogBuffer logbuf;
+  std::cout.rdbuf(&logbuf);
+  return CinnamonToast::cliMain(__argc,
+                                CinnamonToast::Utilities::cstrArrToVector(
+                                    const_cast<const char **> __argv));
+}
+#else
 // main function
 int main(int argc, char const *argv[]) {
   // expression to load ctoast
+  CinnamonToast::LogBuffer logbuf;
+
+  std::cout.rdbuf(&logbuf);
   return CinnamonToast::cliMain(
       argc, CinnamonToast::Utilities::cstrArrToVector(argv));
 }
+#endif
+
 #endif

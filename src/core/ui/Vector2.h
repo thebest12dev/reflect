@@ -17,11 +17,37 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #pragma once
+
 #include "TypeDefinitions.h"
+#include <vector>
+
 namespace CinnamonToast {
+
 struct Vector2 {
 public:
-  CTOAST_API Vector2(int v1, int v2);
+  CTOAST_API Vector2();
+  CTOAST_API Vector2(int x, int y);
+
+  // Arithmetic operators
+  CTOAST_API Vector2 operator+(const Vector2 &vec) const noexcept;
+  CTOAST_API Vector2 operator-(const Vector2 &vec) const noexcept;
+  CTOAST_API Vector2 operator*(const Vector2 &vec) const noexcept;
+  CTOAST_API Vector2 operator/(const Vector2 &vec) const noexcept;
+
+  // Compound assignment
+  CTOAST_API Vector2 &operator+=(const Vector2 &vec) noexcept;
+  CTOAST_API Vector2 &operator-=(const Vector2 &vec) noexcept;
+  CTOAST_API Vector2 &operator*=(const Vector2 &vec) noexcept;
+  CTOAST_API Vector2 &operator/=(const Vector2 &vec) noexcept;
+
+  // Bitwise shift
+  CTOAST_API Vector2 operator<<(int shift) const noexcept;
+  CTOAST_API Vector2 operator>>(int shift) const noexcept;
+
+  // Bitwise logic
+  CTOAST_API Vector2 operator&(const Vector2 &vec) const noexcept;
+  CTOAST_API Vector2 operator|(const Vector2 &vec) const noexcept;
+  CTOAST_API explicit operator std::vector<int>() const noexcept;
   int x, y;
 };
 

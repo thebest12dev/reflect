@@ -1,3 +1,15 @@
+# v1.6.0 (2025-04-24)
+- Resolved issues #5, #6, #7, #8
+- Bug fixes
+
+# v1.5.0 (2025-04-08)
+- Added networking module (optional)
+- Added a bunch of resource files
+- Added some console macros (ctoastInfo, ctoastDebug, etc.)
+- Fixed some bugs
+- Add networking tests
+- Use OpenSSL for networking
+
 # v1.4.0 (2025-03-30)
 - Added C and Java bindings
 - Use LLVM coding convention
@@ -15,7 +27,7 @@
 # v1.2.0 (2025-03-24)
 - Added support for Lua scripting
 - Fixed some bugs
-- Added some ctoastError codes
+- Added some error codes
 - Added a whole new Lua API for interfacing with the C++ code
 - Added a new module (lua) for handling Lua instances
 
@@ -23,7 +35,7 @@
 - Added shared library APIs (rudimentary)
 - Added support for DLL loading (for code injection)
 - Revamped .xml format to support shared libraries
-- Added some ctoastError codes
+- Added some error codes
 
 # v1.0.0 (unknown date)
 - Initial release

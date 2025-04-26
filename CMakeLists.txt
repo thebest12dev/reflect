@@ -11,6 +11,10 @@ if (POLICY CMP0141)
   endif()
   
 endif()
+# Enable exceptions in MSVC
+if(MSVC)
+    add_compile_options(/EHsc)
+endif()
 
 # Define the project
 set(TRIPLET "x64-windows")
@@ -55,8 +59,8 @@ if(UNIX)
     set(JNI_INCLUDE_DIR "$ENV{JAVA_HOME}/include/linux" "$ENV{JAVA_HOME}/include")
 endif(UNIX)
 if(DEFINED CTOAST_BUNDLE) 
-    file(GLOB_RECURSE CTOAST_COMMONS "src/common/*.cpp" "src/common/*.h")
-    
+    file(GLOB_RECURSE CTOAST_COMMONS "src/common/*.h" )
+    file(GLOB_RECURSE CTOAST_COMMONS_CORE "src/common/*.h"  "src/common/*.cpp")
     add_library(CinnamonToast SHARED ${CTOAST_CSTYLE} 
                 ${CTOAST_CRASHHANDLER} 
                 ${CTOAST_LUA}
@@ -67,25 +71,45 @@ if(DEFINED CTOAST_BUNDLE)
     target_compile_definitions(CinnamonToast PRIVATE CTOAST_LUA=1)
     target_compile_definitions(CinnamonToast PRIVATE CTOAST_BUILDING=1)
     target_compile_definitions(CinnamonToast PRIVATE CTOAST_BUNDLED=1)
-else()
-    # Add the source files for the specific DLLs
-    add_library(CinnamonToast.CStyleAPI SHARED ${CTOAST_CSTYLE} "src/windows/CinnamonToast.CStyleAPI.rc")
-    add_library(CinnamonToast.CrashHandler SHARED ${CTOAST_CRASHHANDLER} "src/windows/CinnamonToast.CrashHandler.rc")
-    add_library(CinnamonToast.LuaAPI SHARED ${CTOAST_LUA} "src/windows/CinnamonToast.LuaAPI.rc")
-    add_library(CinnamonToast.JavaAPI SHARED ${CTOAST_JAVA} "src/windows/CinnamonToast.JavaAPI.rc")
-    add_library(CinnamonToast.Networking SHARED ${CTOAST_NET})
-    add_library(CinnamonToast.Core SHARED ${CTOAST_CORE} "src/windows/CinnamonToast.Core.rc") 
-    target_compile_definitions(CinnamonToast.Core PRIVATE CTOAST_SHARED_LIBRARY=1)
-    target_compile_definitions(CinnamonToast.Core PRIVATE CTOAST_EXT_NETWORKING=1)
-    target_compile_definitions(CinnamonToast.CrashHandler PRIVATE CTOAST_SHARED_LIBRARY=1)
 
-    target_compile_definitions(CinnamonToast.Core PRIVATE CTOAST_LUA=1)
-    target_compile_definitions(CinnamonToast.LuaAPI PRIVATE CTOAST_SHARED_LIBRARY=1)
-    target_compile_definitions(CinnamonToast.CStyleAPI PRIVATE CTOAST_BUILDING=1)
+else()
+    if(DEFINED CTOAST_ONEFILE)
+    set(CTOAST_BUNDLE 1)
+        file(GLOB_RECURSE CTOAST_COMMONS "src/common/*.h" )
+    file(GLOB_RECURSE CTOAST_COMMONS_CORE "src/common/*.h"  "src/common/*.cpp")
+
+   
+    add_library(CinnamonToast STATIC ${CTOAST_CSTYLE} 
+                ${CTOAST_CRASHHANDLER} 
+                ${CTOAST_LUA}
+                ${CTOAST_NET} ${CTOAST_CORE} ${CTOAST_COMMONS_CORE}
+    )
+    target_compile_definitions(CinnamonToast PRIVATE CTOAST_STATIC_LIBRARY=1)
+    target_compile_definitions(CinnamonToast PRIVATE CTOAST_LUA=1)
+    target_compile_definitions(CinnamonToast PRIVATE CTOAST_BUILDING=1)
+    target_compile_definitions(CinnamonToast PRIVATE CTOAST_BUNDLED=1)
+    else()
+        file(GLOB_RECURSE CTOAST_COMMONS_CORE "src/common/*.h"  "src/common/*.cpp")
+        # Add the source files for the specific DLLs
+        add_library(CinnamonToast.CStyleAPI SHARED ${CTOAST_CSTYLE} "src/windows/CinnamonToast.CStyleAPI.rc")
+        add_library(CinnamonToast.CrashHandler SHARED ${CTOAST_CRASHHANDLER} "src/windows/CinnamonToast.CrashHandler.rc")
+        add_library(CinnamonToast.LuaAPI SHARED ${CTOAST_LUA} "src/windows/CinnamonToast.LuaAPI.rc")
+        add_library(CinnamonToast.JavaAPI SHARED ${CTOAST_JAVA} "src/windows/CinnamonToast.JavaAPI.rc")
+        add_library(CinnamonToast.Networking SHARED ${CTOAST_NET})
+        add_library(CinnamonToast.Core SHARED ${CTOAST_CORE} ${CTOAST_COMMONS_CORE} "src/windows/CinnamonToast.Core.rc") 
+        target_compile_definitions(CinnamonToast.Core PRIVATE CTOAST_SHARED_LIBRARY=1)
+        target_compile_definitions(CinnamonToast.Core PRIVATE CTOAST_EXT_NETWORKING=1)
+        target_compile_definitions(CinnamonToast.CrashHandler PRIVATE CTOAST_SHARED_LIBRARY=1)
+
+        target_compile_definitions(CinnamonToast.Core PRIVATE CTOAST_LUA=1)
+        target_compile_definitions(CinnamonToast.LuaAPI PRIVATE CTOAST_SHARED_LIBRARY=1)
+        target_compile_definitions(CinnamonToast.CStyleAPI PRIVATE CTOAST_BUILDING=1)
+    endif()
+    
 endif()
 #link_directories("${CMAKE_BINARY_DIR}/vcpkg_installed/${TRIPLET}/lib")
 
-set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
+#set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 file(GLOB_RECURSE CTOAST_FILES "src/*.cpp" "src/*.c" "src/*.h")
 
 # Define a custom target to run clang-format
@@ -101,14 +125,30 @@ if(DEFINED CTOAST_BUNDLE)
 else()
     add_dependencies(CinnamonToast.Core format)
 endif()
-
+set(APP_MANIFEST "${CMAKE_SOURCE_DIR}/src/windows/ctoasti.manifest")
 # Add source files for the executable (cli)
-add_executable(ctoasti ${CTOAST_CLI})
+add_executable(ctoasti ${CTOAST_CLI} ${APP_MANIFEST})
+add_executable(ctoastw ${CTOAST_CLI})
+
+if(CTOAST_ONEFILE)
+  target_compile_definitions(ctoasti PRIVATE CTOAST_STATIC_LIBRARY=1)
+  target_compile_definitions(ctoastw PRIVATE CTOAST_STATIC_LIBRARY=1)
+endif()
+
+
+# Embed the manifest into the executables
+set_target_properties(ctoasti PROPERTIES LINK_FLAGS "/MANIFEST /MANIFESTFILE:${APP_MANIFEST}")
+
+target_include_directories(ctoastw PRIVATE "${CMAKE_SOURCE_DIR}/src/common")
+target_compile_definitions(ctoastw PRIVATE CTOAST_NO_CONSOLE=1)
+set_target_properties(ctoastw PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
+     
+target_link_libraries(ctoastw PRIVATE CinnamonToast.Core)
 add_executable(ctoastt ${CTOAST_TEST})
 find_package(tinyxml2 CONFIG REQUIRED)
 find_package(GTest REQUIRED)
-set(OPENSSL_USE_STATIC_LIBS OFF)
 find_package(OpenSSL REQUIRED)
+find_package(glew REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LUAJIT REQUIRED luajit)
 
@@ -128,24 +168,26 @@ if(UNIX)
 
 endif()
 if(DEFINED CTOAST_BUNDLE)
+
     target_link_libraries(CinnamonToast PRIVATE tinyxml2::tinyxml2)
     target_link_libraries(CinnamonToast PRIVATE ${LUAJIT_LIBRARIES})
     target_link_libraries(CinnamonToast PRIVATE OpenSSL::SSL ws2_32)
 else()
+  
     target_link_libraries(CinnamonToast.CStyleAPI PRIVATE CinnamonToast.Core)
     target_link_libraries(CinnamonToast.JavaAPI PRIVATE CinnamonToast.CStyleAPI)
     target_link_libraries(CinnamonToast.LuaAPI PRIVATE ${LUAJIT_LIBRARIES})
     target_link_libraries(CinnamonToast.Core PRIVATE CinnamonToast.CrashHandler)
     target_link_libraries(CinnamonToast.Core PRIVATE tinyxml2::tinyxml2)
     target_link_libraries(CinnamonToast.Core PRIVATE ${LUAJIT_LIBRARIES})
-    target_link_libraries(CinnamonToast.Core PRIVATE CinnamonToast.LuaAPI)
+    target_link_libraries(CinnamonToast.Core PRIVATE CinnamonToast.LuaAPI GLEW::glew)
     target_link_libraries(CinnamonToast.Networking PRIVATE OpenSSL::SSL ws2_32)
 endif()
 # do not let main() of program conflict with main() of gtest
 target_compile_definitions(ctoastt PRIVATE CTOAST_TESTS=1)
 # add tests
 target_link_libraries(ctoastt PRIVATE GTest::gtest GTest::gtest_main)
-
+ 
 if(DEFINED CTOAST_BUNDLE)
     target_include_directories(CinnamonToast PRIVATE ${JNI_INCLUDE_DIR})
     target_include_directories(CinnamonToast PRIVATE "${CMAKE_SOURCE_DIR}/src/common")
@@ -190,7 +232,12 @@ if(WIN32)
     if(DEFINED CTOAST_BUNDLE)
         target_link_libraries(CinnamonToast PRIVATE d2d1 gdi32 comctl32 opengl32 ws2_32)
     else()
+       if(CTOAST_ONEFILE)
         target_link_libraries(CinnamonToast.Core PRIVATE d2d1 gdi32 comctl32 opengl32)
+       else()
+        target_link_libraries(CinnamonToast.Core PRIVATE d2d1 gdi32 comctl32 opengl32)
+       endif()
+        
     endif()
    
 endif()

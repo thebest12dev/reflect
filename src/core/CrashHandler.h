@@ -40,18 +40,17 @@ private:
   bool throwHandle;
   bool throwCrash;
   CrashConfig config;
-  __declspec(dllimport) void activate();
-  __declspec(dllimport) void deactivate();
+  CTOAST_IMPORT void activate();
+  CTOAST_IMPORT void deactivate();
 
 public:
-  __declspec(dllimport) CrashHandler(CrashConfig cf);
-  __declspec(dllimport) void setCustomCrashHandler(CrashFunction func);
-  __declspec(dllimport) void invokeCrash(std::string crashMessage);
+  CTOAST_IMPORT CrashHandler(CrashConfig cf);
+  CTOAST_IMPORT void setCustomCrashHandler(CrashFunction func);
+  CTOAST_IMPORT void invokeCrash(std::string crashMessage);
 
   // Note: explicitly need to define try-catch block and to call this method
-  __declspec(dllimport) void invokeUnhandledExceptionCrash(std::exception &ex);
-  __declspec(dllimport) void
-  setUnhandledExceptionCrashFunction(CrashFunction function);
+  CTOAST_IMPORT void invokeUnhandledExceptionCrash(std::exception &ex);
+  CTOAST_IMPORT void setUnhandledExceptionCrashFunction(CrashFunction function);
 
   friend class CrashManager;
 };
@@ -60,9 +59,8 @@ private:
   static CrashHandler *handler;
 
 public:
-  __declspec(dllimport) static void
-  setActiveCrashHandler(CrashHandler *handler_);
-  __declspec(dllimport) static CrashHandler *getActiveCrashHandler();
+  CTOAST_IMPORT static void setActiveCrashHandler(CrashHandler *handler_);
+  CTOAST_IMPORT static CrashHandler *getActiveCrashHandler();
 };
 namespace Utilities {
 bool checkBit(unsigned int num, int n);

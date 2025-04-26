@@ -5,6 +5,6 @@ typedef HWND WindowHandle;
 namespace CinnamonToast {
 class OpenGLContext {
 public:
-  CTOAST_API void initializeContext(WindowHandle hwnd);
+  CTOAST_API void initializeContext(WindowHandle hwnd, HDC hdc);
 };
 } // namespace CinnamonToast

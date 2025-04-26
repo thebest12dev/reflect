@@ -21,51 +21,58 @@
 #ifdef _WIN32
 #include <Windows.h>
 #undef byte
-#include <GL/gl.h>
-
 #include "Component.h"
 #include "Notification.h"
 #include "OpenGLContext.h"
-
 #include "TypeDefinitions.h"
+#include <condition_variable>
+#include <mutex>
+#include <thread>
 
 #include <cstdint>
 #include <string>
 
 #include "Vector2.h"
 namespace CinnamonToast {
+enum WindowStyle { STYLE_DARK_TITLE_BAR };
 class Window : public Component {
 protected:
   HINSTANCE winstance;
   HWND hwnd;
+  // std::map<char, bool> pressedKeys;
+  std::thread *renderThread = nullptr;
+  std::condition_variable renderCondition;
+  std::mutex renderMutex;
+
+  bool renderRunning;
+  bool callInit;
 
 private:
-  float bgColor[3];
   bool useGL;
+  bool customPipeline;
   OpenGLContext *glCtx;
+  void (*renderLoop)(Window &);
+  void (*beforeRenderLoop)(Window &);
 
 public:
-  CTOAST_API Window(HINSTANCE instance);
-  CTOAST_API Window(HINSTANCE instance, OpenGLContext ctx);
+  COMPONENT_DECL(Window);
+  CTOAST_API Window(HINSTANCE instance, std::string id);
+  CTOAST_API Window(HINSTANCE instance, OpenGLContext ctx, std::string id);
   CTOAST_API void setTitle(std::string title);
+  CTOAST_API void addStyle(WindowStyle style);
   // // void SetSize(Vector2 dim);
   CTOAST_API static LRESULT CALLBACK windowProc(HWND hwnd, UINT uMsg,
                                                 WPARAM wParam, LPARAM lParam);
-
-  CTOAST_API void setColor(uint8_t r, uint8_t g, uint8_t b);
-  CTOAST_API void setColor(Color3 color);
-  CTOAST_API void setColor(Color3Array color);
-  CTOAST_API void setVisible(bool flag);
-  CTOAST_API void add(Component &comp);
+  CTOAST_API void setBeforeRenderLoop(void (*callback)(Window &));
+  CTOAST_API void swapBuffers();
+  CTOAST_API bool isKeyPressed(char key);
   CTOAST_API void add(Component &comp, std::string id);
-  CTOAST_API void setSize(Vector2 size);
-  CTOAST_API void render(HWND &parentHWND, HWND &windowHWND);
-  CTOAST_API void showNotification(Notification &notif);
-  CTOAST_API void setVisible(int cmd);
+  CTOAST_API bool showNotification(CinnamonToast::Notification &notif);
   CTOAST_API int run(void (*func)(Window &win));
+  CTOAST_API void setRenderLoop(void (*loop)(Window &));
   CTOAST_API void close();
-  CTOAST_API operator WindowHandle() const;
-  CTOAST_API ~Window();
+  CTOAST_API operator HWND() const;
+
   friend class Component;
   friend class Label;
   friend class OpenGLContext;

@@ -1,16 +1,36 @@
+#include "../core/Main.h"
 #include <Windows.h>
 #include <gtest/gtest.h>
-#include "../core/Main.h"
 
-TEST(LaunchTest, Launch1ArgTest) {
-    EXPECT_EQ(CinnamonToast::cliMain(1, {"foo"}), CTOAST_ERROR_NO_FILES_SPECIFIED);
-   
+class LaunchTestFixture : public ::testing::Test {
+protected:
+  uint8_t argc;
+  std::vector<std::string> argv;
+
+  void SetUp() override {
+    argc = 0;
+    argv.clear();
+  }
+
+  void initializeArgs(const std::vector<std::string> &args) {
+    argc = static_cast<uint8_t>(args.size());
+    argv = args;
+  }
+};
+
+TEST_F(LaunchTestFixture, Launch1ArgTest) {
+  initializeArgs({"foo"});
+  EXPECT_EQ(CinnamonToast::cliMain(argc, argv),
+            CTOAST_ERROR_NO_FILES_SPECIFIED);
 }
-TEST(LaunchTest, Launch2ArgTest) {
-    EXPECT_EQ(CinnamonToast::cliMain(2, { "foo", "bar" }), CTOAST_ERROR_FILE_NOT_FOUND);
+
+TEST_F(LaunchTestFixture, Launch2ArgTest) {
+  initializeArgs({"foo", "bar"});
+  EXPECT_EQ(CinnamonToast::cliMain(argc, argv), CTOAST_ERROR_FILE_NOT_FOUND);
 }
 
-
-
-
-// You can write more tests similarly.
+TEST_F(LaunchTestFixture, LaunchNoArgsTest) {
+  initializeArgs({});
+  EXPECT_EQ(CinnamonToast::cliMain(argc, argv),
+            CTOAST_ERROR_NO_FILES_SPECIFIED);
+}

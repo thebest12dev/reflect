@@ -1,6 +1,6 @@
 #pragma once
 #include "TypeDefinitions.h"
-#define UtilityClass(classname)                                                \
+#define UTILITY(classname)                                                     \
   classname() = delete;                                                        \
   classname(const classname &) = delete;                                       \
   classname &operator=(const classname &) = delete
@@ -14,7 +14,7 @@ enum Extensions {
 };
 class ExtensionManager {
 public:
-  UtilityClass(ExtensionManager);
+  UTILITY(ExtensionManager);
   static constexpr bool isExtensionAvailable(Extension ext);
 };
 } // namespace CinnamonToast

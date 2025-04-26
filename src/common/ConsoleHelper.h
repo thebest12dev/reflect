@@ -6,7 +6,7 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED
  * "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -17,34 +17,24 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #pragma once
-
 #include "TypeDefinitions.h"
-#include <iostream>
-#include <string>
 
 namespace CinnamonToast {
 namespace Console {
 
-// std:: part is omitted because of `using namespace std;`.
-template <typename T> CTOAST_API void print(const T &obj) { std::cout << obj; };
-template <typename T> CTOAST_API void println(const T &obj) {
-  std::cout << obj << std::endl;
-};
-template <typename T>
-CTOAST_API void ctoastError(const T &obj, std::string ctx = "default") {
-  std::cerr << "[ERROR] " << "[" << ctx << "]: " << obj << std::endl;
-};
-template <typename T>
-CTOAST_API void ctoastInfo(const T &obj, std::string ctx = "default") {
-  std::cout << "[INFO] " << "[" << ctx << "]: " << obj << std::endl;
-};
-template <typename T>
-CTOAST_API void warn(const T &obj, std::string ctx = "default") {
-  std::cout << "[WARN] " << "[" << ctx << "]: " << obj << std::endl;
-};
-template <typename T>
-CTOAST_API void debug(const T &obj, std::string ctx = "default") {
-  std::cout << "[DEBUG] " << "[" << ctx << "]: " << obj << std::endl;
-};
+/**
+ * @brief Enables or disables debug logging.
+ *
+ * @param enabled A boolean indicating whether debug logging should be enabled.
+ */
+CTOAST_API void setDebugEnabled(bool enabled);
+
+/**
+ * @brief Retrieves the current debug logging state.
+ *
+ * @return True if debug logging is enabled, false otherwise.
+ */
+CTOAST_API bool getDebugEnabled();
+
 } // namespace Console
 } // namespace CinnamonToast

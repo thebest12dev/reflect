@@ -27,17 +27,50 @@
 #include <vector>
 
 namespace CinnamonToast {
+/**
+ * @brief A namespace primarily for utility functions.
+ */
 namespace Utilities {
+/**
+ * @brief Converts a C-style string array to a vector of strings.
+ *
+ * @param arr The C-style string array to convert.
+ * @return A vector of strings.
+ */
 CTOAST_API std::vector<std::string> cstrArrToVector(const char *arr[]);
+/**
+ * @brief Splits a string into a vector of strings based on a delimiter.
+ *
+ * @param str The string to split.
+ * @param delimiter The character to split the string by.
+ * @return A vector of strings.
+ */
 CTOAST_API std::vector<std::string> splitString(std::string str,
                                                 char delimiter);
 
 #ifdef _WIN32
+/**
+ * @brief Creates a Win32 font with the specified properties.
+ *
+ * @param fontName The name of the font. Defaults to Segoe UI.
+ * @param size The size of the font. Defaults to 16.
+ * @param fontWeight The weight of the font. Defaults to 400 (normal).
+ * @param italic Whether the font is italic. Defaults to false.
+ * @param underline Whether the font is underlined. Defaults to false.
+ * @param strikeout Whether the font is struck out. Defaults to false.
+ * @return A handle to the created font.
+ */
 CTOAST_API HFONT getFont(std::string fontName = DEFAULT_FONT, int size = 16,
                          int fontWeight = 400, bool italic = false,
                          bool underline = false, bool strikeout = false);
+/**
+ * @brief Retrieves the last error message as a string.
+ */
 CTOAST_API std::string getLastErrorAsString();
 #endif
+/**
+ * @brief Retrieves the current operating system platform and version.
+ */
 CTOAST_API std::string getOSPlatformAndVersion();
 } // namespace Utilities
 } // namespace CinnamonToast
