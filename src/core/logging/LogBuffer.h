@@ -31,6 +31,8 @@ public:
    */
   CTOAST_API LogBuffer();
 
+  CTOAST_API void setOutputFile(std::string file);
+
 protected:
   /**
    * @brief Handles overflow when writing to the buffer.

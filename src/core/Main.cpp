@@ -270,7 +270,7 @@ int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
     heapAllocations.push_back(pb);
     pb->setMininumValue(std::stof(label->Attribute("min")));
     pb->setMaximumValue(std::stof(label->Attribute("max")));
-    pb->setValue(std::stoi(label->Attribute("value")));
+    pb->setValue(std::stof(label->Attribute("value")));
     pb->setPosition(position);
     pb->setSize(size);
     win->add(*pb, id);

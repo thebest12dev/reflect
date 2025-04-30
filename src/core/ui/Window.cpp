@@ -294,7 +294,7 @@ bool ctoast Window::isKeyPressed(char key) {
 };
 bool ctoast Window::showNotification(Notification &notif) {
   if (!IsWindow(hwnd)) {
-    ctoastError("Window handle is invalid!", "showNotification");
+    ctoastError("Window handle is invalid!");
     return false;
   }
   NOTIFYICONDATA nid = {};
@@ -320,8 +320,7 @@ bool ctoast Window::showNotification(Notification &notif) {
   nid.dwInfoFlags = NIIF_INFO;
   if (!Shell_NotifyIcon(NIM_ADD, &nid)) {
     ctoastError("Failed to add notification icon! (" +
-                    std::to_string(GetLastError()) + ")",
-                "showNotification");
+                std::to_string(GetLastError()) + ")");
     return false;
   }
 
@@ -398,7 +397,9 @@ void ctoast Window::setSize(Vector2 size_) {
   );
 }
 ctoast Window::Window(HINSTANCE instance, std::string id)
-    : winstance(instance), useGL(false), glCtx(nullptr), customPipeline(false) {
+    : winstance(instance), useGL(false), glCtx(nullptr), customPipeline(false),
+      beforeRenderLoop(nullptr), callInit(false), renderLoop(nullptr),
+      renderRunning(false) {
   ctoastDebug("initializing win32 parameters...");
   WNDCLASS wc = {};
   wc.lpfnWndProc = windowProc; // Window procedure
@@ -423,7 +424,8 @@ ctoast Window::Window(HINSTANCE instance, std::string id)
   CinnamonToast::Components::gchildren[id] = this;
 }
 ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx, std::string id)
-    : winstance(instance), useGL(true), glCtx(&ctx), customPipeline(true) {
+    : winstance(instance), useGL(true), glCtx(&ctx), customPipeline(true),
+      beforeRenderLoop(nullptr) {
   ctoastDebug("initializing win32 parameters...");
   WNDCLASS wc = {};
   wc.lpfnWndProc = windowProc; // Window procedure

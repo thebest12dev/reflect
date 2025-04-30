@@ -19,6 +19,7 @@
 
 #include "ConsoleHelper.h"
 
+#include "../core/logging/LogInstance.h"
 namespace {
 // Indicates whether debug logging is enabled.
 bool debugEnabled = false;
@@ -39,5 +40,8 @@ void Console::setDebugEnabled(bool enabled) { debugEnabled = enabled; }
  * @return True if debug logging is enabled, false otherwise.
  */
 bool Console::getDebugEnabled() { return debugEnabled; }
-
+inline void Console::setLogInstance(LogInstance inst) {
+  std::cout.rdbuf(&(std::streambuf &)inst);
+  std::cerr.rdbuf(&(std::streambuf &)inst);
+};
 } // namespace CinnamonToast

@@ -25,9 +25,7 @@ using byte = unsigned char;
 #ifdef _WIN32
 #include <windows.h>
 // visual styles
- // #pragma comment( \
-    linker,                                                                    \
-    "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls'
+// #pragma comment(
 // version = '6.0.0.0' processorArchitecture = '*' publicKeyToken =
 //'6595b64144ccf1df' language = '*'\"")
 #endif
@@ -48,11 +46,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 }
 #else
 // main function
+#include "../core/logging/LogInstance.h"
+#include "../core/logging/LogUtil.h"
+#include "Console.h"
 int main(int argc, char const *argv[]) {
   // expression to load ctoast
-  CinnamonToast::LogBuffer logbuf;
-
-  std::cout.rdbuf(&logbuf);
+  CinnamonToast::Utilities::initLogs();
   return CinnamonToast::cliMain(
       argc, CinnamonToast::Utilities::cstrArrToVector(argv));
 }

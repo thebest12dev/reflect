@@ -25,7 +25,7 @@
 #include <string>
 ctoast Component::Component()
     : position(Vector2(0, 0)), size(Vector2(0, 0)),
-      bgColor(Color3Float(1, 1, 1)) {}
+      bgColor(Color3Float(1, 1, 1)), hwnd(nullptr), winstance(nullptr) {}
 // ctoast Component::~Component()  {
 //
 // }
@@ -43,9 +43,9 @@ void ctoast Component::setVisible(bool cmd) {
 void ctoast Component::setSize(Vector2 size) { this->size = size; }
 void ctoast Component::setColor(Color3 color) { this->bgColor = color; }
 void ctoast Component::setColor(Color3Array color) {
-  this->bgColor.r = color[0] / 255;
-  this->bgColor.g = color[1] / 255;
-  this->bgColor.b = color[2] / 255;
+  this->bgColor.r = color[0] / 255.0f;
+  this->bgColor.g = color[1] / 255.0f;
+  this->bgColor.b = color[2] / 255.0f;
 }
 void ctoast Component::setColor(uint8_t r, uint8_t g, uint8_t b) {
   this->bgColor.r = r;
@@ -66,7 +66,7 @@ void *Component::operator new(std::size_t size) {
   return ptr;
 }
 
-void Component::operator delete(void *ptr) noexcept {
+void Component::operator delete(void *ptr) {
   if (!getHeapPool()) {
     throw std::bad_alloc(); // Handle deallocation failure
   }
@@ -81,7 +81,7 @@ void *Component::operator new[](std::size_t size) {
   return ptr;
 }
 
-void Component::operator delete[](void *ptr) noexcept {
+void Component::operator delete[](void *ptr) {
   if (!getHeapPool()) {
     throw std::bad_alloc(); // Handle deallocation failure
   }

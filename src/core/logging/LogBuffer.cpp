@@ -26,7 +26,7 @@ namespace CinnamonToast {
  *
  * Redirects `std::cout` to both the console and a log file.
  */
-LogBuffer::LogBuffer() : fileStream("log.txt") {
+LogBuffer::LogBuffer() : fileStream("logs/current.log") {
   sb1 = std::cout.rdbuf();
   sb2 = fileStream.rdbuf();
 }
@@ -49,6 +49,7 @@ int LogBuffer::overflow(int c) {
       return EOF;
   } __except (EXCEPTION_EXECUTE_HANDLER) {
     // Handle exception
+
     return EOF;
   }
 
@@ -70,5 +71,8 @@ int LogBuffer::sync() {
     return -1;
   }
 }
-
+void LogBuffer::setOutputFile(std::string file) {
+  fileStream = std::ofstream(file);
+  sb2 = fileStream.rdbuf();
+}
 } // namespace CinnamonToast

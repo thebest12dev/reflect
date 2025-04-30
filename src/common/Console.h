@@ -21,6 +21,7 @@
 // Include helper header
 #include "ConsoleHelper.h"
 
+#include "../core/logging/LogInstance.h"
 #include "TypeDefinitions.h"
 #include <iostream>
 #include <string>

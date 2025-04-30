@@ -20,6 +20,7 @@
 #include "TypeDefinitions.h"
 
 namespace CinnamonToast {
+class LogInstance;
 namespace Console {
 
 /**
@@ -35,6 +36,6 @@ CTOAST_API void setDebugEnabled(bool enabled);
  * @return True if debug logging is enabled, false otherwise.
  */
 CTOAST_API bool getDebugEnabled();
-
+CTOAST_API void setLogInstance(LogInstance inst);
 } // namespace Console
 } // namespace CinnamonToast
