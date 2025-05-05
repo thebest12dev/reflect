@@ -96,7 +96,9 @@ void ctoast Label::setVisible(bool flag) {
   ShowWindow(this->hwnd, flag ? SW_SHOW : SW_HIDE);
 }
 ctoast Label::Label(std::string text, Vector2 pos)
-    : position(pos), size(Vector2(0, 0)), text(text) {}
+    : position(pos), size(Vector2(0, 0)), text(text) {
+  initializeObject(CTOAST_OBJECT_LABEL, CTOAST_OBJECT_TEXTCOMPONENT);
+}
 #elif __linux__
 #include "../Console.h"
 #include "../Definitions.h"

@@ -2,11 +2,13 @@
 #include "Console.h"
 namespace CinnamonToast {
 MenuItem::MenuItem() : hmenu(CreatePopupMenu()), size(Vector2(0, 0)) {
+  initializeObject(CTOAST_OBJECT_MENUITEM, CTOAST_OBJECT_TEXTCOMPONENT);
   // do nothing
 }
 MenuItem::MenuItem(std::string contents)
     : hmenu(CreatePopupMenu()), text(contents), size(Vector2(0, 0)) {
   // do nothing
+  initializeObject(CTOAST_OBJECT_MENUITEM, CTOAST_OBJECT_TEXTCOMPONENT);
 }
 void MenuItem::render(HWND &parentHWND, HWND &windowHWND) {
   // do nothing

@@ -1,6 +1,8 @@
 #include "TypeDefinitions.h"
+#ifdef _WIN32
 #include <WS2tcpip.h>
 #include <WinSock2.h>
+#endif
 #include <string>
 
 namespace CinnamonToast {

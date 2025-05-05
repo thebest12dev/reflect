@@ -25,7 +25,9 @@
 #include <string>
 ctoast Component::Component()
     : position(Vector2(0, 0)), size(Vector2(0, 0)),
-      bgColor(Color3Float(1, 1, 1)), hwnd(nullptr), winstance(nullptr) {}
+      bgColor(Color3Float(1, 1, 1)), hwnd(nullptr), winstance(nullptr) {
+  initializeObject(CTOAST_OBJECT_COMPONENT);
+}
 // ctoast Component::~Component()  {
 //
 // }

@@ -38,6 +38,7 @@ struct CToastAPI {
   bool (*setVisible)(ComponentId comp, bool flag);
   bool (*setFont)(ComponentId comp, CToastString font);
   bool (*setFontSize)(ComponentId comp, uint8_t fontSize);
+  bool (*setOnClick)(ComponentId comp, void (*callback)(ComponentId));
 };
 namespace ExternalAPI {
 CTOAST_API ComponentId getComponentById(const char *id);
@@ -49,6 +50,7 @@ CTOAST_API bool setComponentVisibleCommand(ComponentId comp, uint8_t cmd);
 CTOAST_API bool setComponentVisible(ComponentId comp, bool flag);
 CTOAST_API bool setComponentFont(ComponentId comp, CToastString font);
 CTOAST_API bool setComponentFontSize(ComponentId comp, uint8_t fontSize);
+CTOAST_API bool setOnClick(ComponentId comp, void (*callback)(ComponentId));
 } // namespace ExternalAPI
 typedef void (*SharedLibraryMain)(CToastAPI *api);
 } // namespace CinnamonToast

@@ -5,6 +5,7 @@ namespace CinnamonToast {
 ProgressBar::ProgressBar()
     : winstance(GetModuleHandle(nullptr)), hwnd(nullptr), maxValue(100.0f),
       minValue(0.0f), value(0.0f) {
+  initializeObject(CTOAST_OBJECT_PROGRESSBAR, CTOAST_OBJECT_COMPONENT);
   this->size = {0, 0};
   this->position = {0, 0};
 }

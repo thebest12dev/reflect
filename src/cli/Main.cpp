@@ -48,9 +48,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 // main function
 #include "../core/logging/LogInstance.h"
 #include "../core/logging/LogUtil.h"
+
 #include "Console.h"
 int main(int argc, char const *argv[]) {
   // expression to load ctoast
+
   CinnamonToast::Utilities::initLogs();
   return CinnamonToast::cliMain(
       argc, CinnamonToast::Utilities::cstrArrToVector(argv));

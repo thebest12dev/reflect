@@ -19,6 +19,7 @@
 typedef unsigned char byte;
 #include "CToastAPI.h"
 #include "Console.h"
+#include "ui/Button.h"
 #include "ui/Component.h"
 #include "ui/Components.h"
 #include "ui/Label.h"
@@ -44,17 +45,17 @@ const char *ExternalAPI::getComponentText(ComponentId ref) {
   }
 
   // Attempt dynamic_cast to TextComponent*
-  TextComponent *comp =
-      (TextComponent *)(Components::getComponentById(cull[ref - 1]));
-  Label *label = dynamic_cast<Label *>(comp);
-  if (label) {
+  TextComponent *comp = fastCast<TextComponent>(
+      Components::getComponentById(cull[ref - 1]), CTOAST_OBJECT_TEXTCOMPONENT);
+  // Label *label = dynamic_cast<Label *>(comp);
+  if (comp) {
 
-    std::string *text = new std::string(label->getText());
+    std::string *text = new std::string(comp->getText());
     const char *textc = text->c_str();
 
     return textc;
   } else {
-    Console::warn("cast for component failed! (nullptr)", "GetComponentText");
+    ctoastWarn("cast for component failed! (nullptr)");
     return nullptr; // Return null if the cast fails
   }
 }
@@ -81,6 +82,7 @@ const char *ExternalAPI::getComponentText(ComponentId ref) {
 //         fails
 //     }
 // }
+#include <functional>
 bool ExternalAPI::setComponentColor(ComponentId component, uint8_t r, uint8_t g,
                                     uint8_t b) {
   // Ensure the component is within bounds
@@ -94,11 +96,31 @@ bool ExternalAPI::setComponentColor(ComponentId component, uint8_t r, uint8_t g,
     comp->setColor(r, g, b);
     return true;
   } else {
-    Console::warn("cast for component failed! (nullptr)", "SetComponentColor");
+    ctoastWarn("cast for component failed! (nullptr)");
     return false; // Return false if the cast fails
   }
 }
 
+static ComponentId comp1_;
+void (*callback_)(ComponentId comp);
+void staticWrapper(Button &button) { callback_(comp1_); }
+bool ExternalAPI::setOnClick(ComponentId comp1,
+                             void (*callback)(ComponentId comp)) {
+  if (comp1 - 1 < 0 || comp1 - 1 >= cull.size()) {
+    return false; // Return false if invalid
+  }
+  // Attempt dynamic_cast to TextComponent*
+  Button *comp =
+      dynamic_cast<Button *>(Components::getComponentById(cull[comp1 - 1]));
+  if (comp) {
+    callback_ = callback;
+    comp->onClick(staticWrapper);
+    return true;
+  } else {
+    ctoastWarn("cast for component failed! (nullptr)");
+    return false; // Return false if the cast fails
+  }
+}
 bool ExternalAPI::addComponent(ComponentId parent, ComponentId child) {
   // Ensure the parent and child are within bounds
   if (parent - 1 < 0 || parent - 1 >= cull.size() || child - 1 < 0 ||
@@ -112,7 +134,7 @@ bool ExternalAPI::addComponent(ComponentId parent, ComponentId child) {
     parentComp->add(*childComp);
     return true;
   } else {
-    Console::warn("cast for component failed! (nullptr)", "AddComponent");
+    ctoastWarn("cast for component failed! (nullptr)");
     return false; // Return false if the cast fails
   }
 }
@@ -129,8 +151,7 @@ bool ExternalAPI::setComponentVisibleCommand(ComponentId comp, uint8_t cmd) {
     compComp->setVisible(cmd);
     return true;
   } else {
-    Console::warn("cast for component failed! (nullptr)",
-                  "SetComponentVisibleCommand");
+    ctoastWarn("cast for component failed! (nullptr)");
     return false; // Return false if the cast fails
   }
 }
@@ -147,8 +168,7 @@ bool ExternalAPI::setComponentVisible(ComponentId comp, bool flag) {
     compComp->setVisible(flag);
     return true;
   } else {
-    Console::warn("cast for component failed! (nullptr)",
-                  "SetComponentVisible");
+    ctoastWarn("cast for component failed! (nullptr)");
     return false; // Return false if the cast fails
   }
 }
@@ -166,7 +186,7 @@ bool ExternalAPI::setComponentFont(ComponentId comp2, CToastString font) {
     comp->setFont(font);
     return true;
   } else {
-    Console::warn("cast for component failed! (nullptr)", "SetComponentFont");
+    ctoastWarn("cast for component failed! (nullptr)");
     return false; // Return false if the cast fails
   }
 }
@@ -183,8 +203,7 @@ bool ExternalAPI::setComponentFontSize(ComponentId comp_, uint8_t fontSize) {
     comp->setFontSize(fontSize);
     return true;
   } else {
-    Console::warn("cast for component failed! (nullptr)",
-                  "SetComponentFontSize");
+    ctoastWarn("cast for component failed! (nullptr)");
     return false; // Return false if the cast fails
   }
 }

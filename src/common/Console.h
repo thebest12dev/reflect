@@ -23,9 +23,38 @@
 
 #include "../core/logging/LogInstance.h"
 #include "TypeDefinitions.h"
+#include <chrono>
+#include <ctime>
+#include <iomanip>
 #include <iostream>
 #include <string>
 
+namespace {
+#include <chrono>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
+
+std::string getCurrentTimeString() {
+  // Get current time
+  auto now = std::chrono::system_clock::now();
+  std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+
+  // Convert to local time
+  std::tm local_tm;
+#if defined(_WIN32) || defined(_WIN64)
+  localtime_s(&local_tm, &now_c); // Windows
+#else
+  localtime_r(&now_c, &local_tm); // Linux / Unix
+#endif
+
+  // Format as string
+  std::ostringstream oss;
+  oss << std::put_time(&local_tm, "%H:%M:%S");
+
+  return oss.str();
+}
+} // namespace
 /**
  * @brief A shorthand macro for printing to the console. Handles function names
  * automatically.
@@ -97,7 +126,8 @@ template <typename T> CTOAST_API inline void print(const T &obj) noexcept {
   try {
     std::cout << obj;
   } catch (const std::exception &e) {
-    std::cerr << "[ERROR] [" << __func__ << "]: " << e.what() << std::endl;
+    std::cerr << "[ERROR] [" + getCurrentTimeString() + "] [" << __func__
+              << "]: " << e.what() << std::endl;
   }
 };
 
@@ -113,7 +143,8 @@ template <typename T> CTOAST_API inline void println(const T &obj) noexcept {
   try {
     std::cout << obj << std::endl;
   } catch (const std::exception &e) {
-    std::cerr << "[ERROR] [" << __func__ << "]: " << e.what() << std::endl;
+    std::cerr << "[ERROR] [" + getCurrentTimeString() + "] [" << __func__
+              << "]: " << e.what() << std::endl;
   }
 };
 
@@ -130,9 +161,11 @@ template <typename T>
 CTOAST_API inline void error(const T &obj,
                              std::string ctx = "default") noexcept {
   try {
-    std::cerr << "[ERROR] " << "[" << ctx << "]: " << obj << std::endl;
+    std::cerr << "[ERROR] [" + getCurrentTimeString() + "] " << "[" << ctx
+              << "]: " << obj << std::endl;
   } catch (const std::exception &e) {
-    std::cerr << "[ERROR] [" << __func__ << "] " << e.what() << std::endl;
+    std::cerr << "[ERROR] [" + getCurrentTimeString() + "] [" << __func__
+              << "] " << e.what() << std::endl;
   }
 };
 
@@ -149,10 +182,12 @@ template <typename T>
 CTOAST_API inline void info(const T &obj,
                             std::string ctx = "default") noexcept {
   try {
-    std::cout << "[INFO] " << "[" << ctx << "]: " << obj << std::endl;
+    std::cout << "[INFO] [" + getCurrentTimeString() + "] " << "[" << ctx
+              << "]: " << obj << std::endl;
 
   } catch (const std::exception &e) {
-    std::cerr << "[ERROR] [" << __func__ << "] " << e.what() << std::endl;
+    std::cerr << "[ERROR] [" + getCurrentTimeString() + "] [" << __func__
+              << "] " << e.what() << std::endl;
   }
 };
 
@@ -169,9 +204,11 @@ template <typename T>
 CTOAST_API inline void warn(const T &obj,
                             std::string ctx = "default") noexcept {
   try {
-    std::cout << "[WARN] " << "[" << ctx << "]: " << obj << std::endl;
+    std::cout << "[WARN] [" + getCurrentTimeString() + "] " << "[" << ctx
+              << "]: " << obj << std::endl;
   } catch (const std::exception &e) {
-    std::cerr << "[ERROR] [" << __func__ << "] " << e.what() << std::endl;
+    std::cerr << "[ERROR] [" + getCurrentTimeString() + "] [" << __func__
+              << "] " << e.what() << std::endl;
   }
 };
 
@@ -189,9 +226,11 @@ CTOAST_API inline void debug(const T &obj,
                              std::string ctx = "default") noexcept {
   try {
     if (getDebugEnabled())
-      std::cout << "[DEBUG] " << "[" << ctx << "]: " << obj << std::endl;
+      std::cout << "[DEBUG] [" + getCurrentTimeString() + "] " << "[" << ctx
+                << "]: " << obj << std::endl;
   } catch (const std::exception &e) {
-    std::cerr << "[ERROR] [" << __func__ << "] " << e.what() << std::endl;
+    std::cerr << "[ERROR] [" + getCurrentTimeString() + "] [" << __func__
+              << "] " << e.what() << std::endl;
   }
 };
 

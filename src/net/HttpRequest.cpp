@@ -7,6 +7,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#ifdef _WIN32
 /**
  * @brief Internal namespace, used for private functions and variables.
  */
@@ -257,3 +258,207 @@ void HttpRequest::initiateRequest() {
 //   this->response = data;
 // } // namespace CinnamonToast
 } // namespace CinnamonToast
+
+#elif defined(__linux__)
+#include "Console.h"
+#include "HttpRequest.h"
+#include <arpa/inet.h> // For htons
+#include <cstring>     // For memset
+#include <netdb.h>     // For getaddrinfo
+#include <openssl/err.h>
+#include <openssl/ssl.h>
+#include <regex>
+#include <sstream>
+#include <string>
+#include <sys/socket.h> // For socket functions
+#include <tuple>
+#include <unistd.h> // For close()
+#include <vector>
+
+/**
+ * @brief Internal namespace, used for private functions and variables.
+ */
+namespace {
+/**
+ * @brief Extracts the host and port from a URL.
+ * @param url The URL to extract from.
+ * @return A tuple containing the host and port.
+ */
+std::tuple<std::string, int> extractHostAndPort(const std::string &url) {
+  // Regular expression to match the URL structure
+  std::regex urlRegex(R"(^(https?)://([^:/]+)(?::(\d+))?(/.*)?$)");
+  std::smatch matches;
+
+  if (std::regex_match(url, matches, urlRegex)) {
+    // Extract protocol (http or https)
+    std::string protocol = matches[1];
+    // Extract hostname
+    std::string host = matches[2];
+    // Extract port if available, otherwise use default port
+    int port = (matches[3].length() > 0) ? std::stoi(matches[3])
+                                         : (protocol == "https" ? 443 : 80);
+    return std::make_tuple(host, port);
+  } else {
+    // If the URL doesn't have the protocol, treat it as "http"
+    return std::make_tuple(url, 80);
+  }
+}
+
+SSL_CTX *ctx;
+SSL *ssl;
+
+/**
+ * @brief Initializes the SSL library.
+ */
+class SocketInitializer {
+public:
+  SocketInitializer() {
+    SSL_library_init();
+    OpenSSL_add_all_algorithms();
+    SSL_load_error_strings();
+    ctx = SSL_CTX_new(TLS_client_method());
+    if (!ctx) {
+      ctoastError("Failed to initialize SSL context");
+      exit(1);
+    }
+    ssl = SSL_new(ctx);
+  }
+  ~SocketInitializer() {
+    SSL_shutdown(ssl);
+    SSL_free(ssl);
+    SSL_CTX_free(ctx);
+  }
+};
+// Initialize the SSL context
+SocketInitializer internalInitializer;
+} // namespace
+
+namespace CinnamonToast {
+HttpRequest::HttpRequest(const std::string &url, HttpRequestMethod method,
+                         const std::string &headers, const std::string &body)
+    : url(url), method(method), headers(headers), body(body), success(false) {}
+
+void HttpRequest::setUrl(const std::string &newUrl) { url = newUrl; }
+void HttpRequest::setMethod(HttpRequestMethod newMethod) { method = newMethod; }
+void HttpRequest::setHeaders(const std::string &newHeaders) {
+  headers = newHeaders;
+}
+bool HttpRequest::isSuccess() const { return success; }
+void HttpRequest::setBody(const std::string newBody) { body = newBody; }
+std::string HttpRequest::getUrl() const { return url; }
+HttpRequestMethod HttpRequest::getMethod() const { return method; }
+std::string HttpRequest::getHeaders() const { return headers; }
+std::string HttpRequest::getBody() const { return body; }
+
+std::string HttpRequest::getResponse() { return response; }
+
+void HttpRequest::initiateRequest() {
+  success = true;
+  int sock = socket(AF_INET, SOCK_STREAM, 0);
+  if (sock < 0) {
+    ctoastError("Socket creation failed");
+    success = false;
+    return;
+  }
+
+  std::tuple<std::string, uint16_t> values = extractHostAndPort(url);
+  std::string host = std::get<0>(values);
+  uint16_t port = std::get<1>(values);
+
+  struct addrinfo hints, *result = nullptr;
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+
+  int iResult =
+      getaddrinfo(host.c_str(), std::to_string(port).c_str(), &hints, &result);
+  if (iResult != 0) {
+    ctoastError("Failed to resolve host");
+    close(sock);
+    success = false;
+    return;
+  }
+
+  // Attempt to connect to an address until one succeeds
+  for (struct addrinfo *ptr = result; ptr != nullptr; ptr = ptr->ai_next) {
+    iResult = connect(sock, ptr->ai_addr, ptr->ai_addrlen);
+    if (iResult == -1) {
+      close(sock);
+      sock = -1;
+      continue;
+    }
+    break;
+  }
+
+  freeaddrinfo(result);
+
+  if (sock == -1) {
+    ctoastError("Unable to connect to server");
+    return;
+  }
+
+  std::stringstream request;
+  // Prepare the GET request
+  request << "GET " +
+                 std::regex_replace(url, std::regex("^[a-zA-Z]+://[^/]+"), "") +
+                 " HTTP/1.1\r\n"
+          << "Host: " + host + "\r\n"
+          << "Connection: close\r\n"
+          << "\r\n";
+
+  if (url.rfind("https://", 0) == 0) {
+    // If the URL starts with "https://", use SSL
+    if (SSL_set_fd(ssl, sock) == 0) {
+      ctoastError("Cannot set socket with SSL!");
+      success = false;
+      close(sock);
+      return;
+    }
+    if (SSL_connect(ssl) <= 0) {
+      ctoastError("SSL connection failed!");
+      success = false;
+      close(sock);
+      return;
+    }
+    SSL_write(ssl, request.str().c_str(), request.str().length());
+    char buffer[1024];
+    int bytesReceived;
+    std::string data;
+    while ((bytesReceived = SSL_read(ssl, buffer, sizeof(buffer) - 1)) > 0) {
+      buffer[bytesReceived] = '\0'; // Null-terminate the string
+      data.append(buffer);
+      memset(buffer, 0, sizeof(buffer));
+    }
+    this->response = data;
+    close(sock);
+  } else {
+    // Send the GET request
+    if (send(sock, request.str().c_str(), request.str().length(), 0) == -1) {
+      ctoastError("Failed to send request");
+      success = false;
+      close(sock);
+      return;
+    }
+
+    int bytesReceived;
+    char buffer[1024];
+    std::string data;
+    // Receive the response
+    while ((bytesReceived = recv(sock, buffer, sizeof(buffer) - 1, 0)) > 0) {
+      buffer[bytesReceived] = '\0'; // Null-terminate the string
+      data.append(buffer);
+      memset(buffer, 0, sizeof(buffer));
+    }
+
+    if (bytesReceived == -1) {
+      ctoastError("Failed to receive response");
+      success = false;
+    }
+
+    // Close the socket
+    close(sock);
+    this->response = data;
+  }
+}
+} // namespace CinnamonToast
+#endif

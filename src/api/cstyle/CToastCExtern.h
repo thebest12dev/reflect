@@ -25,10 +25,18 @@
 #ifndef CTOASTC_H
 #define CTOASTC_H
 #undef CTOAST_API
-#ifdef CTOAST_BUILDING
+
+#if defined(CTOAST_BUILDING) && defined(_WIN32)
+#undef CTOAST_API
 #define CTOAST_API __declspec(dllexport)
-#else
+#elif !defined(CTOAST_BUILDING) && defined(_WIN32)
+#undef CTOAST_API
 #define CTOAST_API __declspec(dllimport)
+#endif
+#if defined(CTOAST_BUILDING) && __linux__
+#define CTOAST_API __attribute__((visibility("default")))
+#else
+#define CTOAST_API extern
 #endif
 #ifdef __cplusplus
 // use c++ standard libraries
@@ -60,6 +68,7 @@ typedef struct {
    * Note that for now, only 256 components are supported.
    */
   uint8_t id;
+
 } CToastComponent;
 
 /**

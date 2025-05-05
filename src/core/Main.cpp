@@ -103,6 +103,8 @@ struct Cleaner {
 Cleaner cleaner;
 
 } // namespace
+#include <ShellScalingAPI.h>
+#pragma comment(lib, "Shcore.lib")
 /**
  * Invokes and loads a .xml file and also loads the specific libraries. It will
  * setup the GUI as well as registering APIs for the libraries to use.
@@ -114,10 +116,11 @@ int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
   icex.dwICC = ICC_STANDARD_CLASSES | ICC_WIN95_CLASSES;
 
   InitCommonControlsEx(&icex);*/
+
   InitCommonControls();
   // load the xml file
   tinyxml2::XMLDocument doc;
-
+  SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
   // platform
   ctoastInfo("platform: " + getOSPlatformAndVersion());
 
@@ -286,6 +289,7 @@ int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
     heapAllocations.push_back(buttonComp);
     buttonComp->setFont(button->Attribute("font"));
     buttonComp->setFontSize(std::stoi(button->Attribute("fontSize")));
+
     win->add(*buttonComp, id);
   }
   ctoastDebug("loading libraries...");
@@ -325,6 +329,8 @@ int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
       ctoastApi.setFontSize = ExternalAPI::setComponentFontSize;
       ctoastApi.setVisible = ExternalAPI::setComponentVisible;
       ctoastApi.setVisibleCommand = ExternalAPI::setComponentVisibleCommand;
+
+      ctoastApi.setOnClick = ExternalAPI::setOnClick;
       std::thread *thread = new std::thread(mainFunc, &ctoastApi);
     }
 #ifdef CTOAST_LUA

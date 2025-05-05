@@ -17,7 +17,9 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #include "LogBuffer.h"
+#ifdef _WIN32
 #include <windows.h>
+#endif
 
 namespace CinnamonToast {
 

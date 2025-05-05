@@ -371,3 +371,6 @@ secret/
 /.vscode
 build 
 /.github/workflows/nightly.yml
+main.cpp/
+main.xml
+main.xml
