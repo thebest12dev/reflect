@@ -33,7 +33,7 @@
 #include <string>
 
 #include "Vector2.h"
-namespace CinnamonToast {
+namespace cinnamontoast {
 enum WindowStyle { STYLE_DARK_TITLE_BAR };
 class Window : public Component {
 protected:
@@ -67,7 +67,7 @@ public:
   CTOAST_API void swapBuffers();
   CTOAST_API bool isKeyPressed(char key);
   CTOAST_API void add(Component &comp, std::string id);
-  CTOAST_API bool showNotification(CinnamonToast::Notification &notif);
+  CTOAST_API bool showNotification(cinnamontoast::Notification &notif);
   CTOAST_API int run(void (*func)(Window &win));
   CTOAST_API void setRenderLoop(void (*loop)(Window &));
   CTOAST_API void close();
@@ -77,7 +77,7 @@ public:
   friend class Label;
   friend class OpenGLContext;
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 
 #elif __linux__
 #include "../TypeDefinitions.h"
@@ -89,7 +89,7 @@ public:
 #include <cstdint>
 #include <string>
 typedef Window XWindow;
-namespace CinnamonToast {
+namespace cinnamontoast {
 class Window : public Component {
 protected:
   Display *winstance;
@@ -116,5 +116,5 @@ public:
   friend class Component;
   friend class Label;
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 #endif

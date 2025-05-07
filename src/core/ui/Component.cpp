@@ -25,7 +25,9 @@
 #include <string>
 ctoast Component::Component()
     : position(Vector2(0, 0)), size(Vector2(0, 0)),
-      bgColor(Color3Float(1, 1, 1)), hwnd(nullptr), winstance(nullptr) {}
+      bgColor(Color3Float(1, 1, 1)), hwnd(nullptr), winstance(nullptr) {
+  initializeObject(CTOAST_OBJECT_COMPONENT);
+}
 // ctoast Component::~Component()  {
 //
 // }
@@ -54,7 +56,7 @@ void ctoast Component::setColor(uint8_t r, uint8_t g, uint8_t b) {
 }
 ctoast Vector2 ctoast Component::getPosition() { return position; };
 ctoast Vector2 ctoast Component::getSize() { return size; };
-namespace CinnamonToast {
+namespace cinnamontoast {
 void *Component::operator new(std::size_t size) {
   if (!getHeapPool()) {
     throw std::bad_alloc(); // Handle allocation failure
@@ -87,7 +89,7 @@ void Component::operator delete[](void *ptr) {
   }
   getHeapPool()->deallocate(ptr, sizeof(ptr));
 }
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 #ifdef __linux__
 
 // std::string ctoast Component::GetProperty(std::string property) {

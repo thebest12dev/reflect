@@ -30,7 +30,7 @@ std::string getFilesystemSafeTime() {
 }
 } // namespace
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 
 class LogInstance {
 protected:
@@ -91,7 +91,7 @@ public:
   template <typename T>
   CTOAST_API inline void debug(const T &obj, std::string ctx = "default") {
     try {
-      if (ctoast Console::getDebugEnabled())
+      if (ctoast console::getDebugEnabled())
         std::cout << "[DEBUG] " << "[" << ctx << "]: " << obj << std::endl;
     } catch (const std::exception &e) {
       std::cerr << "[ERROR] [" << __func__ << "] " << e.what() << std::endl;
@@ -99,4 +99,4 @@ public:
   };
   CTOAST_API operator std::streambuf &();
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast

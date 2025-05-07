@@ -2,9 +2,9 @@
 #include "Console.h"
 #include <new>
 namespace {
-CinnamonToast::HeapPool *heapPool = nullptr; // Pointer to a HeapPool instance
+cinnamontoast::HeapPool *heapPool = nullptr; // Pointer to a HeapPool instance
 }
-namespace CinnamonToast {
+namespace cinnamontoast {
 
 // Function to initialize heapPool
 void initializeHeapPool(size_t size) {
@@ -84,11 +84,11 @@ void HeapPool::deallocate(void *ptr, std::size_t size) {
   freeList = block;
   usedMemory -= size; // Increase used memory
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 // Overriding new/delete operators
 // void *operator new(std::size_t size) {
 //  if (!heapPool) {
-//    CinnamonToast::initializeHeapPool();
+//    cinnamontoast::initializeHeapPool();
 //  }
 //  void *ptr = heapPool->allocate(size);
 //  if (!ptr) {
@@ -100,7 +100,7 @@ void HeapPool::deallocate(void *ptr, std::size_t size) {
 //
 // void operator delete(void *ptr) noexcept {
 //  if (!heapPool) {
-//    CinnamonToast::initializeHeapPool();
+//    cinnamontoast::initializeHeapPool();
 //  }
 //  heapPool->deallocate(ptr, sizeof(ptr));
 //  std::cout << "Deallocated memory at " << ptr << "\n";
@@ -108,7 +108,7 @@ void HeapPool::deallocate(void *ptr, std::size_t size) {
 //
 // void *operator new[](std::size_t size) {
 //  if (!heapPool) {
-//    CinnamonToast::initializeHeapPool();
+//    cinnamontoast::initializeHeapPool();
 //  }
 //  void *ptr = heapPool->allocate(size);
 //  std::cout << "Allocated memory at " << ptr << "\n";
@@ -117,7 +117,7 @@ void HeapPool::deallocate(void *ptr, std::size_t size) {
 //
 // void operator delete[](void *ptr) noexcept {
 //  if (!heapPool) {
-//    CinnamonToast::initializeHeapPool();
+//    cinnamontoast::initializeHeapPool();
 //  }
 //  heapPool->deallocate(ptr, sizeof(ptr));
 //  std::cout << "Deallocated memory at " << ptr << "\n";

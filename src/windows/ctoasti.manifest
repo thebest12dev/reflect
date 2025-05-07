@@ -1,5 +1,5 @@
-   <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-   <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
        <assemblyIdentity
             name="CinnamonToast"
             version="1.6.0.0"
@@ -11,7 +11,10 @@
         <application>
             <!-- Supported Windows Versions -->
 			<useLegacyVisualStyles value="false"/>
-
+			<windowsSettings>
+				<dpiAwareness>permonitorv2</dpiAwareness>
+				<dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true/pm</dpiAware>
+			</windowsSettings>
 			<supportedOS Id="{d8f102e7-9244-4f7e-8c7d-7d7a3b994d6a}"/> <!-- Windows 11 -->
             
             <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/> <!-- Windows 10 -->

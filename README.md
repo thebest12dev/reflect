@@ -42,9 +42,9 @@ or you can directly use C++ (faster, but more complicated):
 #include <string>
 #include <iostream>
 #include <windows.h>
-extern "C" __declspec(dllexport) void CToastMain(CinnamonToast::CToastAPI* api) {
+extern "C" __declspec(dllexport) void CToastMain(cinnamontoast::CToastAPI* api) {
     std::cout << "Loaded!" << std::endl;
-    CinnamonToast::ComponentId id = api->GetComponentById("label1");
+    cinnamontoast::ComponentId id = api->GetComponentById("label1");
     const char* string = api->GetComponentText(id);
     std::cout << string << std::endl;
 };

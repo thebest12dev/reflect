@@ -22,7 +22,7 @@
 #include <vector>
 #pragma once
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 /**
  * @brief Loads and executes the specified XML file.
  */
@@ -32,7 +32,7 @@ CTOAST_API int invokeExecutable(std::string xmlFile);
  * @brief Main entry point for the CLI application.
  */
 CTOAST_API int cliMain(const uint8_t argc, const std::vector<std::string> argv);
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 
 /**
  * @brief Console entry point.

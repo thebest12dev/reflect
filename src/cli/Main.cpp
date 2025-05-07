@@ -38,22 +38,24 @@ using byte = unsigned char;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
   // expression to load ctoast
-  CinnamonToast::LogBuffer logbuf;
+  cinnamontoast::LogBuffer logbuf;
   std::cout.rdbuf(&logbuf);
-  return CinnamonToast::cliMain(__argc,
-                                CinnamonToast::Utilities::cstrArrToVector(
+  return cinnamontoast::cliMain(__argc,
+                                cinnamontoast::utilities::cstrArrToVector(
                                     const_cast<const char **> __argv));
 }
 #else
 // main function
 #include "../core/logging/LogInstance.h"
 #include "../core/logging/LogUtil.h"
+
 #include "Console.h"
 int main(int argc, char const *argv[]) {
   // expression to load ctoast
-  CinnamonToast::Utilities::initLogs();
-  return CinnamonToast::cliMain(
-      argc, CinnamonToast::Utilities::cstrArrToVector(argv));
+
+  cinnamontoast::utilities::initLogs();
+  return cinnamontoast::cliMain(
+      argc, cinnamontoast::utilities::cstrArrToVector(argv));
 }
 #endif
 

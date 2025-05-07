@@ -20,7 +20,6 @@
 #pragma once
 #include <iostream>
 #include <map>
-
 /**
  * @brief Alias for an unsigned byte.
  */
@@ -62,13 +61,13 @@ typedef XID XWindow;
 /*
 Alias for CinnamonToast
 */
-#define ctoast CinnamonToast::
-#define LIBC_NAMESPACE CinnamonToast
+#define ctoast cinnamontoast::
+#define LIBC_namespace cinnamontoast
 
 /**
  * @brief Namespace for the CinnamonToast framework.
  */
-namespace CinnamonToast {}
+namespace cinnamontoast {} // namespace cinnamontoast
 
 // if defined
 #undef CTOAST_SHARED_LIBRARY

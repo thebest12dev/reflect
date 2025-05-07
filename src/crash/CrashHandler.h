@@ -29,7 +29,7 @@
 #define CRASH_SEGFAULT 0x1
 typedef void (*CrashFunction)();
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 struct CrashConfig {
   uint32_t messageType;
   uint32_t crashType;
@@ -63,17 +63,17 @@ public:
   CTOAST_API static void setActiveCrashHandler(CrashHandler *handler_);
   CTOAST_API static CrashHandler *getActiveCrashHandler();
 };
-namespace Utilities {
+namespace utilities {
 bool checkBit(unsigned int num, int n);
 }
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 #elif __linux__
 #define CRASH_UNHANDLED_EXCEPTION 0x10
 #define CRASH_INVOKE 0x100
 #define CRASH_SEGFAULT 0x1
 typedef void (*CrashFunction)();
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 struct CrashConfig {
   uint32_t messageType;
   uint32_t crashType;
@@ -107,8 +107,8 @@ public:
   CTOAST_API static void setActiveCrashHandler(CrashHandler *handler_);
   CTOAST_API static CrashHandler *getActiveCrashHandler();
 };
-namespace Utilities {
+namespace utilities {
 bool checkBit(unsigned int num, int n);
 }
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 #endif

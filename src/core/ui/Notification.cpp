@@ -7,7 +7,7 @@ typedef unsigned char byte;
 #include <iostream>
 #include <stringapiset.h>
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 Notification::Notification() : title(""), text("") {}
 
 Notification::Notification(std::string title, std::string text)
@@ -19,5 +19,5 @@ Notification::~Notification() {}
 void Notification::setTitle(std::string title) { this->title = title; }
 
 void Notification::setText(std::string text) { this->text = text; }
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 #endif

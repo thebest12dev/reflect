@@ -1,17 +1,17 @@
 #include "LogUtil.h"
 #include "Console.h"
 #include "LogInstance.h"
-namespace CinnamonToast {
+namespace cinnamontoast {
 namespace {
 
 static LogInstance globalLogInstance;
 static LogBuffer globalLogBuffer;
 } // namespace
 
-inline void Utilities::initLogs() {
+inline void utilities::initLogs() {
   globalLogInstance.setLogBuffer(&globalLogBuffer);
   globalLogInstance.initialize();
-  Console::setLogInstance(globalLogInstance);
+  console::setLogInstance(globalLogInstance);
   ctoastDebug("enabled logs!");
 }
-} // namespace CinnamonToast
+} // namespace cinnamontoast

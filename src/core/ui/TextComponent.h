@@ -25,7 +25,7 @@
 #include <windows.h>
 
 #include "TypeDefinitions.h"
-namespace CinnamonToast {
+namespace cinnamontoast {
 class TextComponent : public Component {
 protected:
   HINSTANCE winstance;
@@ -58,4 +58,4 @@ public:
   friend class Label;
   friend class Button;
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast

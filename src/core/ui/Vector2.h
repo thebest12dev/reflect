@@ -21,7 +21,7 @@
 #include "TypeDefinitions.h"
 #include <vector>
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 
 struct Vector2 {
 public:
@@ -51,4 +51,4 @@ public:
   int x, y;
 };
 
-} // namespace CinnamonToast
+} // namespace cinnamontoast

@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <windows.h>
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 class TextField : public TextComponent {
 protected:
   HINSTANCE winstance;
@@ -35,5 +35,5 @@ public:
   CTOAST_API void focus();
   CTOAST_API void onFocus(void (*callback)(TextField &));
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 #endif

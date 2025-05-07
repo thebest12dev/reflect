@@ -5,28 +5,28 @@
 #include "ui/TextComponent.h"
 #include <fstream>
 #include <vector>
-using namespace CinnamonToast;
+using namespace cinnamontoast;
 namespace {
 bool luaReadWrite = false;
 }
 int LuaAPI::luaInfo(lua_State *L) {
   const char *msg = lua_tostring(L, 1);
-  Console::info(msg, "Lua");
+  console::info(msg, "Lua");
   return 0;
 }
 int LuaAPI::luaWarn(lua_State *L) {
   const char *msg = lua_tostring(L, 1);
-  Console::warn(msg, "Lua");
+  console::warn(msg, "Lua");
   return 0;
 }
 int LuaAPI::luaCError(lua_State *L) {
   const char *msg = lua_tostring(L, 1);
-  Console::error(msg, "Lua");
+  console::error(msg, "Lua");
   return 0;
 }
 int LuaAPI::luaDebug(lua_State *L) {
   const char *msg = lua_tostring(L, 1);
-  Console::debug(msg, "Lua");
+  console::debug(msg, "Lua");
   return 0;
 }
 int LuaAPI::luaGetComponentText(lua_State *L) {
@@ -109,7 +109,7 @@ int LuaAPI::getComponentById(lua_State *L) {
 
   return 1; // Return the new table
 }
-void CinnamonToast::injectLuaApis(LuaInstance *self) {
+void cinnamontoast::injectLuaApis(LuaInstance *self) {
   self->registerFunction("CinnamonToast", "getComponentById",
                          LuaAPI::getComponentById);
   self->registerFunction("CinnamonToast", "requestPermission",

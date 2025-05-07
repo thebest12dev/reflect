@@ -27,8 +27,8 @@
 #include <iostream>
 #include <windows.h>
 
-using namespace CinnamonToast::Console;
-using namespace CinnamonToast::Utilities;
+using namespace cinnamontoast::console;
+using namespace cinnamontoast::utilities;
 
 /**
  * @brief Sets the font of the button.
@@ -100,7 +100,7 @@ void ctoast Button::render(HWND &parentHWND, HWND &windowHWND) {
   }
   SetWindowSubclass(hwnd, buttonProc, 0, 0);
   SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-  HFONT hFont = ctoast Utilities::getFont(fontStr, fontSize);
+  HFONT hFont = ctoast utilities::getFont(fontStr, fontSize);
 
   if (hFont) {
     SendMessage(hwnd, WM_SETFONT, (WPARAM)hFont, TRUE);
@@ -144,7 +144,9 @@ std::string ctoast Button::getText() { return text; }
  * @param pos The position of the button.
  */
 ctoast Button::Button(std::string text, Vector2 pos)
-    : position(pos), size(Vector2(0, 0)), text(text) {}
+    : position(pos), size(Vector2(0, 0)), text(text) {
+  initializeObject(CTOAST_OBJECT_BUTTON, CTOAST_OBJECT_TEXTCOMPONENT);
+}
 #elif __linux__
 #include "../Console.h"
 #include "../Definitions.h"
@@ -155,8 +157,8 @@ ctoast Button::Button(std::string text, Vector2 pos)
 #include <X11/Xutil.h>
 #include <iostream>
 
-using namespace CinnamonToast::Console;
-using namespace CinnamonToast::Utilities;
+using namespace cinnamontoast::Console;
+using namespace cinnamontoast::Utilities;
 void ctoast Button::setFont(std::string font) {
 
   fontStr = font;
@@ -248,7 +250,7 @@ void ctoast Button::render(Window &parentHWND, Window &windowHWND) {
   // }
 
   // // Create a custom font
-  // HFONT hFont = ctoast Utilities::GetFont(fontStr, fontSize);
+  // HFONT hFont = ctoast utilities::GetFont(fontStr, fontSize);
 
   // if (hFont) {
   //     // Set the font for the Button

@@ -63,7 +63,7 @@ public:
 // Initialize the socket library and SSL context
 SocketInitializer internalInitializer;
 } // namespace
-namespace CinnamonToast {
+namespace cinnamontoast {
 HttpRequest::HttpRequest(const std::string &url, HttpRequestMethod method,
                          const std::string &headers, const std::string &body)
     : url(url), method(method), headers(headers), body(body), success(false) {}
@@ -255,5 +255,5 @@ void HttpRequest::initiateRequest() {
 //   // Close the socket
 //   closesocket(sock);
 //   this->response = data;
-// } // namespace CinnamonToast
-} // namespace CinnamonToast
+// } // namespace cinnamontoast
+} // namespace cinnamontoast

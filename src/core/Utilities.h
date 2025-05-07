@@ -26,11 +26,11 @@
 #include <string>
 #include <vector>
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 /**
  * @brief A namespace primarily for utility functions.
  */
-namespace Utilities {
+namespace utilities {
 /**
  * @brief Converts a C-style string array to a vector of strings.
  *
@@ -72,5 +72,5 @@ CTOAST_API std::string getLastErrorAsString();
  * @brief Retrieves the current operating system platform and version.
  */
 CTOAST_API std::string getOSPlatformAndVersion();
-} // namespace Utilities
-} // namespace CinnamonToast
+} // namespace utilities
+} // namespace cinnamontoast

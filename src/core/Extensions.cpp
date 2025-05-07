@@ -1,9 +1,9 @@
 #include "Extensions.h"
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 constexpr bool ExtensionManager::isExtensionAvailable(Extension ext) {
   switch (ext) {
-  case CinnamonToast::EXTENSION_NETWORKING:
+  case cinnamontoast::EXTENSION_NETWORKING:
     // check if CinnamonToast.Networking is available
 #ifdef CTOAST_EXT_NETWORKING
     return true;
@@ -12,14 +12,14 @@ constexpr bool ExtensionManager::isExtensionAvailable(Extension ext) {
 #endif // CTOAST_EXT_NETWORKING
 
     break;
-  case CinnamonToast::EXTENSION_UPDATER:
+  case cinnamontoast::EXTENSION_UPDATER:
 #ifdef CTOAST_EXT_UPDATER
     return true;
 #else
     return false;
 #endif // CTOAST_EXT_NETWORKING
     break;
-  case CinnamonToast::EXTENSION_LUA:
+  case cinnamontoast::EXTENSION_LUA:
 #ifdef CTOAST_LUA
     return true;
 #else
@@ -31,4 +31,4 @@ constexpr bool ExtensionManager::isExtensionAvailable(Extension ext) {
     break;
   }
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast

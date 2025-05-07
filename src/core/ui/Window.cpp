@@ -35,7 +35,7 @@
 #include <d2d1.h>
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
-using namespace CinnamonToast::Console;
+using namespace cinnamontoast::console;
 // Direct2D-specific members
 ID2D1Factory *pFactory = nullptr;
 ID2D1HwndRenderTarget *pRenderTarget = nullptr;
@@ -65,7 +65,7 @@ void ctoast Window::setColor(uint8_t r, uint8_t g, uint8_t b) {
   this->bgColor[1] = g / 255.0f;
   this->bgColor[2] = b / 255.0f;
 }
-CinnamonToast::Vector2 ctoast Window::getSize() { return size; }
+cinnamontoast::Vector2 ctoast Window::getSize() { return size; }
 // Due to floating point operations, may not produce exact color
 void ctoast Window::setColor(Color3 color) {
   this->bgColor.r = color.r / 255.0f;
@@ -112,6 +112,13 @@ void initializeDirect2D(HWND hwnd) {
 };
 
 namespace {
+float getDPIScaleForWindow(HWND hwnd) {
+  HDC hdc = GetDC(hwnd);
+  float dpi = GetDeviceCaps(hdc, LOGPIXELSX); // or LOGPIXELSY
+  ReleaseDC(hwnd, hdc);
+  return dpi / 96.0f; // 96 is the default DPI baseline
+}
+
 void safeResize(ID2D1HwndRenderTarget *pRenderTarget, D2D1_SIZE_U size) {
   __try {
     HRESULT hr = pRenderTarget->Resize(size);
@@ -132,7 +139,7 @@ HGLRC currentContext = nullptr;
 HDC glHdc = nullptr;
 LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                                            LPARAM lParam) {
-  CinnamonToast::Window *pThis = nullptr;
+  cinnamontoast::Window *pThis = nullptr;
 
   if (uMsg == WM_CREATE) {
     ctoastDebug("message type: WM_CREATE");
@@ -400,6 +407,7 @@ ctoast Window::Window(HINSTANCE instance, std::string id)
     : winstance(instance), useGL(false), glCtx(nullptr), customPipeline(false),
       beforeRenderLoop(nullptr), callInit(false), renderLoop(nullptr),
       renderRunning(false) {
+  initializeObject(CTOAST_OBJECT_WINDOW, CTOAST_OBJECT_COMPONENT);
   ctoastDebug("initializing win32 parameters...");
   WNDCLASS wc = {};
   wc.lpfnWndProc = windowProc; // Window procedure
@@ -421,11 +429,12 @@ ctoast Window::Window(HINSTANCE instance, std::string id)
                MB_OK | MB_ICONERROR);
     exit(1);
   }
-  CinnamonToast::Components::gchildren[id] = this;
+  cinnamontoast::Components::gchildren[id] = this;
 }
 ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx, std::string id)
     : winstance(instance), useGL(true), glCtx(&ctx), customPipeline(true),
       beforeRenderLoop(nullptr) {
+  initializeObject(CTOAST_OBJECT_WINDOW, CTOAST_OBJECT_COMPONENT);
   ctoastDebug("initializing win32 parameters...");
   WNDCLASS wc = {};
   wc.lpfnWndProc = windowProc; // Window procedure
@@ -447,7 +456,7 @@ ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx, std::string id)
                MB_OK | MB_ICONERROR);
     exit(1);
   }
-  CinnamonToast::Components::gchildren[id] = this;
+  cinnamontoast::Components::gchildren[id] = this;
 }
 ctoast Window::~Window() {
   ctoastDebug("releasing memory...");
@@ -475,9 +484,10 @@ bool ctoast Window::getVisible() { return IsWindowVisible(hwnd); }
 ctoast Window::operator WindowHandle() const { return this->hwnd; }
 void ctoast Window::setVisible(int cmd) { ShowWindow(hwnd, cmd); }
 void ctoast Window::render(HWND &parentHWND, HWND &windowHWND) {
-  warn("Window::render called, the method is intentionally empty because it is "
-       "not a child component!",
-       "Render");
+  ctoastWarn(
+      "Window::render called, the method is intentionally empty because it is "
+      "not a child component!",
+      "render");
   // do nothing
 }
 void ctoast Window::close() { PostMessage(hwnd, WM_DESTROY, 0, 0); };

@@ -20,17 +20,17 @@ protected:
 
 TEST_F(LaunchTestFixture, Launch1ArgTest) {
   initializeArgs({"foo"});
-  EXPECT_EQ(CinnamonToast::cliMain(argc, argv),
+  EXPECT_EQ(cinnamontoast::cliMain(argc, argv),
             CTOAST_ERROR_NO_FILES_SPECIFIED);
 }
 
 TEST_F(LaunchTestFixture, Launch2ArgTest) {
   initializeArgs({"foo", "bar"});
-  EXPECT_EQ(CinnamonToast::cliMain(argc, argv), CTOAST_ERROR_FILE_NOT_FOUND);
+  EXPECT_EQ(cinnamontoast::cliMain(argc, argv), CTOAST_ERROR_FILE_NOT_FOUND);
 }
 
 TEST_F(LaunchTestFixture, LaunchNoArgsTest) {
   initializeArgs({});
-  EXPECT_EQ(CinnamonToast::cliMain(argc, argv),
+  EXPECT_EQ(cinnamontoast::cliMain(argc, argv),
             CTOAST_ERROR_NO_FILES_SPECIFIED);
 }

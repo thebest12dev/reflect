@@ -2,9 +2,9 @@
 #include "TypeDefinitions.h"
 #include <Windows.h>
 typedef HWND WindowHandle;
-namespace CinnamonToast {
+namespace cinnamontoast {
 class OpenGLContext {
 public:
   CTOAST_API void initializeContext(WindowHandle hwnd, HDC hdc);
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast

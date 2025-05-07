@@ -19,9 +19,9 @@
 #pragma once
 #include "TypeDefinitions.h"
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 class LogInstance;
-namespace Console {
+namespace console {
 
 /**
  * @brief Enables or disables debug logging.
@@ -37,5 +37,5 @@ CTOAST_API void setDebugEnabled(bool enabled);
  */
 CTOAST_API bool getDebugEnabled();
 CTOAST_API void setLogInstance(LogInstance inst);
-} // namespace Console
-} // namespace CinnamonToast
+} // namespace console
+} // namespace cinnamontoast

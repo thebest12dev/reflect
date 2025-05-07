@@ -1,10 +1,11 @@
 #include "ProgressBar.h"
 #include <CommCtrl.h>
 #include <Windows.h>
-namespace CinnamonToast {
+namespace cinnamontoast {
 ProgressBar::ProgressBar()
     : winstance(GetModuleHandle(nullptr)), hwnd(nullptr), maxValue(100.0f),
       minValue(0.0f), value(0.0f) {
+  initializeObject(CTOAST_OBJECT_PROGRESSBAR, CTOAST_OBJECT_COMPONENT);
   this->size = {0, 0};
   this->position = {0, 0};
 }
@@ -36,4 +37,4 @@ void ProgressBar::setMininumValue(float val) {
 }
 float ProgressBar::getMaximumValue() { return this->maxValue; }
 float ProgressBar::getMinimumValue() { return this->minValue; }
-} // namespace CinnamonToast
+} // namespace cinnamontoast

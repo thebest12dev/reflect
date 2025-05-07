@@ -40,7 +40,7 @@ JNIEXPORT jint JNICALL JavaFunction(CToastNative,
 JNIEXPORT jstring JNICALL JavaFunction(CToastNative, getText)(JNI_PARAM_DECL,
                                                               jint ref) {
   CToastComponent comp;
-  comp.id = ref;
+  comp.id = (uint8_t)ref;
   return (*env)->NewStringUTF(env, CToast_getText(comp));
 }
 
@@ -48,8 +48,8 @@ JNIEXPORT void JNICALL JavaFunction(CToastNative, addComp)(JNI_PARAM_DECL,
                                                            jint parentRef,
                                                            jint compRef) {
   CToastComponent comp1;
-  comp1.id = parentRef;
+  comp1.id = (uint8_t)parentRef;
   CToastComponent comp2;
-  comp2.id = compRef;
+  comp2.id = (uint8_t)compRef;
   CToast_addComponent(comp1, comp2);
 }

@@ -22,7 +22,7 @@
 #include "../../core/CToastAPI.h"
 
 // For convenience
-using namespace CinnamonToast;
+using namespace cinnamontoast;
 
 // C-style API functions
 

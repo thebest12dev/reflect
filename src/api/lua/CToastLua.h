@@ -37,7 +37,7 @@ extern "C" {
 
 // For some reason, extern "C++" is required for the build to work.
 extern "C++" {
-namespace CinnamonToast {
+namespace cinnamontoast {
 template <typename T>
 /**
  * @brief A concept to check if the type is a valid Lua type.
@@ -172,5 +172,5 @@ public:
   CTOAST_API LuaInstance();
 };
 
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 }

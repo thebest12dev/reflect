@@ -20,6 +20,7 @@
 #ifdef _WIN32
 #pragma once
 #include "Colors.h"
+#include "Object.h"
 #include "TypeDefinitions.h"
 #include "Vector2.h"
 #include <cstdint>
@@ -55,8 +56,8 @@
   CTOAST_API bool getVisible();                                                \
   CTOAST_API Color3 getColor()
 
-namespace CinnamonToast {
-class Component {
+namespace cinnamontoast {
+class Component : public Object {
 protected:
   /// @brief The HINSTANCE object associated
   /// with the program required for window creation.
@@ -168,6 +169,7 @@ public:
    * @returns The component's color.
    */
   CTOAST_API Color3 getColor();
+
   CTOAST_API void *operator new(std::size_t size);
   CTOAST_API void operator delete(void *ptr) noexcept;
   CTOAST_API void *operator new[](std::size_t size);
@@ -177,7 +179,8 @@ public:
   friend class Label;
   friend class Button;
 };
-} // namespace CinnamonToast
+
+} // namespace cinnamontoast
 #elif __linux__
 #pragma once
 #include <cstdint>
@@ -189,7 +192,7 @@ public:
 #include <X11/Xutil.h>
 #include <string>
 #include <vector>
-// namespace CinnamonToast {
+// namespace cinnamontoast {
 // class Component {
 // protected:
 //   Vector2 position;
@@ -218,10 +221,10 @@ public:
 //   friend class Label;
 //   friend class Button;
 // };
-// } // namespace CinnamonToast
+// } // namespace cinnamontoast
 
 // #endif
-namespace CinnamonToast {
+namespace cinnamontoast {
 class Component {
 protected:
   /// @brief The Display object associated
@@ -346,5 +349,5 @@ public:
   friend class Label;
   friend class Button;
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 #endif
