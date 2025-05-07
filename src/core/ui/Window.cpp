@@ -35,7 +35,7 @@
 #include <d2d1.h>
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
-using namespace CinnamonToast::Console;
+using namespace cinnamontoast::console;
 // Direct2D-specific members
 ID2D1Factory *pFactory = nullptr;
 ID2D1HwndRenderTarget *pRenderTarget = nullptr;
@@ -65,7 +65,7 @@ void ctoast Window::setColor(uint8_t r, uint8_t g, uint8_t b) {
   this->bgColor[1] = g / 255.0f;
   this->bgColor[2] = b / 255.0f;
 }
-CinnamonToast::Vector2 ctoast Window::getSize() { return size; }
+cinnamontoast::Vector2 ctoast Window::getSize() { return size; }
 // Due to floating point operations, may not produce exact color
 void ctoast Window::setColor(Color3 color) {
   this->bgColor.r = color.r / 255.0f;
@@ -139,7 +139,7 @@ HGLRC currentContext = nullptr;
 HDC glHdc = nullptr;
 LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                                            LPARAM lParam) {
-  CinnamonToast::Window *pThis = nullptr;
+  cinnamontoast::Window *pThis = nullptr;
 
   if (uMsg == WM_CREATE) {
     ctoastDebug("message type: WM_CREATE");
@@ -429,7 +429,7 @@ ctoast Window::Window(HINSTANCE instance, std::string id)
                MB_OK | MB_ICONERROR);
     exit(1);
   }
-  CinnamonToast::Components::gchildren[id] = this;
+  cinnamontoast::Components::gchildren[id] = this;
 }
 ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx, std::string id)
     : winstance(instance), useGL(true), glCtx(&ctx), customPipeline(true),
@@ -456,7 +456,7 @@ ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx, std::string id)
                MB_OK | MB_ICONERROR);
     exit(1);
   }
-  CinnamonToast::Components::gchildren[id] = this;
+  cinnamontoast::Components::gchildren[id] = this;
 }
 ctoast Window::~Window() {
   ctoastDebug("releasing memory...");

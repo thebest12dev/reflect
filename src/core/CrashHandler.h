@@ -28,7 +28,7 @@
 #define CRASH_SEGFAULT 0x1
 typedef void (*CrashFunction)();
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 struct CrashConfig {
   uint32_t messageType;
   uint32_t crashType;
@@ -62,7 +62,7 @@ public:
   CTOAST_IMPORT static void setActiveCrashHandler(CrashHandler *handler_);
   CTOAST_IMPORT static CrashHandler *getActiveCrashHandler();
 };
-namespace Utilities {
+namespace utilities {
 bool checkBit(unsigned int num, int n);
 }
-} // namespace CinnamonToast
+} // namespace cinnamontoast

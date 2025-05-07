@@ -23,7 +23,7 @@
 #include "TypeDefinitions.h"
 #include <iostream>
 #include <map>
-using namespace CinnamonToast;
+using namespace cinnamontoast;
 std::map<std::string, Component *> Components::gchildren;
 
 Component *ctoast Components::getComponentById(std::string id) {

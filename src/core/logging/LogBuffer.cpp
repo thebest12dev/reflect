@@ -21,7 +21,7 @@
 #include <windows.h>
 #endif
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 
 /**
  * @brief Constructs a LogBuffer object and initializes the file stream.
@@ -77,4 +77,4 @@ void LogBuffer::setOutputFile(std::string file) {
   fileStream = std::ofstream(file);
   sb2 = fileStream.rdbuf();
 }
-} // namespace CinnamonToast
+} // namespace cinnamontoast

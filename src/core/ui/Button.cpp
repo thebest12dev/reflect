@@ -27,8 +27,8 @@
 #include <iostream>
 #include <windows.h>
 
-using namespace CinnamonToast::Console;
-using namespace CinnamonToast::Utilities;
+using namespace cinnamontoast::console;
+using namespace cinnamontoast::utilities;
 
 /**
  * @brief Sets the font of the button.
@@ -100,7 +100,7 @@ void ctoast Button::render(HWND &parentHWND, HWND &windowHWND) {
   }
   SetWindowSubclass(hwnd, buttonProc, 0, 0);
   SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-  HFONT hFont = ctoast Utilities::getFont(fontStr, fontSize);
+  HFONT hFont = ctoast utilities::getFont(fontStr, fontSize);
 
   if (hFont) {
     SendMessage(hwnd, WM_SETFONT, (WPARAM)hFont, TRUE);
@@ -157,8 +157,8 @@ ctoast Button::Button(std::string text, Vector2 pos)
 #include <iostream>
 #include <windows.h>
 
-using namespace CinnamonToast::Console;
-using namespace CinnamonToast::Utilities;
+using namespace cinnamontoast::console;
+using namespace cinnamontoast::utilities;
 
 /**
  * @brief Sets the font of the button.

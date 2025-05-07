@@ -1,7 +1,7 @@
 #pragma once
 #include "TypeDefinitions.h"
 #include <string>
-namespace CinnamonToast {
+namespace cinnamontoast {
 class Notification {
 private:
   std::string title, text;
@@ -15,6 +15,6 @@ public:
   CTOAST_API ~Notification();
   friend class Window;
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 
 // add more platform support

@@ -5,7 +5,7 @@
 namespace {
 WNDPROC originalEditProc = nullptr; // Store the original window procedure
 } // namespace
-namespace CinnamonToast {
+namespace cinnamontoast {
 LRESULT CALLBACK TextField::editProc(HWND hwnd, UINT msg, WPARAM wParam,
                                      LPARAM lParam) {
   TextField *pThis = nullptr;
@@ -47,7 +47,7 @@ void TextField::render(HWND &parentHWND, HWND &windowHWND) {
   originalEditProc =
       (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)editProc);
   SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-  SendMessage(hwnd, WM_SETFONT, (WPARAM)CinnamonToast::Utilities::getFont(),
+  SendMessage(hwnd, WM_SETFONT, (WPARAM)cinnamontoast::utilities::getFont(),
               TRUE);
 }
 void TextField::setText(std::string text) {
@@ -71,7 +71,7 @@ void TextField::onFocus(void (*callback)(TextField &)) {
 void TextField::setFont(std::string font) {
   fontStr = font;
   SendMessage(hwnd, WM_SETFONT,
-              (WPARAM)CinnamonToast::Utilities::getFont(fontStr, fontSize),
+              (WPARAM)cinnamontoast::utilities::getFont(fontStr, fontSize),
               TRUE);
 }
-} // namespace CinnamonToast
+} // namespace cinnamontoast

@@ -1,7 +1,7 @@
 #pragma once
 #include "TypeDefinitions.h"
 #include <string>
-namespace CinnamonToast {
+namespace cinnamontoast {
 
 using ObjectUID = unsigned int;
 class Object {
@@ -50,4 +50,4 @@ T *fastCast(Object *comp, ObjectUID expectedType) {
   return nullptr; // No match found in the ancestry
 };
 void setUidToParent(Object &obj, ObjectUID parentUid);
-} // namespace CinnamonToast
+} // namespace cinnamontoast

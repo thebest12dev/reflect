@@ -5,7 +5,7 @@
 #endif
 #include <string>
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 enum HttpRequestMethod { HTTP_GET, HTTP_POST, HTTP_PUT, HTTP_DELETE };
 class HttpRequest {
 private:
@@ -47,4 +47,4 @@ public:
   CTOAST_API void setAcceptLanguage(const std::string &acceptLanguage);
   CTOAST_API void setKeepAlive(bool keepAlive);
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast

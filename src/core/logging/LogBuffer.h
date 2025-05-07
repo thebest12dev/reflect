@@ -20,7 +20,7 @@
 #include "TypeDefinitions.h"
 #include <fstream>
 #include <streambuf>
-namespace CinnamonToast {
+namespace cinnamontoast {
 // Class to redirect std::cout to a file and console
 class LogBuffer : public std::streambuf {
 public:
@@ -53,4 +53,4 @@ private:
   std::streambuf *sb2;
   std::ofstream fileStream;
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast

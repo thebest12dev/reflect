@@ -26,7 +26,7 @@
 #include "TypeDefinitions.h"
 #include "Vector2.h"
 #include <string>
-namespace CinnamonToast {
+namespace cinnamontoast {
 class Button : public TextComponent {
 protected:
   HINSTANCE winstance;
@@ -62,7 +62,7 @@ public:
   CTOAST_API void onClick(void (*callback)(Button &));
   CTOAST_API void setColor(uint8_t r, uint8_t g, uint8_t b);
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 #elif __linux__
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -72,7 +72,7 @@ public:
 #include "Component.h"
 #include "Vector2.h"
 #include <string>
-namespace CinnamonToast {
+namespace cinnamontoast {
 class Button : public Component {
 protected:
   Display *winstance;
@@ -100,6 +100,6 @@ public:
   CTOAST_API void setFont(std::string font);
   CTOAST_API void setColor(uint8_t r, uint8_t g, uint8_t b);
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 
 #endif

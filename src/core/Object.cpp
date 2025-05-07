@@ -1,8 +1,8 @@
 #include "Object.h"
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 std::map<int, int> Object::parentOf;
-Object::Object(){};
+Object::Object() {};
 unsigned int Object::getUID() const noexcept { return uid; }
 std::string Object::toString() noexcept { return typeid(*this).name(); }
 Object::~Object() = default;
@@ -35,4 +35,4 @@ void Object::initializeObject(ObjectUID uid_, ObjectUID parent) {
 //   return nullptr; // No match found in the ancestry
 // }
 // template Object *fastCast<Object>(Object *comp, ObjectUID expectedType);
-} // namespace CinnamonToast
+} // namespace cinnamontoast

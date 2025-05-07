@@ -1,7 +1,7 @@
 #pragma once
 #include "Component.h"
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 class ProgressBar : public Component {
 private:
   float minValue;
@@ -31,4 +31,4 @@ public:
   float getMaximumValue();
   float getMinimumValue();
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast

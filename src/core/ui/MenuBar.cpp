@@ -1,6 +1,6 @@
 #include "MenuBar.h"
 #include "Console.h"
-namespace CinnamonToast {
+namespace cinnamontoast {
 void MenuBar::add(Component &comp) {
   if (dynamic_cast<MenuItem *>(&comp)) {
 
@@ -15,4 +15,4 @@ void MenuBar::render(HWND &parentHWND, HWND &windowHWND) {
 MenuBar::MenuBar() : hmenu(CreateMenu()) {
   initializeObject(CTOAST_OBJECT_MENUBAR, CTOAST_OBJECT_COMPONENT);
 }
-} // namespace CinnamonToast
+} // namespace cinnamontoast

@@ -26,7 +26,7 @@ typedef unsigned char byte;
 #endif
 
 #include <string>
-namespace CinnamonToast {
+namespace cinnamontoast {
 typedef unsigned long long ComponentId;
 typedef const char *CToastString;
 struct CToastAPI {
@@ -53,4 +53,4 @@ CTOAST_API bool setComponentFontSize(ComponentId comp, uint8_t fontSize);
 CTOAST_API bool setOnClick(ComponentId comp, void (*callback)(ComponentId));
 } // namespace ExternalAPI
 typedef void (*SharedLibraryMain)(CToastAPI *api);
-} // namespace CinnamonToast
+} // namespace cinnamontoast

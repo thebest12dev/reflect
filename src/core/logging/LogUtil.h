@@ -1,8 +1,8 @@
 #pragma once
 #include "TypeDefinitions.h"
 
-namespace CinnamonToast {
-namespace Utilities {
+namespace cinnamontoast {
+namespace utilities {
 CTOAST_API inline void initLogs();
 }
-} // namespace CinnamonToast
+} // namespace cinnamontoast

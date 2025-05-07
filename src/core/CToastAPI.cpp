@@ -27,7 +27,7 @@ typedef unsigned char byte;
 #include <Windows.h>
 #include <iostream>
 #include <vector>
-using namespace CinnamonToast;
+using namespace cinnamontoast;
 namespace {
 std::vector<const char *> cull = {};
 }
@@ -77,7 +77,7 @@ const char *ExternalAPI::getComponentText(ComponentId ref) {
 //         return textc;
 //     }
 //     else {
-//         Console::warn("cast for component failed! (nullptr)",
+//         console::warn("cast for component failed! (nullptr)",
 //         "GetComponentText"); return nullptr;  // Return null if the cast
 //         fails
 //     }

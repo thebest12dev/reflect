@@ -23,8 +23,8 @@
 
 #pragma once
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 CTOAST_API int invokeExecutable(std::string xmlFile, bool blocking = true);
 CTOAST_API int cliMain(const uint8_t argc, const std::vector<std::string> argv);
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 // int main(const int argc, const char *argv[]);

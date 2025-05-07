@@ -24,8 +24,8 @@
 #include <VersionHelpers.h>
 #include <windows.h>
 #endif
-namespace CinnamonToast {
-std::vector<std::string> ctoast Utilities::cstrArrToVector(const char *arr[]) {
+namespace cinnamontoast {
+std::vector<std::string> ctoast utilities::cstrArrToVector(const char *arr[]) {
   std::vector<std::string> vec;
 
   // Iterate through the array until the end (null pointer)
@@ -35,7 +35,7 @@ std::vector<std::string> ctoast Utilities::cstrArrToVector(const char *arr[]) {
 
   return vec;
 }
-std::vector<std::string> ctoast Utilities::splitString(std::string str,
+std::vector<std::string> ctoast utilities::splitString(std::string str,
                                                        char delimiter) {
   std::vector<std::string> result;
   std::string token;
@@ -56,7 +56,7 @@ std::vector<std::string> ctoast Utilities::splitString(std::string str,
 }
 
 #ifdef _WIN32
-HFONT ctoast Utilities::getFont(std::string fontName, int size, int fontWeight,
+HFONT ctoast utilities::getFont(std::string fontName, int size, int fontWeight,
                                 bool italic, bool underline, bool strikeout) {
 
   HFONT hFont = CreateFont(size,                // Height of font
@@ -77,7 +77,7 @@ HFONT ctoast Utilities::getFont(std::string fontName, int size, int fontWeight,
 
   return hFont;
 }
-std::string ctoast Utilities::getLastErrorAsString() {
+std::string ctoast utilities::getLastErrorAsString() {
   DWORD ctoastErrorMessageID =
       ::GetLastError(); // Get the last ctoastError code
   if (ctoastErrorMessageID == 0) {
@@ -104,7 +104,7 @@ std::string ctoast Utilities::getLastErrorAsString() {
 #ifdef _WIN32
 #include <sstream>
 #include <windows.h>
-std::string ctoast Utilities::getOSPlatformAndVersion() {
+std::string ctoast utilities::getOSPlatformAndVersion() {
   std::stringstream ss;
   if (IsWindows10OrGreater()) {
     ss << "Windows 10";
@@ -126,7 +126,7 @@ std::string ctoast Utilities::getOSPlatformAndVersion() {
 #include <sstream>
 #include <sys/utsname.h>
 
-std::string ctoast Utilities::GetOSPlatformAndVersion() {
+std::string ctoast utilities::GetOSPlatformAndVersion() {
   struct utsname buffer;
   std::stringstream ss;
   if (uname(&buffer) == 0) {
@@ -137,4 +137,4 @@ std::string ctoast Utilities::GetOSPlatformAndVersion() {
 }
 #endif
 
-} // namespace CinnamonToast
+} // namespace cinnamontoast

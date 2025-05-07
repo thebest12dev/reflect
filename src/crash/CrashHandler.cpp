@@ -21,7 +21,7 @@
 #include <iostream>
 #ifdef _WIN32
 #include <windows.h>
-using namespace CinnamonToast;
+using namespace cinnamontoast;
 
 // Internal functions
 namespace {
@@ -43,7 +43,7 @@ LONG WINAPI signalHandler(EXCEPTION_POINTERS *ExceptionInfo) {
 };
 } // namespace
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 CrashHandler *CrashManager::handler = nullptr;
 void CrashManager::setActiveCrashHandler(CrashHandler *handler_) {
   if (handler != nullptr) {
@@ -67,7 +67,7 @@ void CrashHandler::invokeCrash(std::string crashMessage) {
     exit(0x000003f8);
   }
 }
-bool Utilities::checkBit(unsigned int num, int n) {
+bool utilities::checkBit(unsigned int num, int n) {
   unsigned int mask = 1 << n; // Create a mask with 1 at the nth position
   return num & mask; // If the nth bit is 1, the result will be non-zero
 }
@@ -96,32 +96,32 @@ void CrashHandler::invokeUnhandledExceptionCrash(std::exception &ex) {
 };
 void CrashHandler::activate() {
   active = true;
-  if (Utilities::checkBit(config.crashType, 0)) {
+  if (utilities::checkBit(config.crashType, 0)) {
     SetUnhandledExceptionFilter(signalHandler);
   }
-  if (Utilities::checkBit(config.crashType, 4)) {
+  if (utilities::checkBit(config.crashType, 4)) {
     throwHandle = true;
   }
-  if (Utilities::checkBit(config.crashType, 8)) {
+  if (utilities::checkBit(config.crashType, 8)) {
     throwCrash = true;
   }
 }
 void CrashHandler::deactivate() {
   active = false;
-  if (Utilities::checkBit(config.crashType, 0)) {
+  if (utilities::checkBit(config.crashType, 0)) {
     SetUnhandledExceptionFilter(NULL);
   }
-  if (Utilities::checkBit(config.crashType, 4)) {
+  if (utilities::checkBit(config.crashType, 4)) {
     throwHandle = false;
   }
-  if (Utilities::checkBit(config.crashType, 8)) {
+  if (utilities::checkBit(config.crashType, 8)) {
     throwCrash = false;
   }
 }
 void CrashHandler::setUnhandledExceptionCrashFunction(CrashFunction function) {
   customCrash = function;
 }
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 #elif __linux__
 #include <execctoastInfo.h>
 #include <iostream>
@@ -129,7 +129,7 @@ void CrashHandler::setUnhandledExceptionCrashFunction(CrashFunction function) {
 #include <stdlib.h>
 #include <unistd.h>
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 
 // Internal functions
 namespace {
@@ -181,7 +181,7 @@ void CrashHandler::invokeCrash(std::string crashMessage) {
   }
 }
 
-bool Utilities::checkBit(unsigned int num, int n) {
+bool utilities::checkBit(unsigned int num, int n) {
   unsigned int mask = 1 << n; // Create a mask with 1 at the nth position
   return num & mask; // If the nth bit is 1, the result will be non-zero
 }
@@ -208,28 +208,28 @@ void CrashHandler::invokeUnhandledExceptionCrash(std::exception &ex) {
 
 void CrashHandler::activate() {
   active = true;
-  if (Utilities::checkBit(config.crashType, 0)) {
+  if (utilities::checkBit(config.crashType, 0)) {
     signal(SIGSEGV, signalHandler); // Segmentation fault signal
     signal(SIGABRT, signalHandler); // Abort signal
   }
-  if (Utilities::checkBit(config.crashType, 4)) {
+  if (utilities::checkBit(config.crashType, 4)) {
     throwHandle = true;
   }
-  if (Utilities::checkBit(config.crashType, 8)) {
+  if (utilities::checkBit(config.crashType, 8)) {
     throwCrash = true;
   }
 }
 
 void CrashHandler::deactivate() {
   active = false;
-  if (Utilities::checkBit(config.crashType, 0)) {
+  if (utilities::checkBit(config.crashType, 0)) {
     signal(SIGSEGV, SIG_DFL); // Restore default signal handler
     signal(SIGABRT, SIG_DFL); // Restore default signal handler
   }
-  if (Utilities::checkBit(config.crashType, 4)) {
+  if (utilities::checkBit(config.crashType, 4)) {
     throwHandle = false;
   }
-  if (Utilities::checkBit(config.crashType, 8)) {
+  if (utilities::checkBit(config.crashType, 8)) {
     throwCrash = false;
   }
 }
@@ -238,5 +238,5 @@ void CrashHandler::setUnhandledExceptionCrashFunction(CrashFunction function) {
   customCrash = function;
 }
 
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 #endif

@@ -21,7 +21,7 @@
 namespace {
 float value0 = 0.0f;
 }
-namespace CinnamonToast {
+namespace cinnamontoast {
 struct Color3 {
   unsigned char r, g, b;
   Color3() : r(0), g(0), b(0) {}
@@ -36,8 +36,8 @@ struct Color3Float {
     };
     float data[3]; // allows array-style access
   };
-  Color3Float() : r(0.0f), g(0.0f), b(0.0f){};
-  Color3Float(float r, float g, float b) : r(r), g(g), b(b){};
+  Color3Float() : r(0.0f), g(0.0f), b(0.0f) {};
+  Color3Float(float r, float g, float b) : r(r), g(g), b(b) {};
   operator Color3() {
     return Color3(static_cast<unsigned char>(r * 255),
                   static_cast<unsigned char>(g * 255),
@@ -66,4 +66,4 @@ struct Color3Float {
   }
 };
 typedef unsigned char Color3Array[3];
-} // namespace CinnamonToast
+} // namespace cinnamontoast

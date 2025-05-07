@@ -1,6 +1,6 @@
 #include "MenuItem.h"
 #include "Console.h"
-namespace CinnamonToast {
+namespace cinnamontoast {
 MenuItem::MenuItem() : hmenu(CreatePopupMenu()), size(Vector2(0, 0)) {
   initializeObject(CTOAST_OBJECT_MENUITEM, CTOAST_OBJECT_TEXTCOMPONENT);
   // do nothing
@@ -21,4 +21,4 @@ void MenuItem::add(MenuItem &comp) {
 
   AppendMenu(hmenu, MF_STRING, 2, comp.getText().c_str());
 }
-} // namespace CinnamonToast
+} // namespace cinnamontoast

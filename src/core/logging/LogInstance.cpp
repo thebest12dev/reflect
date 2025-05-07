@@ -1,8 +1,8 @@
 #include "LogInstance.h"
 #include "Console.h"
-namespace CinnamonToast {
+namespace cinnamontoast {
 void LogInstance::setLogBuffer(LogBuffer *buf) { this->buffer = buf; }
 
 LogInstance::operator std::streambuf &() { return *(this->buffer); }
 
-} // namespace CinnamonToast
+} // namespace cinnamontoast

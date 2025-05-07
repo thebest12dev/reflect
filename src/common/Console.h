@@ -61,7 +61,7 @@ std::string getCurrentTimeString() {
  *
  * @param obj The object to print.
  */
-#define ctoastPrint(obj) CinnamonToast::Console::print(obj);
+#define ctoastPrint(obj) cinnamontoast::console::print(obj);
 
 /**
  * @brief A shorthand macro for printing with newline to the console. Handles
@@ -69,7 +69,7 @@ std::string getCurrentTimeString() {
  *
  * @param obj The object to print.
  */
-#define ctoastPrintln(obj) CinnamonToast::Console::println(obj);
+#define ctoastPrintln(obj) cinnamontoast::console::println(obj);
 
 /**
  * @brief A shorthand macro for logging errors to the console. Handles function
@@ -77,7 +77,7 @@ std::string getCurrentTimeString() {
  *
  * @param obj The error message or object to log.
  */
-#define ctoastError(obj) CinnamonToast::Console::error(obj, __func__);
+#define ctoastError(obj) cinnamontoast::console::error(obj, __func__);
 
 /**
  * @brief A shorthand macro for logging informational messages to the console.
@@ -85,7 +85,7 @@ std::string getCurrentTimeString() {
  *
  * @param obj The informational message or object to log.
  */
-#define ctoastInfo(obj) CinnamonToast::Console::info(obj, __func__);
+#define ctoastInfo(obj) cinnamontoast::console::info(obj, __func__);
 
 /**
  * @brief A shorthand macro for logging warnings to the console. Handles
@@ -93,7 +93,7 @@ std::string getCurrentTimeString() {
  *
  * @param obj The warning message or object to log.
  */
-#define ctoastWarn(obj) CinnamonToast::Console::warn(obj, __func__);
+#define ctoastWarn(obj) cinnamontoast::console::warn(obj, __func__);
 
 /**
  * @brief A shorthand macro for logging debug messages to the console. Handles
@@ -101,19 +101,19 @@ std::string getCurrentTimeString() {
  *
  * @param obj The debug message or object to log.
  */
-#define ctoastDebug(obj) CinnamonToast::Console::debug(obj, __func__);
+#define ctoastDebug(obj) cinnamontoast::console::debug(obj, __func__);
 
 /**
  * @brief A shorthand macro for enabling or disabling debug logging.
  */
-#define ctoastDebugEnabled CinnamonToast::Console::setDebugEnabled
+#define ctoastDebugEnabled cinnamontoast::console::setDebugEnabled
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 
 /**
  * @brief A namespace for console logging utilities.
  */
-namespace Console {
+namespace console {
 
 /**
  * @brief Prints an object to the console.
@@ -234,5 +234,5 @@ CTOAST_API inline void debug(const T &obj,
   }
 };
 
-} // namespace Console
-} // namespace CinnamonToast
+} // namespace console
+} // namespace cinnamontoast

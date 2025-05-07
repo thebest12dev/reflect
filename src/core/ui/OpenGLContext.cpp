@@ -3,7 +3,7 @@
 #include "Windows.h"
 #include <GL/glew.h>
 #include <GL/wglew.h>
-namespace CinnamonToast {
+namespace cinnamontoast {
 void OpenGLContext::initializeContext(WindowHandle hwnd, HDC hdc) {
 
   if (!hdc) {
@@ -74,8 +74,8 @@ void OpenGLContext::initializeContext(WindowHandle hwnd, HDC hdc) {
   // You can use GLEW or another extension loader library here, if necessary
 
   // Now OpenGL is initialized for the window, you can render
-  CinnamonToast::Console::debug("OpenGL initialized successfully!",
+  cinnamontoast::console::debug("OpenGL initialized successfully!",
                                 "initializeContext");
   // ReleaseDC(hwnd, hdc);
 }
-} // namespace CinnamonToast
+} // namespace cinnamontoast

@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 CTOAST_API void initializeHeapPool(size_t size);
 CTOAST_API void cleanupHeapPool();
 
@@ -35,6 +35,6 @@ public:
   CTOAST_API void deallocate(void *ptr, std::size_t size);
 };
 CTOAST_API HeapPool *getHeapPool();
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 
 // Overriding new/delete operators

@@ -1,6 +1,6 @@
 #include "CToastLua.h"
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 
 // Constructor
 LuaInstance::LuaInstance() {
@@ -156,4 +156,4 @@ void LuaInstance::initializeLuaApis(
   }
 }
 
-} // namespace CinnamonToast
+} // namespace cinnamontoast

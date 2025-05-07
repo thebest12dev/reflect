@@ -50,7 +50,7 @@ extern "C" {
  * @brief A C-style component structure mapping to C++.
  *
  * Every component in C has an ID, which maps to the component in
- * `CinnamonToast::Components`.
+ * `cinnamontoast::Components`.
  */
 typedef struct {
   /**

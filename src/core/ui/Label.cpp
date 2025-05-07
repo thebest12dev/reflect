@@ -25,8 +25,8 @@
 #include <iostream>
 #include <windows.h>
 
-using namespace CinnamonToast::Console;
-using namespace CinnamonToast::Utilities;
+using namespace cinnamontoast::console;
+using namespace cinnamontoast::utilities;
 void ctoast Label::setFont(std::string font) {
   fontStr = font;
   if (font == "default") {
@@ -60,7 +60,7 @@ void ctoast Label::render(HWND &parentHWND, HWND &windowHWND) {
   }
 
   // Create a custom font
-  HFONT hFont = ctoast Utilities::getFont(fontStr, fontSize);
+  HFONT hFont = ctoast utilities::getFont(fontStr, fontSize);
 
   if (hFont) {
     // Set the font for the label

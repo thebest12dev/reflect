@@ -5,23 +5,23 @@
 #include <gtest/gtest.h>
 
 namespace LIBC_NAMESPACE {
-void callbackWindow(CinnamonToast::Window &win) { win.close(); }
+void callbackWindow(cinnamontoast::Window &win) { win.close(); }
 } // namespace LIBC_NAMESPACE
 
 class WindowTestFixture : public ::testing::Test {
 protected:
-  CinnamonToast::Window *window;
+  cinnamontoast::Window *window;
 
   void SetUp() override {
     HINSTANCE instance = GetModuleHandle(nullptr);
-    window = new CinnamonToast::Window(instance, "win");
+    window = new cinnamontoast::Window(instance, "win");
   }
 
   void TearDown() override { delete window; }
 };
 
 TEST_F(WindowTestFixture, WindowCreateTestWithComponents) {
-  CinnamonToast::Label label("bar", {50, 50});
+  cinnamontoast::Label label("bar", {50, 50});
   window->setVisible(true);
   window->setSize({100, 100});
   window->setSize({100, 100});
@@ -44,7 +44,7 @@ TEST_F(WindowTestFixture, WindowSetColorTest) {
   EXPECT_EQ(color.b, 128);
 }
 TEST_F(WindowTestFixture, WindowNotificationTest) {
-  CinnamonToast::Notification notification("Test title", "Lorem ipsum dolor sit amet, consectetur adipiscing elit.");
+  cinnamontoast::Notification notification("Test title", "Lorem ipsum dolor sit amet, consectetur adipiscing elit.");
   bool result = window->showNotification(notification);
   EXPECT_TRUE(result);
 }

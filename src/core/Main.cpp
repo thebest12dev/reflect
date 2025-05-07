@@ -85,18 +85,18 @@ typedef unsigned char byte;
 #include <string>
 #include <vector>
 // using namespaces and alias
-using namespace CinnamonToast::Console;
-using namespace CinnamonToast::Utilities;
+using namespace cinnamontoast::console;
+using namespace cinnamontoast::utilities;
 
 namespace fs = std::filesystem;
 
 namespace {
-void onExecute(CinnamonToast::Window &win) { /*win.Close();*/ }
+void onExecute(cinnamontoast::Window &win) { /*win.Close();*/ }
 std::vector<void *> heapAllocations;
 struct Cleaner {
   ~Cleaner() {
     for (void *ptr : heapAllocations) {
-      CinnamonToast::getHeapPool()->deallocate(ptr, sizeof(ptr));
+      cinnamontoast::getHeapPool()->deallocate(ptr, sizeof(ptr));
     }
   }
 };
@@ -312,15 +312,15 @@ int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
       ctoastDebug("loaded shared library!");
 
       // Get the address of the Add function
-      CinnamonToast::SharedLibraryMain mainFunc =
-          (CinnamonToast::SharedLibraryMain)GetProcAddress(hDll, "CToastMain");
+      cinnamontoast::SharedLibraryMain mainFunc =
+          (cinnamontoast::SharedLibraryMain)GetProcAddress(hDll, "CToastMain");
       if (!mainFunc) {
         ctoastError("cannot find CToastMain function of library!");
 
         FreeLibrary(hDll); // Free the DLL
         return CTOAST_ERROR_CANNOT_LOAD_LIBRARY_FUNCTION;
       }
-      CinnamonToast::CToastAPI ctoastApi = {};
+      cinnamontoast::CToastAPI ctoastApi = {};
       ctoastApi.addComponent = ExternalAPI::addComponent;
       ctoastApi.getComponentById = ExternalAPI::getComponentById;
       ctoastApi.getText = ExternalAPI::getComponentText;
@@ -374,11 +374,11 @@ int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
 }
 int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
 
-  CinnamonToast::CrashConfig config = {};
+  cinnamontoast::CrashConfig config = {};
   config.crashType = CRASH_INVOKE | CRASH_SEGFAULT | CRASH_UNHANDLED_EXCEPTION;
 
-  CinnamonToast::CrashHandler *ch = new CinnamonToast::CrashHandler(config);
-  CinnamonToast::CrashManager::setActiveCrashHandler(ch);
+  cinnamontoast::CrashHandler *ch = new cinnamontoast::CrashHandler(config);
+  cinnamontoast::CrashManager::setActiveCrashHandler(ch);
 
   /*LogBuffer logbuf;
 
@@ -475,7 +475,7 @@ int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
       ctoastInfo("launching executable...");
       initializeHeapPool(size);
 
-      return CinnamonToast::invokeExecutable(argv[1]);
+      return cinnamontoast::invokeExecutable(argv[1]);
     }
   } catch (std::exception e) {
     ch->invokeUnhandledExceptionCrash(e);
@@ -493,8 +493,8 @@ int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
 
 #include <vector>
 
-using namespace CinnamonToast::Console;
-using namespace CinnamonToast::Utilities;
+using namespace cinnamontoast::console;
+using namespace cinnamontoast::utilities;
 namespace fs = std::filesystem;
 
 int ctoast invokeExecutable(std::string xmlFile) {
@@ -591,7 +591,7 @@ int ctoast CLIMain(const uint8_t argc, const vector<string> argv) {
     return ctoastError_no_files_specified;
   } else {
     ctoastInfo("launching executable...", "CLIMain");
-    return CinnamonToast::invokeExecutable(argv[1]);
+    return cinnamontoast::invokeExecutable(argv[1]);
   }
 }
 #endif

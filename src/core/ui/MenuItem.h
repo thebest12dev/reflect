@@ -24,7 +24,7 @@
 #include "TypeDefinitions.h"
 #include <string>
 
-namespace CinnamonToast {
+namespace cinnamontoast {
 class MenuItem : public TextComponent {
 protected:
   HINSTANCE winstance;
@@ -56,7 +56,7 @@ public:
   CTOAST_API void setColor(uint8_t r, uint8_t g, uint8_t b);
   friend class MenuBar;
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 
 #elif __linux__
 #pragma once
@@ -68,7 +68,7 @@ public:
 #include "Component.h"
 #include "Vector2.h"
 #include <string>
-namespace CinnamonToast {
+namespace cinnamontoast {
 class Label : public Component {
 protected:
   Vector2 position;
@@ -95,6 +95,6 @@ public:
   CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
   friend class Window;
 };
-} // namespace CinnamonToast
+} // namespace cinnamontoast
 
 #endif
