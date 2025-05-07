@@ -12,7 +12,5 @@ void MenuBar::add(Component &comp) {
 void MenuBar::render(HWND &parentHWND, HWND &windowHWND) {
   SetMenu(windowHWND, hmenu);
 };
-MenuBar::MenuBar() : hmenu(CreateMenu()) {
-  initializeObject(CTOAST_OBJECT_MENUBAR, CTOAST_OBJECT_COMPONENT);
-}
-} // namespace cinnamontoast
+MenuBar::MenuBar() : hmenu(CreateMenu()) {}
+} // namespace CinnamonToast

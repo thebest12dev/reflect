@@ -56,8 +56,8 @@
   CTOAST_API bool getVisible();                                                \
   CTOAST_API Color3 getColor()
 
-namespace cinnamontoast {
-class Component : public Object {
+namespace cinnamonToast {
+class Component {
 protected:
   /// @brief The HINSTANCE object associated
   /// with the program required for window creation.
@@ -179,8 +179,7 @@ public:
   friend class Label;
   friend class Button;
 };
-
-} // namespace cinnamontoast
+} // namespace CinnamonToast
 #elif __linux__
 #pragma once
 #include <cstdint>

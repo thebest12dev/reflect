@@ -16,7 +16,6 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
 #pragma once
 #include <iostream>
 #include <map>
@@ -67,7 +66,7 @@ Alias for CinnamonToast
 /**
  * @brief Namespace for the CinnamonToast framework.
  */
-namespace cinnamontoast {} // namespace cinnamontoast
+namespace cinnamontoast {}
 
 // if defined
 #undef CTOAST_SHARED_LIBRARY

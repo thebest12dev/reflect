@@ -1,8 +1,8 @@
 #pragma once
-#include "Console.h"
+
+#include "ConsoleHelper.h"
 #include "LogBuffer.h"
 #include "TypeDefinitions.h"
-
 #include <chrono>
 #include <ctime>
 #include <iomanip>

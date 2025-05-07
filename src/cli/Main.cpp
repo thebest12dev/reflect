@@ -52,7 +52,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #include "Console.h"
 int main(int argc, char const *argv[]) {
   // expression to load ctoast
-
   cinnamontoast::utilities::initLogs();
   return cinnamontoast::cliMain(
       argc, cinnamontoast::utilities::cstrArrToVector(argv));

@@ -1,0 +1,25 @@
+<!--
+-->
+<root version="1" uiVersion="1.0.0">
+    <window title="MessageBox Generator" width="800" height="500" bgColor="systemDefault" id="mainWindow" >
+      <library type="native" location="msgboxgen.dll"/>
+      <button x="20" y="400" font="Segoe UI" fontSize="25" id="btn1">Show!</button>
+      <textField x="20" y="45" width="400" height="20" font="Segoe UI" fontSize="36" id="text1"/>
+      <label x="20" y="20" font="Segoe UI" fontSize="16" id="label1">Messsage Title</label>
+      <textField x="20" y="100" width="400" height="20" font="Segoe UI" fontSize="36" id="text2"/>
+      <label x="20" y="75" font="Segoe UI" fontSize="16" id="label2">Messsage Content</label>
+      <progressBar x="130" y="410" width="200" height="20" value="50" min="0" max="100" id="pb1"/>
+    </window>
+</root>
+<!-- <root version="1" uiVersion="1.0.0">
+    <window title="CinnamonToast Demo" width="800" height="500" bgColor="systemDefault" id="mainWindow">
+      <graphicsContext type="opengl"/>
+    </window>
+    <resources>
+      <shader id="shader" language="glsl">
+
+      </shader>
+    </resources>
+</root> 
+
+ -->
