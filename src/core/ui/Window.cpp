@@ -484,9 +484,10 @@ bool ctoast Window::getVisible() { return IsWindowVisible(hwnd); }
 ctoast Window::operator WindowHandle() const { return this->hwnd; }
 void ctoast Window::setVisible(int cmd) { ShowWindow(hwnd, cmd); }
 void ctoast Window::render(HWND &parentHWND, HWND &windowHWND) {
-  warn("Window::render called, the method is intentionally empty because it is "
-       "not a child component!",
-       "Render");
+  ctoastWarn(
+      "Window::render called, the method is intentionally empty because it is "
+      "not a child component!",
+      "render");
   // do nothing
 }
 void ctoast Window::close() { PostMessage(hwnd, WM_DESTROY, 0, 0); };
