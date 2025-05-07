@@ -23,6 +23,7 @@
 #include "Console.h"
 #include "Definitions.h"
 #include "TypeDefinitions.h"
+#include "Window.h"
 #include <commctrl.h>
 #include <iostream>
 #include <windows.h>
@@ -81,17 +82,20 @@ void ctoast Button::render(HWND &parentHWND, HWND &windowHWND) {
     ctoastError("parent HWND is invalid!");
     std::exit(CTOAST_ERROR_WIN_PARENT_HWND_INVALID);
   }
-
+  ctoast Window *window = reinterpret_cast<ctoast Window *>(
+      GetWindowLongPtr(windowHWND, GWLP_USERDATA));
   hwnd = CreateWindow(
       "BUTTON",                        // Predefined class for a Button
       text.c_str(),                    // Button text
       WS_VISIBLE | WS_CHILD | BS_FLAT, // Styles: visible and child window
-      position.x, position.y,          // Position (x, y)
-      size.x, size.y,                  // Size (width, height)
-      parentHWND,                      // Parent window handle
-      NULL,                            // No menu or child ID
-      winstance,                       // Instance handle
-      this                             // Additional application data
+      position.x,
+      position.y +
+          window->getProperty<int>("customTitleBarSize"), // Position (x, y)
+      size.x, size.y, // Size (width, height)
+      parentHWND,     // Parent window handle
+      NULL,           // No menu or child ID
+      winstance,      // Instance handle
+      this            // Additional application data
   );
 
   if (!hwnd) {

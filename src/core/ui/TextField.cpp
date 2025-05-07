@@ -1,6 +1,7 @@
 #include "TextField.h"
 #include "../Utilities.h"
 #include "Console.h"
+#include "Window.h"
 #include <CommCtrl.h>
 namespace {
 WNDPROC originalEditProc = nullptr; // Store the original window procedure
@@ -33,16 +34,20 @@ TextField::TextField()
 void TextField::setSize(Vector2 size) { this->size = size; };
 void TextField::setPosition(Vector2 pos) { position = pos; };
 void TextField::render(HWND &parentHWND, HWND &windowHWND) {
-  hwnd = CreateWindowEx(WS_EX_CLIENTEDGE, // Extended styles
-                        WC_EDIT,          // Class name
-                        "",               // Initial text
-                        WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, position.x,
-                        position.y, size.x, size.y,
+  ctoast Window *window = reinterpret_cast<ctoast Window *>(
+      GetWindowLongPtr(windowHWND, GWLP_USERDATA));
+  hwnd = CreateWindowEx(
+      WS_EX_CLIENTEDGE, // Extended styles
+      WC_EDIT,          // Class name
+      "",               // Initial text
+      WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, position.x,
+      position.y + window->getProperty<int>("customTitleBarSize"), size.x,
+      size.y,
 
-                        parentHWND, // Parent window
-                        NULL,
-                        winstance, // App instance
-                        this       // Additional data
+      parentHWND, // Parent window
+      NULL,
+      winstance, // App instance
+      this       // Additional data
   );
   originalEditProc =
       (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)editProc);

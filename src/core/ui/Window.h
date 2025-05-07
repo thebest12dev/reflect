@@ -35,6 +35,9 @@
 #include "Vector2.h"
 namespace cinnamontoast {
 enum WindowStyle { STYLE_DARK_TITLE_BAR };
+struct WindowCreateInfo {
+  bool customTitleBar = false;
+};
 class Window : public Component {
 protected:
   HINSTANCE winstance;
@@ -51,18 +54,32 @@ private:
   bool useGL;
   bool customPipeline;
   OpenGLContext *glCtx;
+  bool closeHovering;
+  bool customTitleBar;
   void (*renderLoop)(Window &);
   void (*beforeRenderLoop)(Window &);
 
 public:
   COMPONENT_DECL(Window);
-  CTOAST_API Window(HINSTANCE instance, std::string id);
+  CTOAST_API Window(HINSTANCE instance, std::string id,
+                    WindowCreateInfo *info = nullptr);
   CTOAST_API Window(HINSTANCE instance, OpenGLContext ctx, std::string id);
   CTOAST_API void setTitle(std::string title);
   CTOAST_API void addStyle(WindowStyle style);
   // // void SetSize(Vector2 dim);
   CTOAST_API static LRESULT CALLBACK windowProc(HWND hwnd, UINT uMsg,
                                                 WPARAM wParam, LPARAM lParam);
+  template <typename T>
+
+  CTOAST_API T getProperty(std::string property) {
+    if (property == "customTitleBarSize") {
+      if (customTitleBar) {
+        return 40;
+      } else {
+        return 0;
+      }
+    }
+  };
   CTOAST_API void setBeforeRenderLoop(void (*callback)(Window &));
   CTOAST_API void swapBuffers();
   CTOAST_API bool isKeyPressed(char key);

@@ -27,6 +27,7 @@
 #include "TextComponent.h"
 #include "TypeDefinitions.h"
 #include "Vector2.h"
+
 #include <iostream>
 #include <string>
 #ifdef _WIN32
@@ -34,6 +35,7 @@
 #include <cstdio>
 #include <d2d1.h>
 #include <dwmapi.h>
+#include <windowsx.h>
 #pragma comment(lib, "dwmapi.lib")
 using namespace cinnamontoast::console;
 // Direct2D-specific members
@@ -187,6 +189,30 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
     //  pThis->pressedKeys[ch] = false;
     //  return 0;
     //}
+    case WM_LBUTTONUP: {
+      if (pThis->customTitleBar) {
+        RECT rc;
+        GetWindowRect(hwnd, &rc);
+        int width = rc.right - rc.left; // The width of the client area
+
+        RECT areaRect = {width - 50, 0, width,
+                         40}; // Example area: x=100, y=100 to x=200, y=200
+        int xPos = GET_X_LPARAM(lParam);
+        int yPos = GET_Y_LPARAM(lParam);
+
+        POINT clickPoint = {xPos, yPos};
+
+        if (PtInRect(&areaRect, clickPoint)) {
+          exit(0);
+          // MessageBox(hwnd, L"Clicked inside the area!", L"Click Detected",
+          // MB_OK);
+        } else {
+          //  MessageBox(hwnd, L"Clicked outside the area!", L"Click Detected",
+          //  MB_OK);
+        }
+      }
+      break;
+    }
     case WM_SIZE: {
 
       if (pRenderTarget) {
@@ -202,6 +228,13 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                      TRUE); // Mark the entire window as needing a repaint
       break;
     }
+    case WM_NCACTIVATE:
+      InvalidateRect(hwnd, nullptr, false);
+      return TRUE; // Ensures Windows handles the default behavior
+    case WM_ACTIVATE: {
+      InvalidateRect(hwnd, nullptr, false);
+      break;
+    }
     case WM_MOVE:
       InvalidateRect(hwnd, NULL,
                      TRUE); // Mark the entire window as needing a repaint
@@ -211,6 +244,88 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
         pThis->callInit = true;
       break;
     }
+    case WM_NCHITTEST: {
+      if (pThis->customTitleBar) {
+
+        LRESULT hit = DefWindowProc(hwnd, uMsg, wParam, lParam);
+
+        POINT pt = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+        ScreenToClient(hwnd, &pt);
+
+        RECT rc;
+        GetClientRect(hwnd, &rc);
+
+        int borderSize = 8; // Resize border thickness
+
+        // Check if mouse is in title bar region (y < 30)
+
+        // Resize hit-test logic
+        if (pt.y < borderSize) {
+          if (pt.x < borderSize)
+            return HTTOPLEFT;
+          if (pt.x > rc.right - borderSize)
+            return HTTOPRIGHT;
+          return HTTOP;
+        }
+        if (pt.y > rc.bottom - borderSize) {
+          if (pt.x < borderSize)
+            return HTBOTTOMLEFT;
+          if (pt.x > rc.right - borderSize)
+            return HTBOTTOMRIGHT;
+          return HTBOTTOM;
+        }
+        if (pt.x < borderSize)
+          return HTLEFT;
+        if (pt.x > rc.right - borderSize)
+          return HTRIGHT;
+        if (pt.y >= 0 && pt.y < 30 && pt.x < rc.right - 50) {
+          return HTCAPTION; // Allows dragging like a standard title bar
+        }
+        return hit; // Default behavior
+      }
+      break;
+    }
+    case WM_MOUSEMOVE: {
+      RECT rc;
+      GetWindowRect(hwnd, &rc);
+      int width = rc.right - rc.left; // The width of the client area
+
+      RECT areaRect = {width - 40, 0, width,
+                       40}; // Example area: x=100, y=100 to x=200, y=200
+      int xPos = GET_X_LPARAM(lParam);
+      int yPos = GET_Y_LPARAM(lParam);
+
+      POINT clickPoint = {xPos, yPos};
+
+      if (PtInRect(&areaRect, clickPoint)) {
+        pThis->closeHovering = true;
+
+        InvalidateRect(hwnd, nullptr, false);
+        // MessageBox(hwnd, L"Clicked inside the area!", L"Click Detected",
+        // MB_OK);
+      } else {
+        if (pThis->closeHovering) {
+          pThis->closeHovering = false;
+
+          InvalidateRect(hwnd, nullptr, false);
+        }
+
+        //  MessageBox(hwnd, L"Clicked outside the area!", L"Click Detected",
+        //  MB_OK);
+      }
+      break;
+    }
+    case WM_NCCALCSIZE: {
+      if (pThis->customTitleBar) {
+        if (wParam == TRUE) {
+          NCCALCSIZE_PARAMS *pParams = (NCCALCSIZE_PARAMS *)lParam;
+          pParams->rgrc[0].top += 1; // Shrink the non-client area slightly
+          return 0;
+        }
+      }
+      break;
+    }
+
     case WM_PAINT: {
       PAINTSTRUCT ps;
       HDC hdc = BeginPaint(hwnd, &ps);
@@ -272,9 +387,39 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
         // ExcludeClipRect)
         pRenderTarget->Clear(D2D1::ColorF(pThis->bgColor[0], pThis->bgColor[1],
                                           pThis->bgColor[2]));
+        RECT rc;
+        GetWindowRect(hwnd, &rc);
+        int width = rc.right - rc.left; // The width of the client area
 
+        D2D1_RECT_F rect;
+        rect.left = 0.0f;
+        rect.top = 0.0f;
+        rect.right = width;
+        rect.bottom = 40.0f;
+        ID2D1SolidColorBrush *pBrush = nullptr;
+        HRESULT hr = pRenderTarget->CreateSolidColorBrush(
+            D2D1::ColorF(0.9f, 0.9f, 0.9f), &pBrush);
+        if (FAILED(hr)) {
+          // Handle brush creation error
+          std::wcerr << L"Failed to create solid color brush." << std::endl;
+          return 0;
+        }
+        // Clear the window
+        pRenderTarget->FillRectangle(rect, pBrush);
+        if (pThis->closeHovering) {
+          D2D1_RECT_F rect;
+          rect.left = width;
+          rect.top = 0.0f;
+          rect.right = width - 50;
+          rect.bottom = 40.0f;
+          ID2D1SolidColorBrush *pBrush = nullptr;
+          HRESULT hr = pRenderTarget->CreateSolidColorBrush(
+              D2D1::ColorF(1.0f, 0.0f, 0.0f), &pBrush);
+
+          pRenderTarget->FillRectangle(rect, pBrush);
+        }
         // End drawing
-        HRESULT hr = pRenderTarget->EndDraw();
+        hr = pRenderTarget->EndDraw();
         if (hr == D2DERR_RECREATE_TARGET) {
           // Handle device loss
           pRenderTarget->Release();
@@ -403,7 +548,8 @@ void ctoast Window::setSize(Vector2 size_) {
                SWP_NOZORDER | SWP_NOACTIVATE // Flags
   );
 }
-ctoast Window::Window(HINSTANCE instance, std::string id)
+ctoast Window::Window(HINSTANCE instance, std::string id,
+                      WindowCreateInfo *info)
     : winstance(instance), useGL(false), glCtx(nullptr), customPipeline(false),
       beforeRenderLoop(nullptr), callInit(false), renderLoop(nullptr),
       renderRunning(false) {
@@ -419,9 +565,18 @@ ctoast Window::Window(HINSTANCE instance, std::string id)
 
   // Create window
   ctoastDebug("calling CreateWindowEx...");
-  hwnd = CreateWindowEx(0, "WindowClass", wc.lpszClassName, WS_OVERLAPPEDWINDOW,
-                        CW_USEDEFAULT, CW_USEDEFAULT, 100, 100, nullptr,
-                        nullptr, instance, this);
+  customTitleBar = info->customTitleBar;
+  if (customTitleBar) {
+    hwnd = CreateWindowEx(0, "WindowClass", wc.lpszClassName,
+                          WS_POPUP | WS_THICKFRAME | WS_CLIPCHILDREN |
+                              WS_CLIPSIBLINGS,
+                          CW_USEDEFAULT, CW_USEDEFAULT, 100, 100, nullptr,
+                          nullptr, instance, this);
+  } else {
+    hwnd = CreateWindowEx(0, "WindowClass", wc.lpszClassName,
+                          WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+                          100, 100, nullptr, nullptr, instance, this);
+  }
 
   if (hwnd == nullptr) {
     ctoastDebug("whoops, hwnd is nullptr");

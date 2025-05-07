@@ -22,6 +22,7 @@
 #include "Console.h"
 #include "Definitions.h"
 #include "TypeDefinitions.h"
+#include "Window.h"
 #include <iostream>
 #include <windows.h>
 
@@ -41,17 +42,21 @@ void ctoast Label::render(HWND &parentHWND, HWND &windowHWND) {
     ctoastError("parent HWND is invalid!");
     std::exit(CTOAST_ERROR_WIN_PARENT_HWND_INVALID);
   }
+  ctoast Window *window = reinterpret_cast<ctoast Window *>(
+      GetWindowLongPtr(windowHWND, GWLP_USERDATA));
 
   // Create the label window
   hwnd = CreateWindow("STATIC",              // Predefined class for a label
                       text.c_str(),          // Label text
                       WS_VISIBLE | WS_CHILD, // Styles: visible and child window
-                      position.x, position.y, // Position (x, y)
-                      size.x, size.y,         // Size (width, height)
-                      parentHWND,             // Parent window handle
-                      NULL,                   // No menu or child ID
-                      winstance,              // Instance handle
-                      NULL                    // Additional application data
+                      position.x,
+                      position.y + window->getProperty<int>(
+                                       "customTitleBarSize"), // Position (x, y)
+                      size.x, size.y, // Size (width, height)
+                      parentHWND,     // Parent window handle
+                      NULL,           // No menu or child ID
+                      winstance,      // Instance handle
+                      NULL            // Additional application data
   );
 
   if (!hwnd) {

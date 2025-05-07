@@ -174,8 +174,11 @@ int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
     ctoastDebug("getting HINSTANCE...");
     HINSTANCE hInstance = GetModuleHandle(nullptr);
     ctoastDebug("creating window...");
+    WindowCreateInfo info = {};
+    info.customTitleBar = true;
+
     // OpenGLContext ctx;
-    win = new Window(hInstance, winId);
+    win = new Window(hInstance, winId, &info);
     /*win->setBeforeRenderLoop([](Window &win) {
       wglSwapIntervalEXT(1);
       int i = 12;

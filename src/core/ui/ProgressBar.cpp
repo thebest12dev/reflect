@@ -1,4 +1,5 @@
 #include "ProgressBar.h"
+#include "Window.h"
 #include <CommCtrl.h>
 #include <Windows.h>
 namespace cinnamontoast {
@@ -15,10 +16,14 @@ void ProgressBar::setPosition(Vector2 pos) {
   SetWindowPos(hwnd, NULL, position.x, position.y, 0, 0,
                SWP_NOSIZE | SWP_NOZORDER);
 }
+
 void ProgressBar::render(HWND &parentHWND, HWND &windowHWND) {
-  hwnd = CreateWindowEx(0, PROGRESS_CLASS, NULL, WS_CHILD | WS_VISIBLE,
-                        position.x, position.y, size.x, size.y, parentHWND,
-                        NULL, winstance, NULL);
+  ctoast Window *window = reinterpret_cast<ctoast Window *>(
+      GetWindowLongPtr(windowHWND, GWLP_USERDATA));
+  hwnd = CreateWindowEx(
+      0, PROGRESS_CLASS, NULL, WS_CHILD | WS_VISIBLE, position.x,
+      position.y + window->getProperty<int>("customTitleBarSize"), size.x,
+      size.y, parentHWND, NULL, winstance, NULL);
   SendMessage(hwnd, PBM_SETRANGE32, (WPARAM)minValue, (LPARAM)maxValue);
   SendMessage(hwnd, PBM_SETPOS, (WPARAM)value, 0);
 }
