@@ -140,7 +140,6 @@ set(APP_MANIFEST "${CMAKE_SOURCE_DIR}/src/windows/ctoasti.manifest")
 add_executable(ctoasti ${CTOAST_CLI} ${APP_MANIFEST})
 add_executable(ctoastw ${CTOAST_CLI})
 
-
 if(CTOAST_ONEFILE)
   target_compile_definitions(ctoasti PRIVATE CTOAST_STATIC_LIBRARY=1)
   target_compile_definitions(ctoastw PRIVATE CTOAST_STATIC_LIBRARY=1)

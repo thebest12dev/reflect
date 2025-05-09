@@ -10,9 +10,8 @@ private:
   ObjectUID uid = 0;
 
 protected:
-  CTOAST_API virtual void
-  initializeObject(ObjectUID uid,
-                   ObjectUID parent = CTOAST_OBJECT_OBJECT) final;
+  virtual void initializeObject(ObjectUID uid,
+                                ObjectUID parent = CTOAST_OBJECT_OBJECT) final;
 
 public:
   CTOAST_API Object();

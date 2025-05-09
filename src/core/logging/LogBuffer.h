@@ -40,13 +40,13 @@ protected:
    * @param c The character to write.
    * @return The written character, or EOF on failure.
    */
-  CTOAST_API int overflow(int c) override;
+  int overflow(int c) override;
   /**
    * @brief Synchronizes the buffer with the output streams.
    *
    * @return 0 on success, -1 on failure.
    */
-  CTOAST_API int sync() override;
+  int sync() override;
 
 private:
   std::streambuf *sb1;

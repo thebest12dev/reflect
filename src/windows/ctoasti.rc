@@ -22,4 +22,9 @@ VS_VERSION_INFO VERSIONINFO
             0x0409,
             0x04B0 // Language and code page (English, Unicode)
         END
-    END
+    END 
+
+    
+"CTOAST_CLOSE" RCDATA "../../resources/ui/close.png"
+"CTOAST_CLOSE_DARK" RCDATA "../../resources/ui/closeDark.png"
+"CTOAST_CLOSE_HOVER" RCDATA "../../resources/ui/closeHover.png"

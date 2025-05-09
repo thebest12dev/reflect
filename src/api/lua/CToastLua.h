@@ -92,7 +92,7 @@ private:
   lua_State *L;
 
   // Helper method to set a value in the Lua stack
-  template <LuaType T> CTOAST_API void setValue(int index, T value);
+  template <LuaType T> void setValue(int index, T value);
 
 public:
   /**

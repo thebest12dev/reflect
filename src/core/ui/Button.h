@@ -43,10 +43,9 @@ private:
   std::string text;
   std::string fontStr;
   int fontSize;
-  CTOAST_API static LRESULT CALLBACK buttonProc(HWND hwnd, UINT uMsg,
-                                                WPARAM wParam, LPARAM lParam,
-                                                UINT_PTR uIdSubclass,
-                                                DWORD_PTR dwRefData);
+  static LRESULT CALLBACK buttonProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+                                     LPARAM lParam, UINT_PTR uIdSubclass,
+                                     DWORD_PTR dwRefData);
 
 public:
   friend class Component;
