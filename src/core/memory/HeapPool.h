@@ -8,9 +8,9 @@
 #include <string>
 #include <vector>
 
-namespace cinnamontoast {
-CTOAST_API void initializeHeapPool(size_t size);
-CTOAST_API void cleanupHeapPool();
+namespace reflect {
+REFLECT_API void initializeHeapPool(size_t size);
+REFLECT_API void cleanupHeapPool();
 
 class HeapPool {
 protected:
@@ -24,17 +24,17 @@ protected:
   };
 
   FreeBlock *freeList = nullptr;
-  CTOAST_API ~HeapPool();
-  CTOAST_API HeapPool(size_t poolSize);
+  REFLECT_API ~HeapPool();
+  REFLECT_API HeapPool(size_t poolSize);
   friend void initializeHeapPool(size_t size);
   friend void cleanupHeapPool();
 
 public:
-  CTOAST_API void *allocate(std::size_t size);
+  REFLECT_API void *allocate(std::size_t size);
 
-  CTOAST_API void deallocate(void *ptr, std::size_t size);
+  REFLECT_API void deallocate(void *ptr, std::size_t size);
 };
-CTOAST_API HeapPool *getHeapPool();
-} // namespace cinnamontoast
+REFLECT_API HeapPool *getHeapPool();
+} // namespace reflect
 
 // Overriding new/delete operators

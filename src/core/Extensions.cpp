@@ -1,34 +1,34 @@
 #include "Extensions.h"
 
-namespace cinnamontoast {
+namespace reflect {
 constexpr bool ExtensionManager::isExtensionAvailable(Extension ext) {
   switch (ext) {
-  case cinnamontoast::EXTENSION_NETWORKING:
-    // check if CinnamonToast.Networking is available
-#ifdef CTOAST_EXT_NETWORKING
+  case reflect::EXTENSION_NETWORKING:
+    // check if Reflect.Networking is available
+#ifdef REFLECT_EXT_NETWORKING
     return true;
 #else
     return false;
-#endif // CTOAST_EXT_NETWORKING
+#endif // REFLECT_EXT_NETWORKING
 
     break;
-  case cinnamontoast::EXTENSION_UPDATER:
-#ifdef CTOAST_EXT_UPDATER
+  case reflect::EXTENSION_UPDATER:
+#ifdef REFLECT_EXT_UPDATER
     return true;
 #else
     return false;
-#endif // CTOAST_EXT_NETWORKING
+#endif // REFLECT_EXT_NETWORKING
     break;
-  case cinnamontoast::EXTENSION_LUA:
-#ifdef CTOAST_LUA
+  case reflect::EXTENSION_LUA:
+#ifdef REFLECT_LUA
     return true;
 #else
     return false;
-#endif // CTOAST_EXT_NETWORKING
+#endif // REFLECT_EXT_NETWORKING
     break;
   default:
     return false;
     break;
   }
 };
-} // namespace cinnamontoast
+} // namespace reflect

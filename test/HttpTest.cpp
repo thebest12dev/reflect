@@ -4,7 +4,7 @@
 
 class HttpTestFixture : public ::testing::Test {
 protected:
-  cinnamontoast::HttpRequest *httpRequest;
+  reflect::HttpRequest *httpRequest;
 
   void SetUp() override {
     // Common setup logic for all tests
@@ -17,7 +17,7 @@ protected:
   }
 
   void initializeRequest(const std::string &url) {
-    httpRequest = new cinnamontoast::HttpRequest(url);
+    httpRequest = new reflect::HttpRequest(url);
   }
 };
 

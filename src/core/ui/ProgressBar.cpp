@@ -2,11 +2,11 @@
 #include "Window.h"
 #include <CommCtrl.h>
 #include <Windows.h>
-namespace cinnamontoast {
+namespace reflect {
 ProgressBar::ProgressBar()
     : winstance(GetModuleHandle(nullptr)), hwnd(nullptr), maxValue(100.0f),
       minValue(0.0f), value(0.0f) {
-  initializeObject(CTOAST_OBJECT_PROGRESSBAR, CTOAST_OBJECT_COMPONENT);
+  initializeObject(REFLECT_OBJECT_PROGRESSBAR, REFLECT_OBJECT_COMPONENT);
   this->size = {0, 0};
   this->position = {0, 0};
 }
@@ -18,7 +18,7 @@ void ProgressBar::setPosition(Vector2 pos) {
 }
 
 void ProgressBar::render(HWND &parentHWND, HWND &windowHWND) {
-  ctoast Window *window = reinterpret_cast<ctoast Window *>(
+  reflect::Window *window = reinterpret_cast<reflect::Window *>(
       GetWindowLongPtr(windowHWND, GWLP_USERDATA));
   hwnd = CreateWindowEx(
       0, PROGRESS_CLASS, NULL, WS_CHILD | WS_VISIBLE, position.x,
@@ -42,4 +42,4 @@ void ProgressBar::setMininumValue(float val) {
 }
 float ProgressBar::getMaximumValue() { return this->maxValue; }
 float ProgressBar::getMinimumValue() { return this->minValue; }
-} // namespace cinnamontoast
+} // namespace reflect

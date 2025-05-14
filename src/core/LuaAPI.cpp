@@ -1,11 +1,11 @@
-#ifdef CTOAST_LUA
+#ifdef REFLECT_LUA
 #include "LuaAPI.h"
 #include "Console.h"
 #include "ui/Components.h"
 #include "ui/TextComponent.h"
 #include <fstream>
 #include <vector>
-using namespace cinnamontoast;
+using namespace reflect;
 namespace {
 bool luaReadWrite = false;
 }
@@ -109,14 +109,14 @@ int LuaAPI::getComponentById(lua_State *L) {
 
   return 1; // Return the new table
 }
-void cinnamontoast::injectLuaApis(LuaInstance *self) {
-  self->registerFunction("CinnamonToast", "getComponentById",
+void reflect::injectLuaApis(LuaInstance *self) {
+  self->registerFunction("Reflect", "getComponentById",
                          LuaAPI::getComponentById);
-  self->registerFunction("CinnamonToast", "requestPermission",
+  self->registerFunction("Reflect", "requestPermission",
                          LuaAPI::luaRequestPermission);
-  self->registerFunction("ctoastInfo", LuaAPI::luaInfo);
+  self->registerFunction("reflectInfo", LuaAPI::luaInfo);
   self->registerFunction("warn", LuaAPI::luaWarn);
-  self->registerFunction("cctoastError", LuaAPI::luaCError);
+  self->registerFunction("reflectError", LuaAPI::luaCError);
   self->registerFunction("debug", LuaAPI::luaDebug);
   self->registerFunction("writeFile", LuaAPI::luaWriteFile);
   self->registerFunction("readFile", LuaAPI::luaReadFile);

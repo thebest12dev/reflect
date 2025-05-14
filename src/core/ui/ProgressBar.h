@@ -1,7 +1,7 @@
 #pragma once
 #include "Component.h"
 
-namespace cinnamontoast {
+namespace reflect {
 class ProgressBar : public Component {
 private:
   float minValue;
@@ -22,8 +22,8 @@ private:
 public:
   // COMPONENT_DECL(ProgressBar);
   ProgressBar();
-  CTOAST_API void setPosition(Vector2 pos);
-  CTOAST_API void render(HWND &parentHWND, HWND &windowHWND);
+  REFLECT_API void setPosition(Vector2 pos);
+  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
   void setValue(float value);
   void setMaximumValue(float value);
   void setMininumValue(float value);
@@ -31,4 +31,4 @@ public:
   float getMaximumValue();
   float getMinimumValue();
 };
-} // namespace cinnamontoast
+} // namespace reflect

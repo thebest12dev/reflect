@@ -47,7 +47,7 @@ public:
   SocketInitializer() {
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-      ctoastError("failed to initialize winsock");
+      reflectError("failed to initialize winsock");
       exit(1);
     }
     SSL_library_init();
@@ -64,7 +64,7 @@ public:
 // Initialize the socket library and SSL context
 SocketInitializer internalInitializer;
 } // namespace
-namespace cinnamontoast {
+namespace reflect {
 HttpRequest::HttpRequest(const std::string &url, HttpRequestMethod method,
                          const std::string &headers, const std::string &body)
     : url(url), method(method), headers(headers), body(body), success(false) {}
@@ -137,13 +137,13 @@ void HttpRequest::initiateRequest() {
   if (url.rfind("https://", 0) == 0) {
     // If the URL starts with "https://", use SSL
     if (SSL_set_fd(ssl, sock) == 0) {
-      ctoastError("cannot set socket with SSL!");
+      reflectError("cannot set socket with SSL!");
       success = false;
       closesocket(sock);
       return;
     }
     if (SSL_connect(ssl) <= 0) {
-      ctoastError("SSL connection failed!");
+      reflectError("SSL connection failed!");
       success = false;
       closesocket(sock);
       return;
@@ -256,8 +256,8 @@ void HttpRequest::initiateRequest() {
 //   // Close the socket
 //   closesocket(sock);
 //   this->response = data;
-// } // namespace cinnamontoast
-} // namespace cinnamontoast
+// } // namespace reflect
+} // namespace reflect
 
 #elif defined(__linux__)
 #include "Console.h"
@@ -318,7 +318,7 @@ public:
     SSL_load_error_strings();
     ctx = SSL_CTX_new(TLS_client_method());
     if (!ctx) {
-      ctoastError("Failed to initialize SSL context");
+      reflectError("Failed to initialize SSL context");
       exit(1);
     }
     ssl = SSL_new(ctx);
@@ -333,7 +333,7 @@ public:
 SocketInitializer internalInitializer;
 } // namespace
 
-namespace cinnamontoast {
+namespace reflect {
 HttpRequest::HttpRequest(const std::string &url, HttpRequestMethod method,
                          const std::string &headers, const std::string &body)
     : url(url), method(method), headers(headers), body(body), success(false) {}
@@ -356,7 +356,7 @@ void HttpRequest::initiateRequest() {
   success = true;
   int sock = socket(AF_INET, SOCK_STREAM, 0);
   if (sock < 0) {
-    ctoastError("Socket creation failed");
+    reflectError("Socket creation failed");
     success = false;
     return;
   }
@@ -373,7 +373,7 @@ void HttpRequest::initiateRequest() {
   int iResult =
       getaddrinfo(host.c_str(), std::to_string(port).c_str(), &hints, &result);
   if (iResult != 0) {
-    ctoastError("Failed to resolve host");
+    reflectError("Failed to resolve host");
     close(sock);
     success = false;
     return;
@@ -393,7 +393,7 @@ void HttpRequest::initiateRequest() {
   freeaddrinfo(result);
 
   if (sock == -1) {
-    ctoastError("Unable to connect to server");
+    reflectError("Unable to connect to server");
     return;
   }
 
@@ -409,13 +409,13 @@ void HttpRequest::initiateRequest() {
   if (url.rfind("https://", 0) == 0) {
     // If the URL starts with "https://", use SSL
     if (SSL_set_fd(ssl, sock) == 0) {
-      ctoastError("Cannot set socket with SSL!");
+      reflectError("Cannot set socket with SSL!");
       success = false;
       close(sock);
       return;
     }
     if (SSL_connect(ssl) <= 0) {
-      ctoastError("SSL connection failed!");
+      reflectError("SSL connection failed!");
       success = false;
       close(sock);
       return;
@@ -434,7 +434,7 @@ void HttpRequest::initiateRequest() {
   } else {
     // Send the GET request
     if (send(sock, request.str().c_str(), request.str().length(), 0) == -1) {
-      ctoastError("Failed to send request");
+      reflectError("Failed to send request");
       success = false;
       close(sock);
       return;
@@ -451,7 +451,7 @@ void HttpRequest::initiateRequest() {
     }
 
     if (bytesReceived == -1) {
-      ctoastError("Failed to receive response");
+      reflectError("Failed to receive response");
       success = false;
     }
 
@@ -460,5 +460,5 @@ void HttpRequest::initiateRequest() {
     this->response = data;
   }
 }
-} // namespace cinnamontoast
+} // namespace reflect
 #endif

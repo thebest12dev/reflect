@@ -5,7 +5,7 @@
 #endif
 #include <string>
 
-namespace cinnamontoast {
+namespace reflect {
 enum HttpRequestMethod { HTTP_GET, HTTP_POST, HTTP_PUT, HTTP_DELETE };
 class HttpRequest {
 private:
@@ -17,34 +17,34 @@ private:
   std::string response;
 
 public:
-  CTOAST_API HttpRequest(const std::string &url,
-                         HttpRequestMethod method = HTTP_GET,
-                         const std::string &headers = "",
-                         const std::string &body = "");
-  CTOAST_API void setUrl(const std::string &newUrl);
-  CTOAST_API void setMethod(HttpRequestMethod newMethod);
-  CTOAST_API void setHeaders(const std::string &newHeaders);
-  CTOAST_API void setBody(const std::string body);
-  CTOAST_API std::string getUrl() const;
-  CTOAST_API HttpRequestMethod getMethod() const;
-  CTOAST_API std::string getHeaders() const;
-  CTOAST_API std::string getBody() const;
-  CTOAST_API void initiateRequest();
-  CTOAST_API std::string getResponse();
-  CTOAST_API std::string getErrorMessage() const;
-  CTOAST_API int getStatusCode() const;
-  CTOAST_API bool isSuccess() const;
-  CTOAST_API void setTimeout(int seconds);
-  CTOAST_API void setProxy(const std::string &proxyUrl);
-  CTOAST_API void setProxyPort(int port);
-  CTOAST_API void setProxyCredentials(const std::string &username,
-                                      const std::string &password);
-  CTOAST_API void setFollowRedirects(bool follow);
-  CTOAST_API void setUserAgent(const std::string &userAgent);
-  CTOAST_API void setAccept(const std::string &accept);
-  CTOAST_API void setContentType(const std::string &contentType);
-  CTOAST_API void setAcceptEncoding(const std::string &acceptEncoding);
-  CTOAST_API void setAcceptLanguage(const std::string &acceptLanguage);
-  CTOAST_API void setKeepAlive(bool keepAlive);
+  REFLECT_API HttpRequest(const std::string &url,
+                          HttpRequestMethod method = HTTP_GET,
+                          const std::string &headers = "",
+                          const std::string &body = "");
+  REFLECT_API void setUrl(const std::string &newUrl);
+  REFLECT_API void setMethod(HttpRequestMethod newMethod);
+  REFLECT_API void setHeaders(const std::string &newHeaders);
+  REFLECT_API void setBody(const std::string body);
+  REFLECT_API std::string getUrl() const;
+  REFLECT_API HttpRequestMethod getMethod() const;
+  REFLECT_API std::string getHeaders() const;
+  REFLECT_API std::string getBody() const;
+  REFLECT_API void initiateRequest();
+  REFLECT_API std::string getResponse();
+  REFLECT_API std::string getErrorMessage() const;
+  REFLECT_API int getStatusCode() const;
+  REFLECT_API bool isSuccess() const;
+  REFLECT_API void setTimeout(int seconds);
+  REFLECT_API void setProxy(const std::string &proxyUrl);
+  REFLECT_API void setProxyPort(int port);
+  REFLECT_API void setProxyCredentials(const std::string &username,
+                                       const std::string &password);
+  REFLECT_API void setFollowRedirects(bool follow);
+  REFLECT_API void setUserAgent(const std::string &userAgent);
+  REFLECT_API void setAccept(const std::string &accept);
+  REFLECT_API void setContentType(const std::string &contentType);
+  REFLECT_API void setAcceptEncoding(const std::string &acceptEncoding);
+  REFLECT_API void setAcceptLanguage(const std::string &acceptLanguage);
+  REFLECT_API void setKeepAlive(bool keepAlive);
 };
-} // namespace cinnamontoast
+} // namespace reflect

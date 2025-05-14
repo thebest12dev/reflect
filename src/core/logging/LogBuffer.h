@@ -20,7 +20,7 @@
 #include "TypeDefinitions.h"
 #include <fstream>
 #include <streambuf>
-namespace cinnamontoast {
+namespace reflect {
 // Class to redirect std::cout to a file and console
 class LogBuffer : public std::streambuf {
 public:
@@ -29,9 +29,9 @@ public:
    *
    * Redirects `std::cout` to both the console and a log file.
    */
-  CTOAST_API LogBuffer();
+  REFLECT_API LogBuffer();
 
-  CTOAST_API void setOutputFile(std::string file);
+  REFLECT_API void setOutputFile(std::string file);
 
 protected:
   /**
@@ -53,4 +53,4 @@ private:
   std::streambuf *sb2;
   std::ofstream fileStream;
 };
-} // namespace cinnamontoast
+} // namespace reflect

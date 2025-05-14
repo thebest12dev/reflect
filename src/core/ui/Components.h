@@ -22,13 +22,13 @@
 #include "Window.h"
 #include <map>
 #include <string>
-namespace cinnamontoast {
+namespace reflect {
 class Components {
 private:
-  static std::map<std::string, cinnamontoast::Component *> gchildren;
+  static std::map<std::string, reflect::Component *> gchildren;
 
 public:
-  CTOAST_API static cinnamontoast::Component *getComponentById(std::string id);
+  REFLECT_API static reflect::Component *getComponentById(std::string id);
   friend class Window;
 };
-} // namespace cinnamontoast
+} // namespace reflect

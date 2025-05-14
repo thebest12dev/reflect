@@ -25,7 +25,7 @@
 #include <windows.h>
 
 #include "TypeDefinitions.h"
-namespace cinnamontoast {
+namespace reflect {
 class TextComponent : public Component {
 protected:
   HINSTANCE winstance;
@@ -42,20 +42,20 @@ protected:
   int fontSize;
 
 public:
-  CTOAST_API TextComponent();
-  CTOAST_API virtual void render(HWND &parentHWND, HWND &windowHWND) = 0;
-  CTOAST_API void setVisible(bool flag);
-  CTOAST_API void add(Component &comp);
-  CTOAST_API void setVisible(int cmd);
-  CTOAST_API void setColor(uint8_t r, uint8_t g, uint8_t b);
-  CTOAST_API void setColor(Color3 color);
-  CTOAST_API void setColor(Color3Array color);
-  CTOAST_API virtual void setFontSize(int size);
-  CTOAST_API virtual void setFont(std::string font);
-  CTOAST_API void setText(std::string text);
-  CTOAST_API virtual std::string getText();
-  CTOAST_API ~TextComponent();
+  REFLECT_API TextComponent();
+  REFLECT_API virtual void render(HWND &parentHWND, HWND &windowHWND) = 0;
+  REFLECT_API void setVisible(bool flag);
+  REFLECT_API void add(Component &comp);
+  REFLECT_API void setVisible(int cmd);
+  REFLECT_API void setColor(uint8_t r, uint8_t g, uint8_t b);
+  REFLECT_API void setColor(Color3 color);
+  REFLECT_API void setColor(Color3Array color);
+  REFLECT_API virtual void setFontSize(int size);
+  REFLECT_API virtual void setFont(std::string font);
+  REFLECT_API void setText(std::string text);
+  REFLECT_API virtual std::string getText();
+  REFLECT_API ~TextComponent();
   friend class Label;
   friend class Button;
 };
-} // namespace cinnamontoast
+} // namespace reflect

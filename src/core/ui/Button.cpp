@@ -28,15 +28,15 @@
 #include <iostream>
 #include <windows.h>
 
-using namespace cinnamontoast::console;
-using namespace cinnamontoast::utilities;
+using namespace reflect::console;
+using namespace reflect::utilities;
 
 /**
  * @brief Sets the font of the button.
  *
  * @param font The font name to set. If "default", the default font is used.
  */
-void ctoast Button::setFont(std::string font) {
+void reflect::Button::setFont(std::string font) {
   fontStr = font;
   if (font == "default") {
     fontStr = DEFAULT_FONT;
@@ -48,19 +48,19 @@ void ctoast Button::setFont(std::string font) {
  *
  * @param size The font size to set.
  */
-void ctoast Button::setFontSize(int size) { fontSize = size; }
+void reflect::Button::setFontSize(int size) { fontSize = size; }
 
 WNDPROC originalBtnProc = nullptr;
-void ctoast Button::onClick(void (*callback)(Button &)) {
+void reflect::Button::onClick(void (*callback)(Button &)) {
   this->clickCallback = callback;
 }
-long long CALLBACK ctoast Button::buttonProc(HWND hwnd, UINT uMsg,
-                                             WPARAM wParam, LPARAM lParam,
-                                             UINT_PTR uIdSubclass,
-                                             DWORD_PTR dwRefData) {
+long long CALLBACK reflect::Button::buttonProc(HWND hwnd, UINT uMsg,
+                                               WPARAM wParam, LPARAM lParam,
+                                               UINT_PTR uIdSubclass,
+                                               DWORD_PTR dwRefData) {
   Button *pThis = nullptr;
-  pThis =
-      reinterpret_cast<ctoast Button *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+  pThis = reinterpret_cast<reflect::Button *>(
+      GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
   switch (uMsg) {
   case WM_LBUTTONUP: {
@@ -77,12 +77,12 @@ long long CALLBACK ctoast Button::buttonProc(HWND hwnd, UINT uMsg,
  * @param parentHWND The handle to the parent window.
  * @param windowHWND The handle to the window.
  */
-void ctoast Button::render(HWND &parentHWND, HWND &windowHWND) {
+void reflect::Button::render(HWND &parentHWND, HWND &windowHWND) {
   if (!IsWindow(parentHWND)) {
-    ctoastError("parent HWND is invalid!");
-    std::exit(CTOAST_ERROR_WIN_PARENT_HWND_INVALID);
+    reflectError("parent HWND is invalid!");
+    std::exit(REFLECT_ERROR_WIN_PARENT_HWND_INVALID);
   }
-  ctoast Window *window = reinterpret_cast<ctoast Window *>(
+  reflect::Window *window = reinterpret_cast<reflect::Window *>(
       GetWindowLongPtr(windowHWND, GWLP_USERDATA));
   hwnd = CreateWindow(
       "BUTTON",                        // Predefined class for a Button
@@ -104,7 +104,7 @@ void ctoast Button::render(HWND &parentHWND, HWND &windowHWND) {
   }
   SetWindowSubclass(hwnd, buttonProc, 0, 0);
   SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-  HFONT hFont = ctoast utilities::getFont(fontStr, fontSize);
+  HFONT hFont = reflect::utilities::getFont(fontStr, fontSize);
 
   if (hFont) {
     SendMessage(hwnd, WM_SETFONT, (WPARAM)hFont, TRUE);
@@ -130,7 +130,7 @@ void ctoast Button::render(HWND &parentHWND, HWND &windowHWND) {
  *
  * @param flag True to show the button, false to hide it.
  */
-void ctoast Button::setVisible(bool flag) {
+void reflect::Button::setVisible(bool flag) {
   ShowWindow(this->hwnd, flag ? SW_SHOW : SW_HIDE);
 }
 
@@ -139,7 +139,7 @@ void ctoast Button::setVisible(bool flag) {
  *
  * @return The text of the button.
  */
-std::string ctoast Button::getText() { return text; }
+std::string reflect::Button::getText() { return text; }
 
 /**
  * @brief Constructs a Button object with the specified text and position.
@@ -147,9 +147,9 @@ std::string ctoast Button::getText() { return text; }
  * @param text The text to display on the button.
  * @param pos The position of the button.
  */
-ctoast Button::Button(std::string text, Vector2 pos)
+reflect::Button::Button(std::string text, Vector2 pos)
     : position(pos), size(Vector2(0, 0)), text(text) {
-  initializeObject(CTOAST_OBJECT_BUTTON, CTOAST_OBJECT_TEXTCOMPONENT);
+  initializeObject(REFLECT_OBJECT_BUTTON, REFLECT_OBJECT_TEXTCOMPONENT);
 }
 #elif __linux__
 #include "../Utilities.h"
@@ -161,15 +161,15 @@ ctoast Button::Button(std::string text, Vector2 pos)
 #include <iostream>
 #include <windows.h>
 
-using namespace cinnamontoast::console;
-using namespace cinnamontoast::utilities;
+using namespace reflect::console;
+using namespace reflect::utilities;
 
 /**
  * @brief Sets the font of the button.
  *
  * @param font The font name to set. If "default", the default font is used.
  */
-void ctoast Button::setFont(std::string font) {
+void reflect::Button::setFont(std::string font) {
   fontStr = font;
   if (font == "default") {
     fontStr = DEFAULT_FONT;
@@ -181,9 +181,9 @@ void ctoast Button::setFont(std::string font) {
  *
  * @param size The font size to set.
  */
-void ctoast Button::setFontSize(int size) { fontSize = size; }
+void reflect::Button::setFontSize(int size) { fontSize = size; }
 
-void ctoast Button::onClick(void (*callback)(Button &)) {
+void reflect::Button::onClick(void (*callback)(Button &)) {
   this->clickCallback = callback;
 }
 
@@ -193,7 +193,7 @@ void ctoast Button::onClick(void (*callback)(Button &)) {
  * @param parentWindow The handle to the parent window.
  * @param windowWindow The handle to the window.
  */
-void ctoast Button::render(XWindow &parentWindow, XWindow &windowWindow) {
+void reflect::Button::render(XWindow &parentWindow, XWindow &windowWindow) {
   // stub!
 };
 
@@ -202,14 +202,14 @@ void ctoast Button::render(XWindow &parentWindow, XWindow &windowWindow) {
  *
  * @param flag True to show the button, false to hide it.
  */
-void ctoast Button::setVisible(bool flag) {}
+void reflect::Button::setVisible(bool flag) {}
 
 /**
  * @brief Gets the text of the button.
  *
  * @return The text of the button.
  */
-std::string ctoast Button::getText() { return text; }
+std::string reflect::Button::getText() { return text; }
 
 /**
  * @brief Constructs a Button object with the specified text and position.
@@ -217,8 +217,8 @@ std::string ctoast Button::getText() { return text; }
  * @param text The text to display on the button.
  * @param pos The position of the button.
  */
-ctoast Button::Button(std::string text, Vector2 pos)
+reflect::Button::Button(std::string text, Vector2 pos)
     : position(pos), size(Vector2(0, 0)), text(text) {
-  initializeObject(CTOAST_OBJECT_BUTTON, CTOAST_OBJECT_TEXTCOMPONENT);
+  initializeObject(REFLECT_OBJECT_BUTTON, REFLECT_OBJECT_TEXTCOMPONENT);
 }
 #endif

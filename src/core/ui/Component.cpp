@@ -23,40 +23,57 @@
 #include "Vector2.h"
 #include <cstdint>
 #include <string>
-ctoast Component::Component()
+reflect::Component::Component()
     : position(Vector2(0, 0)), size(Vector2(0, 0)),
       bgColor(Color3Float(1, 1, 1)), hwnd(nullptr), winstance(nullptr) {
-  initializeObject(CTOAST_OBJECT_COMPONENT);
+  initializeObject(REFLECT_OBJECT_COMPONENT);
 }
-// ctoast Component::~Component()  {
+// reflect::Component::~Component()  {
 //
 // }
-ctoast Color3 ctoast Component::getColor() { return bgColor; }
-void ctoast Component::add(Component &comp) {
+void reflect::Component::setPosition(Vector2 pos) {
+  if (!hwnd) {
+    this->position = pos;
+  } else {
+    this->position = pos;
+    SetWindowPos(hwnd, HWND_TOP, pos.x, pos.y, size.x, size.y, SWP_SHOWWINDOW);
+  }
+}
+void reflect::Component::paint() { InvalidateRect(hwnd, nullptr, true); }
+reflect::Color3 reflect::Component::getColor() { return bgColor; }
+void reflect::Component::add(Component &comp) {
   // Do nothing
 }
-void ctoast Component::setVisible(int cmd) {
+void reflect::Component::setVisible(int cmd) {
   // Do nothing
 }
-void ctoast Component::setVisible(bool cmd) {
+void reflect::Component::setVisible(bool cmd) {
   // Do nothing
 }
 
-void ctoast Component::setSize(Vector2 size) { this->size = size; }
-void ctoast Component::setColor(Color3 color) { this->bgColor = color; }
-void ctoast Component::setColor(Color3Array color) {
+void reflect::Component::setSize(Vector2 size) {
+  if (!hwnd) {
+    this->size = size;
+  } else {
+    this->size = size;
+    SetWindowPos(hwnd, HWND_TOP, position.x, position.y, size.x, size.y,
+                 SWP_SHOWWINDOW);
+  }
+}
+void reflect::Component::setColor(Color3 color) { this->bgColor = color; }
+void reflect::Component::setColor(Color3Array color) {
   this->bgColor.r = color[0] / 255.0f;
   this->bgColor.g = color[1] / 255.0f;
   this->bgColor.b = color[2] / 255.0f;
 }
-void ctoast Component::setColor(uint8_t r, uint8_t g, uint8_t b) {
+void reflect::Component::setColor(uint8_t r, uint8_t g, uint8_t b) {
   this->bgColor.r = r;
   this->bgColor.g = g;
   this->bgColor.b = b;
 }
-ctoast Vector2 ctoast Component::getPosition() { return position; };
-ctoast Vector2 ctoast Component::getSize() { return size; };
-namespace cinnamontoast {
+reflect::Vector2 reflect::Component::getPosition() { return position; };
+reflect::Vector2 reflect::Component::getSize() { return size; };
+namespace reflect {
 void *Component::operator new(std::size_t size) {
   if (!getHeapPool()) {
     throw std::bad_alloc(); // Handle allocation failure
@@ -89,10 +106,10 @@ void Component::operator delete[](void *ptr) {
   }
   getHeapPool()->deallocate(ptr, sizeof(ptr));
 }
-} // namespace cinnamontoast
+} // namespace reflect
 #ifdef __linux__
 
-// std::string ctoast Component::GetProperty(std::string property) {
+// std::string reflect::Component::GetProperty(std::string property) {
 //     return "";
 // }
 #endif

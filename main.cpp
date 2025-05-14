@@ -1,20 +1,20 @@
-#include <core/CToastAPI.h>
+#include <core/ReflectAPI.h>
 #include <string>
 #include <iostream>
 #include <windows.h>
 
 
-cinnamontoast::CToastAPI* api = nullptr;
-cinnamontoast::ComponentId button1;
-cinnamontoast::ComponentId titleText;
-cinnamontoast::ComponentId textText;
+reflect::ReflectAPI* api = nullptr;
+reflect::ComponentId button1;
+reflect::ComponentId titleText;
+reflect::ComponentId textText;
 
-void onClick(cinnamontoast::ComponentId btn) {
+void onClick(reflect::ComponentId btn) {
     const char* titleStr = api->getText(titleText);
     const char* textStr = api->getText(textText);
     MessageBoxA(nullptr, textStr, titleStr, MB_OK);
 }
-extern "C" __declspec(dllexport) void CToastMain(cinnamontoast::CToastAPI* api_) {
+extern "C" __declspec(dllexport) void reflectMain(reflect::ReflectAPI* api_) {
     api = api_;
     button1 = api->getComponentById("btn1");
     

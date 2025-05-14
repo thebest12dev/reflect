@@ -30,20 +30,20 @@ std::string getFilesystemSafeTime() {
 }
 } // namespace
 
-namespace cinnamontoast {
+namespace reflect {
 
 class LogInstance {
 protected:
   LogBuffer *buffer = nullptr;
 
 public:
-  CTOAST_API inline void setLogBuffer(LogBuffer *buf);
-  CTOAST_API void initialize() {
+  REFLECT_API inline void setLogBuffer(LogBuffer *buf);
+  REFLECT_API void initialize() {
     if (buffer) {
       buffer->setOutputFile("logs/log_" + getFilesystemSafeTime() + ".log");
     }
   }
-  template <typename T> CTOAST_API inline void print(const T &obj) noexcept {
+  template <typename T> REFLECT_API inline void print(const T &obj) noexcept {
     try {
       std::cout << obj;
     } catch (const std::exception &e) {
@@ -51,7 +51,7 @@ public:
     }
   };
 
-  template <typename T> CTOAST_API inline void println(const T &obj) {
+  template <typename T> REFLECT_API inline void println(const T &obj) {
     try {
       std::cout << obj << std::endl;
     } catch (const std::exception &e) {
@@ -61,7 +61,7 @@ public:
   ;
 
   template <typename T>
-  CTOAST_API inline void error(const T &obj, std::string ctx = "default") {
+  REFLECT_API inline void error(const T &obj, std::string ctx = "default") {
     try {
       std::cerr << "[ERROR] " << "[" << ctx << "]: " << obj << std::endl;
     } catch (const std::exception &e) {
@@ -70,7 +70,7 @@ public:
   };
 
   template <typename T>
-  CTOAST_API inline void info(const T &obj, std::string ctx = "default") {
+  REFLECT_API inline void info(const T &obj, std::string ctx = "default") {
     try {
       std::cout << "[INFO] " << "[" << ctx << "]: " << obj << std::endl;
 
@@ -80,7 +80,7 @@ public:
   };
 
   template <typename T>
-  CTOAST_API inline void warn(const T &obj, std::string ctx = "default") {
+  REFLECT_API inline void warn(const T &obj, std::string ctx = "default") {
     try {
       std::cout << "[WARN] " << "[" << ctx << "]: " << obj << std::endl;
     } catch (const std::exception &e) {
@@ -89,14 +89,14 @@ public:
   };
 
   template <typename T>
-  CTOAST_API inline void debug(const T &obj, std::string ctx = "default") {
+  REFLECT_API inline void debug(const T &obj, std::string ctx = "default") {
     try {
-      if (ctoast console::getDebugEnabled())
+      if (reflect::console::getDebugEnabled())
         std::cout << "[DEBUG] " << "[" << ctx << "]: " << obj << std::endl;
     } catch (const std::exception &e) {
       std::cerr << "[ERROR] [" << __func__ << "] " << e.what() << std::endl;
     }
   };
-  CTOAST_API operator std::streambuf &();
+  REFLECT_API operator std::streambuf &();
 };
-} // namespace cinnamontoast
+} // namespace reflect

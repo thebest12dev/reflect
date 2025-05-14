@@ -1,7 +1,7 @@
 #include "LogUtil.h"
 #include "Console.h"
 #include "LogInstance.h"
-namespace cinnamontoast {
+namespace reflect {
 namespace {
 
 static LogInstance globalLogInstance;
@@ -12,6 +12,6 @@ inline void utilities::initLogs() {
   globalLogInstance.setLogBuffer(&globalLogBuffer);
   globalLogInstance.initialize();
   console::setLogInstance(globalLogInstance);
-  ctoastDebug("enabled logs!");
+  reflectDebug("enabled logs!");
 }
-} // namespace cinnamontoast
+} // namespace reflect

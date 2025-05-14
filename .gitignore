@@ -146,7 +146,7 @@ _TeamCity*
 # Coverlet is a free, cross platform Code Coverage Tool
 coverage*.json
 coverage*.xml
-coverage*.ctoastInfo
+coverage*.info
 
 # Visual Studio code coverage results
 *.coverage
@@ -219,7 +219,7 @@ rcf/
 AppPackages/
 BundleArtifacts/
 Package.StoreAssociation.xml
-_pkgctoastInfo.txt
+_pkginfo.txt
 *.appx
 *.appxbundle
 *.appxupload

@@ -1,7 +1,7 @@
 <img src="./resources/pctoast.png">
 
-# Project "CinnamonToast"
-Project CinnamonToast (as referred by it's codename) is a project that creates a cross-platform UI framework that's fast, modern and easy to work with. It's based on .xml and shared library files, separating the declaration from the definition. as well as an IDE (CinnamonToast IDE) written in .NET. 
+# Reflect
+Reflect is a project that creates a cross-platform UI framework that's fast, modern and easy to work with. It's based on .xml and shared library files, separating the declaration from the definition. as well as an IDE (Reflect IDE) written in .NET. 
 Since the codebase is all written in C++, for a more user-friendly approach, we'll be using a custom IDE with support for drag-and-drop elements (like Visual Studio Designer) and also support for Lua, as an external library though this may add extra overhead to the codebase.
 
 Currently, since its a very early project, there are still a TON of problems (like memory leaks, performance issues or UI issues) that will be addressed in the future.
@@ -31,31 +31,31 @@ For the implementation (written in Lua), insert:
 -- main.lua
 
 print("Loaded!")
-local label = CinnamonToast.getComponentById("label1")
+local label = Reflect.getComponentById("label1")
 print(label.getText())
 
 ```
 
 or you can directly use C++ (faster, but more complicated):
 ```cpp
-#include <CToastAPI.h> // CinnamonToast API
+#include <ReflectAPI.h> // Reflect API
 #include <string>
 #include <iostream>
 #include <windows.h>
-extern "C" __declspec(dllexport) void CToastMain(cinnamontoast::CToastAPI* api) {
+extern "C" __declspec(dllexport) void ReflectMain(reflect::ReflectAPI* api) {
     std::cout << "Loaded!" << std::endl;
-    cinnamontoast::ComponentId id = api->GetComponentById("label1");
+    reflect::ComponentId id = api->GetComponentById("label1");
     const char* string = api->GetComponentText(id);
     std::cout << string << std::endl;
 };
 ```
 
 ## Building
-To build CinnamonToast, you need CMake and a C++ compiler (like MSVC, or g++). Then simply do these steps:
+To build Reflect, you need CMake and a C++ compiler (like MSVC, or g++). Then simply do these steps:
 ### If using Visual Studio IDE
 1. Open the project in Visual Studio
 2. Select the configuration (Debug or Release)
-3. Select ctoasti.exe as the target
+3. Select reflecti.exe as the target
 4. Finally, build the project (as it will be automatically be built)
 
 ### If using plain CMake and VS Build Tools
@@ -81,9 +81,9 @@ cmake --build . --config Release
 5. Run `cmake . -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=<path to vcpkg.cmake> -DTRIPLET=x64-linux`
 6. Run `ninja`
 
-This will build the project and create the launcher (ctoasti) as well as the shared libraries (CinnamonToast.Core, etc.) that you can link with your projects.
+This will build the project and create the launcher (reflecti) as well as the shared libraries (Reflect.Core, etc.) that you can link with your projects.
 
 ## Security and sandboxing
 For native code, there isn't any sandboxing, so beware of malicious programs. 
 
-For Lua, it's fully sandboxed, so it won't be able to access the filesystem or any other system resources. It can only access the CinnamonToast API and the Lua standard library.
+For Lua, it's fully sandboxed, so it won't be able to access the filesystem or any other system resources. It can only access the Reflect API and the Lua standard library.

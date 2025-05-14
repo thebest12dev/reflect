@@ -24,8 +24,9 @@
 #include <VersionHelpers.h>
 #include <windows.h>
 #endif
-namespace cinnamontoast {
-std::vector<std::string> ctoast utilities::cstrArrToVector(const char *arr[]) {
+namespace reflect {
+
+std::vector<std::string> utilities::cstrArrToVector(const char *arr[]) {
   std::vector<std::string> vec;
 
   // Iterate through the array until the end (null pointer)
@@ -35,8 +36,8 @@ std::vector<std::string> ctoast utilities::cstrArrToVector(const char *arr[]) {
 
   return vec;
 }
-std::vector<std::string> ctoast utilities::splitString(std::string str,
-                                                       char delimiter) {
+std::vector<std::string> utilities::splitString(std::string str,
+                                                char delimiter) {
   std::vector<std::string> result;
   std::string token;
   for (char ch : str) {
@@ -56,8 +57,8 @@ std::vector<std::string> ctoast utilities::splitString(std::string str,
 }
 
 #ifdef _WIN32
-HFONT ctoast utilities::getFont(std::string fontName, int size, int fontWeight,
-                                bool italic, bool underline, bool strikeout) {
+HFONT utilities::getFont(std::string fontName, int size, int fontWeight,
+                         bool italic, bool underline, bool strikeout) {
 
   HFONT hFont = CreateFont(size,                // Height of font
                            0,                   // Width of font (0 for default)
@@ -77,20 +78,20 @@ HFONT ctoast utilities::getFont(std::string fontName, int size, int fontWeight,
 
   return hFont;
 }
-std::string ctoast utilities::getLastErrorAsString() {
-  DWORD ctoastErrorMessageID =
-      ::GetLastError(); // Get the last ctoastError code
-  if (ctoastErrorMessageID == 0) {
-    return "No ctoastError"; // No ctoastError occurred
+std::string utilities::getLastErrorAsString() {
+  DWORD reflectErrorMessageID =
+      ::GetLastError(); // Get the last reflectError code
+  if (reflectErrorMessageID == 0) {
+    return "No error"; // No reflectError occurred
   }
 
   LPSTR messageBuffer = nullptr;
 
-  // Format the ctoastError message
+  // Format the reflectError message
   size_t size = FormatMessageA(
       FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
           FORMAT_MESSAGE_IGNORE_INSERTS,
-      NULL, ctoastErrorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+      NULL, reflectErrorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
       (LPSTR)&messageBuffer, 0, NULL);
 
   std::string message(messageBuffer, size);
@@ -104,7 +105,7 @@ std::string ctoast utilities::getLastErrorAsString() {
 #ifdef _WIN32
 #include <sstream>
 #include <windows.h>
-std::string ctoast utilities::getOSPlatformAndVersion() {
+std::string utilities::getOSPlatformAndVersion() {
   std::stringstream ss;
   if (IsWindows10OrGreater()) {
     ss << "Windows 10";
@@ -126,7 +127,7 @@ std::string ctoast utilities::getOSPlatformAndVersion() {
 #include <sstream>
 #include <sys/utsname.h>
 
-std::string ctoast utilities::GetOSPlatformAndVersion() {
+std::string reflect::utilities::GetOSPlatformAndVersion() {
   struct utsname buffer;
   std::stringstream ss;
   if (uname(&buffer) == 0) {
@@ -137,4 +138,4 @@ std::string ctoast utilities::GetOSPlatformAndVersion() {
 }
 #endif
 
-} // namespace cinnamontoast
+} // namespace reflect

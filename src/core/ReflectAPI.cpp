@@ -17,7 +17,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 typedef unsigned char byte;
-#include "CToastAPI.h"
+#include "ReflectAPI.h"
 #include "Console.h"
 #include "ui/Button.h"
 #include "ui/Component.h"
@@ -27,7 +27,7 @@ typedef unsigned char byte;
 #include <Windows.h>
 #include <iostream>
 #include <vector>
-using namespace cinnamontoast;
+using namespace reflect;
 namespace {
 std::vector<const char *> cull = {};
 }
@@ -45,8 +45,9 @@ const char *ExternalAPI::getComponentText(ComponentId ref) {
   }
 
   // Attempt dynamic_cast to TextComponent*
-  TextComponent *comp = fastCast<TextComponent>(
-      Components::getComponentById(cull[ref - 1]), CTOAST_OBJECT_TEXTCOMPONENT);
+  TextComponent *comp =
+      fastCast<TextComponent>(Components::getComponentById(cull[ref - 1]),
+                              REFLECT_OBJECT_TEXTCOMPONENT);
   // Label *label = dynamic_cast<Label *>(comp);
   if (comp) {
 
@@ -55,7 +56,7 @@ const char *ExternalAPI::getComponentText(ComponentId ref) {
 
     return textc;
   } else {
-    ctoastWarn("cast for component failed! (nullptr)");
+    reflectWarn("cast for component failed! (nullptr)");
     return nullptr; // Return null if the cast fails
   }
 }
@@ -96,7 +97,7 @@ bool ExternalAPI::setComponentColor(ComponentId component, uint8_t r, uint8_t g,
     comp->setColor(r, g, b);
     return true;
   } else {
-    ctoastWarn("cast for component failed! (nullptr)");
+    reflectWarn("cast for component failed! (nullptr)");
     return false; // Return false if the cast fails
   }
 }
@@ -117,7 +118,7 @@ bool ExternalAPI::setOnClick(ComponentId comp1,
     comp->onClick(staticWrapper);
     return true;
   } else {
-    ctoastWarn("cast for component failed! (nullptr)");
+    reflectWarn("cast for component failed! (nullptr)");
     return false; // Return false if the cast fails
   }
 }
@@ -134,7 +135,7 @@ bool ExternalAPI::addComponent(ComponentId parent, ComponentId child) {
     parentComp->add(*childComp);
     return true;
   } else {
-    ctoastWarn("cast for component failed! (nullptr)");
+    reflectWarn("cast for component failed! (nullptr)");
     return false; // Return false if the cast fails
   }
 }
@@ -151,7 +152,7 @@ bool ExternalAPI::setComponentVisibleCommand(ComponentId comp, uint8_t cmd) {
     compComp->setVisible(cmd);
     return true;
   } else {
-    ctoastWarn("cast for component failed! (nullptr)");
+    reflectWarn("cast for component failed! (nullptr)");
     return false; // Return false if the cast fails
   }
 }
@@ -168,13 +169,13 @@ bool ExternalAPI::setComponentVisible(ComponentId comp, bool flag) {
     compComp->setVisible(flag);
     return true;
   } else {
-    ctoastWarn("cast for component failed! (nullptr)");
+    reflectWarn("cast for component failed! (nullptr)");
     return false; // Return false if the cast fails
   }
 }
 
 // ExternalAPI::SetComponentFont
-bool ExternalAPI::setComponentFont(ComponentId comp2, CToastString font) {
+bool ExternalAPI::setComponentFont(ComponentId comp2, ReflectString font) {
   // Ensure the font is not null
   if (font == nullptr) {
     return false; // Return false if invalid
@@ -186,7 +187,7 @@ bool ExternalAPI::setComponentFont(ComponentId comp2, CToastString font) {
     comp->setFont(font);
     return true;
   } else {
-    ctoastWarn("cast for component failed! (nullptr)");
+    reflectWarn("cast for component failed! (nullptr)");
     return false; // Return false if the cast fails
   }
 }
@@ -203,7 +204,7 @@ bool ExternalAPI::setComponentFontSize(ComponentId comp_, uint8_t fontSize) {
     comp->setFontSize(fontSize);
     return true;
   } else {
-    ctoastWarn("cast for component failed! (nullptr)");
+    reflectWarn("cast for component failed! (nullptr)");
     return false; // Return false if the cast fails
   }
 }

@@ -17,7 +17,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef CTOAST_TESTS
+#ifndef REFLECT_TESTS
 // set byte to unsigned char to prevent ambiguity
 using byte = unsigned char;
 
@@ -33,16 +33,15 @@ using byte = unsigned char;
 #include "../core/memory/HeapPool.h"
 #include "Main.h"
 #include "Utilities.h"
-#ifdef CTOAST_NO_CONSOLE
+#ifdef REFLECT_NO_CONSOLE
 // use windows APIs intead of int main
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
-  // expression to load ctoast
-  cinnamontoast::LogBuffer logbuf;
+  // expression to load reflect
+  reflect::LogBuffer logbuf;
   std::cout.rdbuf(&logbuf);
-  return cinnamontoast::cliMain(__argc,
-                                cinnamontoast::utilities::cstrArrToVector(
-                                    const_cast<const char **> __argv));
+  return reflect::cliMain(__argc, reflect::utilities::cstrArrToVector(
+                                      const_cast<const char **> __argv));
 }
 #else
 // main function
@@ -51,11 +50,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 #include "Console.h"
 int main(int argc, char const *argv[]) {
-  // expression to load ctoast
+  // expression to load reflect
 
-  cinnamontoast::utilities::initLogs();
-  return cinnamontoast::cliMain(
-      argc, cinnamontoast::utilities::cstrArrToVector(argv));
+  reflect::utilities::initLogs();
+  return reflect::cliMain(argc, reflect::utilities::cstrArrToVector(argv));
 }
 #endif
 

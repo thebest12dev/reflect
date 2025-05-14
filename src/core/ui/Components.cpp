@@ -23,10 +23,10 @@
 #include "TypeDefinitions.h"
 #include <iostream>
 #include <map>
-using namespace cinnamontoast;
+using namespace reflect;
 std::map<std::string, Component *> Components::gchildren;
 
-Component *ctoast Components::getComponentById(std::string id) {
+Component *reflect::Components::getComponentById(std::string id) {
 
   return (Component *)Components::gchildren[id];
 }

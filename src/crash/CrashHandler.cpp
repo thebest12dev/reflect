@@ -21,7 +21,7 @@
 #include <iostream>
 #ifdef _WIN32
 #include <windows.h>
-using namespace cinnamontoast;
+using namespace reflect;
 
 // Internal functions
 namespace {
@@ -43,7 +43,7 @@ LONG WINAPI signalHandler(EXCEPTION_POINTERS *ExceptionInfo) {
 };
 } // namespace
 
-namespace cinnamontoast {
+namespace reflect {
 CrashHandler *CrashManager::handler = nullptr;
 void CrashManager::setActiveCrashHandler(CrashHandler *handler_) {
   if (handler != nullptr) {
@@ -82,10 +82,9 @@ void CrashHandler::invokeUnhandledExceptionCrash(std::exception &ex) {
     }
     std::cout << "[FATAL] [invokeUnhandledExceptionCrash]: Program crashed! "
               << std::endl;
-    std::cout
-        << "[FATAL] [invokeUnhandledExceptionCrash]: Printing ctoastError and "
-           "showing message! "
-        << std::endl;
+    std::cout << "[FATAL] [invokeUnhandledExceptionCrash]: Printing error and "
+                 "showing message! "
+              << std::endl;
     std::cout << "[FATAL] [<exception>]: " << ex.what() << std::endl;
     MessageBox(NULL,
                "The program crashed due to an unhandled exception. "
@@ -121,15 +120,15 @@ void CrashHandler::deactivate() {
 void CrashHandler::setUnhandledExceptionCrashFunction(CrashFunction function) {
   customCrash = function;
 }
-} // namespace cinnamontoast
+} // namespace reflect
 #elif __linux__
-#include <execctoastInfo.h>
+#include <execreflectInfo.h>
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
 
-namespace cinnamontoast {
+namespace reflect {
 
 // Internal functions
 namespace {
@@ -198,7 +197,7 @@ void CrashHandler::invokeUnhandledExceptionCrash(std::exception &ex) {
     std::cerr << "[FATAL] [invokeUnhandledExceptionCrash]: Program crashed! "
               << std::endl;
     std::cerr
-        << "[FATAL] [invokeUnhandledExceptionCrash]: Printing ctoastError and "
+        << "[FATAL] [invokeUnhandledExceptionCrash]: Printing reflectError and "
            "showing message! "
         << std::endl;
     std::cerr << "[FATAL] [<exception>]: " << ex.what() << std::endl;
@@ -238,5 +237,5 @@ void CrashHandler::setUnhandledExceptionCrashFunction(CrashFunction function) {
   customCrash = function;
 }
 
-} // namespace cinnamontoast
+} // namespace reflect
 #endif

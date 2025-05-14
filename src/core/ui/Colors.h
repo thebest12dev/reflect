@@ -21,7 +21,7 @@
 namespace {
 float value0 = 0.0f;
 }
-namespace cinnamontoast {
+namespace reflect {
 struct Color3 {
   unsigned char r, g, b;
   Color3() : r(0), g(0), b(0) {}
@@ -66,4 +66,4 @@ struct Color3Float {
   }
 };
 typedef unsigned char Color3Array[3];
-} // namespace cinnamontoast
+} // namespace reflect

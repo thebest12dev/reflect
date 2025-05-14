@@ -24,7 +24,7 @@
 #include "TypeDefinitions.h"
 #include <string>
 
-namespace cinnamontoast {
+namespace reflect {
 class MenuBar : public Component {
 protected:
   HINSTANCE winstance;
@@ -39,14 +39,14 @@ protected:
 private:
 public:
   friend class Component;
-  CTOAST_API void render(HWND &parentHWND, HWND &windowHWND);
-  // CTOAST_API void SetVisible(bool flag);
-  CTOAST_API void add(Component &comp);
-  CTOAST_API MenuBar();
-  // CTOAST_API void SetVisible(int cmd);
-  // CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
+  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
+  // REFLECT_API void SetVisible(bool flag);
+  REFLECT_API void add(Component &comp);
+  REFLECT_API MenuBar();
+  // REFLECT_API void SetVisible(int cmd);
+  // REFLECT_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
 };
-} // namespace cinnamontoast
+} // namespace reflect
 
 #elif __linux__
 #pragma once
@@ -58,7 +58,7 @@ public:
 #include "TypeDefinitions.h"
 #include "Vector2.h"
 #include <string>
-namespace cinnamontoast {
+namespace reflect {
 class MenuBar : public Component {
 protected:
   Display *winstance;
@@ -73,13 +73,13 @@ protected:
 private:
 public:
   friend class Component;
-  CTOAST_API void render(HWND &parentHWND, HWND &windowHWND);
-  // CTOAST_API void SetVisible(bool flag);
-  CTOAST_API void add(Component &comp);
-  CTOAST_API MenuBar();
-  // CTOAST_API void SetVisible(int cmd);
-  // CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
+  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
+  // REFLECT_API void SetVisible(bool flag);
+  REFLECT_API void add(Component &comp);
+  REFLECT_API MenuBar();
+  // REFLECT_API void SetVisible(int cmd);
+  // REFLECT_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
 };
-} // namespace cinnamontoast
+} // namespace reflect
 
 #endif

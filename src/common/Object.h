@@ -1,7 +1,7 @@
 #pragma once
 #include "TypeDefinitions.h"
 #include <string>
-namespace cinnamontoast {
+namespace reflect {
 
 using ObjectUID = unsigned int;
 class Object {
@@ -11,13 +11,13 @@ private:
 
 protected:
   virtual void initializeObject(ObjectUID uid,
-                                ObjectUID parent = CTOAST_OBJECT_OBJECT) final;
+                                ObjectUID parent = REFLECT_OBJECT_OBJECT) final;
 
 public:
-  CTOAST_API Object();
-  CTOAST_API virtual inline std::string toString() noexcept;
-  CTOAST_API virtual inline unsigned int getUID() const noexcept;
-  CTOAST_API virtual ~Object() = 0;
+  REFLECT_API Object();
+  REFLECT_API virtual inline std::string toString() noexcept;
+  REFLECT_API virtual inline unsigned int getUID() const noexcept;
+  REFLECT_API virtual ~Object() = 0;
 
   friend void setUidToParent(Object &obj, ObjectUID parentUid);
   template <typename T>
@@ -49,4 +49,4 @@ T *fastCast(Object *comp, ObjectUID expectedType) {
   return nullptr; // No match found in the ancestry
 };
 void setUidToParent(Object &obj, ObjectUID parentUid);
-} // namespace cinnamontoast
+} // namespace reflect

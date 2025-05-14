@@ -25,7 +25,7 @@ namespace {
 bool debugEnabled = false;
 } // namespace
 
-namespace cinnamontoast {
+namespace reflect {
 
 /**
  * @brief Enables or disables debug logging.
@@ -44,4 +44,4 @@ inline void console::setLogInstance(LogInstance inst) {
   std::cout.rdbuf(&(std::streambuf &)inst);
   std::cerr.rdbuf(&(std::streambuf &)inst);
 };
-} // namespace cinnamontoast
+} // namespace reflect

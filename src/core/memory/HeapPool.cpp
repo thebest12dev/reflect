@@ -2,9 +2,9 @@
 #include "Console.h"
 #include <new>
 namespace {
-cinnamontoast::HeapPool *heapPool = nullptr; // Pointer to a HeapPool instance
+reflect::HeapPool *heapPool = nullptr; // Pointer to a HeapPool instance
 }
-namespace cinnamontoast {
+namespace reflect {
 
 // Function to initialize heapPool
 void initializeHeapPool(size_t size) {
@@ -40,8 +40,8 @@ HeapPool::HeapPool(size_t size) : poolSize(size) {
   std::memset(pool, 0, poolSize);
   loc = pool;
 
-  ctoastDebug("allocated " + std::to_string(poolSize / 1024 / 1024) +
-              "mb of memory for heap pool!");
+  reflectDebug("allocated " + std::to_string(poolSize / 1024 / 1024) +
+               "mb of memory for heap pool!");
 }
 
 HeapPool::~HeapPool() {
@@ -84,11 +84,11 @@ void HeapPool::deallocate(void *ptr, std::size_t size) {
   freeList = block;
   usedMemory -= size; // Increase used memory
 };
-} // namespace cinnamontoast
+} // namespace reflect
 // Overriding new/delete operators
 // void *operator new(std::size_t size) {
 //  if (!heapPool) {
-//    cinnamontoast::initializeHeapPool();
+//    reflect::initializeHeapPool();
 //  }
 //  void *ptr = heapPool->allocate(size);
 //  if (!ptr) {
@@ -100,7 +100,7 @@ void HeapPool::deallocate(void *ptr, std::size_t size) {
 //
 // void operator delete(void *ptr) noexcept {
 //  if (!heapPool) {
-//    cinnamontoast::initializeHeapPool();
+//    reflect::initializeHeapPool();
 //  }
 //  heapPool->deallocate(ptr, sizeof(ptr));
 //  std::cout << "Deallocated memory at " << ptr << "\n";
@@ -108,7 +108,7 @@ void HeapPool::deallocate(void *ptr, std::size_t size) {
 //
 // void *operator new[](std::size_t size) {
 //  if (!heapPool) {
-//    cinnamontoast::initializeHeapPool();
+//    reflect::initializeHeapPool();
 //  }
 //  void *ptr = heapPool->allocate(size);
 //  std::cout << "Allocated memory at " << ptr << "\n";
@@ -117,7 +117,7 @@ void HeapPool::deallocate(void *ptr, std::size_t size) {
 //
 // void operator delete[](void *ptr) noexcept {
 //  if (!heapPool) {
-//    cinnamontoast::initializeHeapPool();
+//    reflect::initializeHeapPool();
 //  }
 //  heapPool->deallocate(ptr, sizeof(ptr));
 //  std::cout << "Deallocated memory at " << ptr << "\n";

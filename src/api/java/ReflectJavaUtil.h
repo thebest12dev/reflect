@@ -16,15 +16,15 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifndef _CTOAST_JAVA_UTIL_H
-#define _CTOAST_JAVA_UTIL_H
+#ifndef _REFLECT_JAVA_UTIL_H
+#define _REFLECT_JAVA_UTIL_H
 
 /**
  * @brief A macro to define the Java function name.
  */
-#define JavaFunction(clazz, method) Java_ctoast4j_##clazz##_##method
+#define JavaFunction(clazz, method) Java_reflect4j_##clazz##_##method
 /**
  * @brief A macro to quickly define the JNI parameters.
  */
 #define JNI_PARAM_DECL JNIEnv *env, jclass clazz
-#endif // !_CTOAST_JAVA_UTIL_H
+#endif // !_REFLECT_JAVA_UTIL_H

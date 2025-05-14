@@ -1,8 +1,8 @@
 #pragma once
 #include "TypeDefinitions.h"
 
-namespace cinnamontoast {
+namespace reflect {
 namespace utilities {
-CTOAST_API inline void initLogs();
+REFLECT_API inline void initLogs();
 }
-} // namespace cinnamontoast
+} // namespace reflect

@@ -1,6 +1,6 @@
 #include "Object.h"
 
-namespace cinnamontoast {
+namespace reflect {
 std::map<int, int> Object::parentOf;
 Object::Object() {};
 unsigned int Object::getUID() const noexcept { return uid; }
@@ -35,4 +35,4 @@ void Object::initializeObject(ObjectUID uid_, ObjectUID parent) {
 //   return nullptr; // No match found in the ancestry
 // }
 // template Object *fastCast<Object>(Object *comp, ObjectUID expectedType);
-} // namespace cinnamontoast
+} // namespace reflect

@@ -12,11 +12,11 @@ VS_VERSION_INFO VERSIONINFO
         "StringFileInfo" BEGIN BLOCK
             "040904B0" // Language and code page (040904B0 = English, Unicode)
             BEGIN VALUE "FileDescription",
-            "CinnamonToast Core" VALUE "InternalName",
-            "CinnamonToast.Core" VALUE "LegalCopyright",
+            "Reflect Core" VALUE "InternalName",
+            "Reflect.Core" VALUE "LegalCopyright",
             "Copyright © 2025 thebest12lines" VALUE "OriginalFilename",
-            "CinnamonToast.Core.dll" VALUE "ProductName",
-            "CinnamonToast" END END
+            "Reflect.Core.dll" VALUE "ProductName",
+            "Reflect" END END
 
             BLOCK "VarFileInfo" BEGIN VALUE "Translation",
             0x0409,

@@ -24,7 +24,7 @@
 #include "TypeDefinitions.h"
 #include <string>
 
-namespace cinnamontoast {
+namespace reflect {
 class MenuItem : public TextComponent {
 protected:
   HINSTANCE winstance;
@@ -43,20 +43,20 @@ private:
 
 public:
   friend class Component;
-  CTOAST_API void render(HWND &parentHWND, HWND &windowHWND);
-  CTOAST_API void setVisible(bool flag);
-  CTOAST_API void add(MenuItem &comp);
-  CTOAST_API void setText(std::string contents);
-  CTOAST_API MenuItem(std::string contents);
-  CTOAST_API MenuItem();
-  CTOAST_API void setVisible(int cmd);
-  CTOAST_API void setFontSize(int size) override;
-  CTOAST_API void setFont(std::string font) override;
-  CTOAST_API std::string getText() override;
-  CTOAST_API void setColor(uint8_t r, uint8_t g, uint8_t b);
+  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
+  REFLECT_API void setVisible(bool flag);
+  REFLECT_API void add(MenuItem &comp);
+  REFLECT_API void setText(std::string contents);
+  REFLECT_API MenuItem(std::string contents);
+  REFLECT_API MenuItem();
+  REFLECT_API void setVisible(int cmd);
+  REFLECT_API void setFontSize(int size) override;
+  REFLECT_API void setFont(std::string font) override;
+  REFLECT_API std::string getText() override;
+  REFLECT_API void setColor(uint8_t r, uint8_t g, uint8_t b);
   friend class MenuBar;
 };
-} // namespace cinnamontoast
+} // namespace reflect
 
 #elif __linux__
 #pragma once
@@ -68,7 +68,7 @@ public:
 #include "Component.h"
 #include "Vector2.h"
 #include <string>
-namespace cinnamontoast {
+namespace reflect {
 class Label : public Component {
 protected:
   Vector2 position;
@@ -82,19 +82,19 @@ private:
 
 public:
   friend class Component;
-  CTOAST_API void SetVisible(bool flag);
-  CTOAST_API bool GetVisible();
-  CTOAST_API void Add(Component comp);
-  CTOAST_API Label();
-  CTOAST_API Label(std::string contents, Vector2 pos);
-  CTOAST_API void SetVisible(int cmd);
-  CTOAST_API void SetFontSize(int size);
-  CTOAST_API std::string GetText();
-  CTOAST_API std::string GetProperty(std::string property) override;
-  CTOAST_API void SetFont(std::string font);
-  CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
+  REFLECT_API void SetVisible(bool flag);
+  REFLECT_API bool GetVisible();
+  REFLECT_API void Add(Component comp);
+  REFLECT_API Label();
+  REFLECT_API Label(std::string contents, Vector2 pos);
+  REFLECT_API void SetVisible(int cmd);
+  REFLECT_API void SetFontSize(int size);
+  REFLECT_API std::string GetText();
+  REFLECT_API std::string GetProperty(std::string property) override;
+  REFLECT_API void SetFont(std::string font);
+  REFLECT_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
   friend class Window;
 };
-} // namespace cinnamontoast
+} // namespace reflect
 
 #endif

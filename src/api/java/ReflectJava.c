@@ -16,19 +16,19 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#include "CToastJava.h"
-#include "../cstyle/CToastCExtern.h"
-#include "CToastJavaUtil.h"
+#include "ReflectJava.h"
+#include "../cstyle/ReflectCExtern.h"
+#include "ReflectJavaUtil.h"
 #include <jni.h>
 
-JNIEXPORT jint JNICALL JavaFunction(CToastNative,
+JNIEXPORT jint JNICALL JavaFunction(ReflectNative,
                                     getReferenceById)(JNI_PARAM_DECL,
                                                       jstring id) {
   // Convert jstring to const char*
   const char *nativeId = (*env)->GetStringUTFChars(env, id, 0);
 
   // Get the component reference using the nativeId
-  CToastComponent ref = CToast_getComponentById(nativeId);
+  ReflectComponent ref = Reflect_getComponentById(nativeId);
 
   // Release the jstring memory
   (*env)->ReleaseStringUTFChars(env, id, nativeId);
@@ -37,19 +37,19 @@ JNIEXPORT jint JNICALL JavaFunction(CToastNative,
   return (jint)ref.id;
 }
 
-JNIEXPORT jstring JNICALL JavaFunction(CToastNative, getText)(JNI_PARAM_DECL,
-                                                              jint ref) {
-  CToastComponent comp;
+JNIEXPORT jstring JNICALL JavaFunction(ReflectNative, getText)(JNI_PARAM_DECL,
+                                                               jint ref) {
+  ReflectComponent comp;
   comp.id = (uint8_t)ref;
-  return (*env)->NewStringUTF(env, CToast_getText(comp));
+  return (*env)->NewStringUTF(env, Reflect_getText(comp));
 }
 
-JNIEXPORT void JNICALL JavaFunction(CToastNative, addComp)(JNI_PARAM_DECL,
-                                                           jint parentRef,
-                                                           jint compRef) {
-  CToastComponent comp1;
+JNIEXPORT void JNICALL JavaFunction(ReflectNative, addComp)(JNI_PARAM_DECL,
+                                                            jint parentRef,
+                                                            jint compRef) {
+  ReflectComponent comp1;
   comp1.id = (uint8_t)parentRef;
-  CToastComponent comp2;
+  ReflectComponent comp2;
   comp2.id = (uint8_t)compRef;
-  CToast_addComponent(comp1, comp2);
+  Reflect_addComponent(comp1, comp2);
 }

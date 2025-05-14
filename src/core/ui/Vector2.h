@@ -21,34 +21,34 @@
 #include "TypeDefinitions.h"
 #include <vector>
 
-namespace cinnamontoast {
+namespace reflect {
 
 struct Vector2 {
 public:
-  CTOAST_API Vector2();
-  CTOAST_API Vector2(int x, int y);
+  REFLECT_API Vector2();
+  REFLECT_API Vector2(int x, int y);
 
   // Arithmetic operators
-  CTOAST_API Vector2 operator+(const Vector2 &vec) const noexcept;
-  CTOAST_API Vector2 operator-(const Vector2 &vec) const noexcept;
-  CTOAST_API Vector2 operator*(const Vector2 &vec) const noexcept;
-  CTOAST_API Vector2 operator/(const Vector2 &vec) const noexcept;
+  REFLECT_API Vector2 operator+(const Vector2 &vec) const noexcept;
+  REFLECT_API Vector2 operator-(const Vector2 &vec) const noexcept;
+  REFLECT_API Vector2 operator*(const Vector2 &vec) const noexcept;
+  REFLECT_API Vector2 operator/(const Vector2 &vec) const noexcept;
 
   // Compound assignment
-  CTOAST_API Vector2 &operator+=(const Vector2 &vec) noexcept;
-  CTOAST_API Vector2 &operator-=(const Vector2 &vec) noexcept;
-  CTOAST_API Vector2 &operator*=(const Vector2 &vec) noexcept;
-  CTOAST_API Vector2 &operator/=(const Vector2 &vec) noexcept;
+  REFLECT_API Vector2 &operator+=(const Vector2 &vec) noexcept;
+  REFLECT_API Vector2 &operator-=(const Vector2 &vec) noexcept;
+  REFLECT_API Vector2 &operator*=(const Vector2 &vec) noexcept;
+  REFLECT_API Vector2 &operator/=(const Vector2 &vec) noexcept;
 
   // Bitwise shift
-  CTOAST_API Vector2 operator<<(int shift) const noexcept;
-  CTOAST_API Vector2 operator>>(int shift) const noexcept;
+  REFLECT_API Vector2 operator<<(int shift) const noexcept;
+  REFLECT_API Vector2 operator>>(int shift) const noexcept;
 
   // Bitwise logic
-  CTOAST_API Vector2 operator&(const Vector2 &vec) const noexcept;
-  CTOAST_API Vector2 operator|(const Vector2 &vec) const noexcept;
-  CTOAST_API explicit operator std::vector<int>() const noexcept;
+  REFLECT_API Vector2 operator&(const Vector2 &vec) const noexcept;
+  REFLECT_API Vector2 operator|(const Vector2 &vec) const noexcept;
+  REFLECT_API explicit operator std::vector<int>() const noexcept;
   int x, y;
 };
 
-} // namespace cinnamontoast
+} // namespace reflect
