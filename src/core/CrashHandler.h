@@ -28,7 +28,7 @@
 #define CRASH_SEGFAULT 0x1
 typedef void (*CrashFunction)();
 
-namespace CinnamonToast {
+namespace reflect {
 struct CrashConfig {
   uint32_t messageType;
   uint32_t crashType;
@@ -40,17 +40,18 @@ private:
   bool throwHandle;
   bool throwCrash;
   CrashConfig config;
-  CTOAST_IMPORT void activate();
-  CTOAST_IMPORT void deactivate();
+  REFLECT_IMPORT void activate();
+  REFLECT_IMPORT void deactivate();
 
 public:
-  CTOAST_IMPORT CrashHandler(CrashConfig cf);
-  CTOAST_IMPORT void setCustomCrashHandler(CrashFunction func);
-  CTOAST_IMPORT void invokeCrash(std::string crashMessage);
+  REFLECT_IMPORT CrashHandler(CrashConfig cf);
+  REFLECT_IMPORT void setCustomCrashHandler(CrashFunction func);
+  REFLECT_IMPORT void invokeCrash(std::string crashMessage);
 
   // Note: explicitly need to define try-catch block and to call this method
-  CTOAST_IMPORT void invokeUnhandledExceptionCrash(std::exception &ex);
-  CTOAST_IMPORT void setUnhandledExceptionCrashFunction(CrashFunction function);
+  REFLECT_IMPORT void invokeUnhandledExceptionCrash(std::exception &ex);
+  REFLECT_IMPORT void
+  setUnhandledExceptionCrashFunction(CrashFunction function);
 
   friend class CrashManager;
 };
@@ -59,10 +60,10 @@ private:
   static CrashHandler *handler;
 
 public:
-  CTOAST_IMPORT static void setActiveCrashHandler(CrashHandler *handler_);
-  CTOAST_IMPORT static CrashHandler *getActiveCrashHandler();
+  REFLECT_IMPORT static void setActiveCrashHandler(CrashHandler *handler_);
+  REFLECT_IMPORT static CrashHandler *getActiveCrashHandler();
 };
-namespace Utilities {
+namespace utilities {
 bool checkBit(unsigned int num, int n);
 }
-} // namespace CinnamonToast
+} // namespace reflect

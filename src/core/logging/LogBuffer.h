@@ -20,7 +20,7 @@
 #include "TypeDefinitions.h"
 #include <fstream>
 #include <streambuf>
-namespace CinnamonToast {
+namespace reflect {
 // Class to redirect std::cout to a file and console
 class LogBuffer : public std::streambuf {
 public:
@@ -29,7 +29,9 @@ public:
    *
    * Redirects `std::cout` to both the console and a log file.
    */
-  CTOAST_API LogBuffer();
+  REFLECT_API LogBuffer();
+
+  REFLECT_API void setOutputFile(std::string file);
 
 protected:
   /**
@@ -38,17 +40,17 @@ protected:
    * @param c The character to write.
    * @return The written character, or EOF on failure.
    */
-  CTOAST_API int overflow(int c) override;
+  int overflow(int c) override;
   /**
    * @brief Synchronizes the buffer with the output streams.
    *
    * @return 0 on success, -1 on failure.
    */
-  CTOAST_API int sync() override;
+  int sync() override;
 
 private:
   std::streambuf *sb1;
   std::streambuf *sb2;
   std::ofstream fileStream;
 };
-} // namespace CinnamonToast
+} // namespace reflect

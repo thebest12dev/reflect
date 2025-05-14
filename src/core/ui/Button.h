@@ -26,7 +26,7 @@
 #include "TypeDefinitions.h"
 #include "Vector2.h"
 #include <string>
-namespace CinnamonToast {
+namespace reflect {
 class Button : public TextComponent {
 protected:
   HINSTANCE winstance;
@@ -43,26 +43,25 @@ private:
   std::string text;
   std::string fontStr;
   int fontSize;
-  CTOAST_API static LRESULT CALLBACK buttonProc(HWND hwnd, UINT uMsg,
-                                                WPARAM wParam, LPARAM lParam,
-                                                UINT_PTR uIdSubclass,
-                                                DWORD_PTR dwRefData);
+  static LRESULT CALLBACK buttonProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+                                     LPARAM lParam, UINT_PTR uIdSubclass,
+                                     DWORD_PTR dwRefData);
 
 public:
   friend class Component;
-  CTOAST_API void render(HWND &parentHWND, HWND &windowHWND);
-  CTOAST_API void setVisible(bool flag);
-  CTOAST_API void add(Component comp);
-  CTOAST_API Button(std::string contents, Vector2 pos);
-  CTOAST_API void setVisible(int cmd);
-  CTOAST_API void setFontSize(int size);
-  CTOAST_API void setFont(std::string font);
-  CTOAST_API void setText(std::string text);
-  CTOAST_API std::string getText();
-  CTOAST_API void onClick(void (*callback)(Button &));
-  CTOAST_API void setColor(uint8_t r, uint8_t g, uint8_t b);
+  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
+  REFLECT_API void setVisible(bool flag);
+  REFLECT_API void add(Component comp);
+  REFLECT_API Button(std::string contents, Vector2 pos);
+  REFLECT_API void setVisible(int cmd);
+  REFLECT_API void setFontSize(int size);
+  REFLECT_API void setFont(std::string font);
+  REFLECT_API void setText(std::string text);
+  REFLECT_API std::string getText();
+  REFLECT_API void onClick(void (*callback)(Button &));
+  REFLECT_API void setColor(uint8_t r, uint8_t g, uint8_t b);
 };
-} // namespace CinnamonToast
+} // namespace reflect
 #elif __linux__
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -72,7 +71,7 @@ public:
 #include "Component.h"
 #include "Vector2.h"
 #include <string>
-namespace CinnamonToast {
+namespace reflect {
 class Button : public Component {
 protected:
   Display *winstance;
@@ -91,15 +90,15 @@ private:
 
 public:
   friend class Component;
-  CTOAST_API void render(Window &parentWindow, Window &windowWindow);
-  CTOAST_API void setVisible(bool flag);
-  CTOAST_API void add(Component comp);
-  CTOAST_API Button(std::string contents, Vector2 pos);
-  CTOAST_API void setVisible(int cmd);
-  CTOAST_API void setFontSize(int size);
-  CTOAST_API void setFont(std::string font);
-  CTOAST_API void setColor(uint8_t r, uint8_t g, uint8_t b);
+  REFLECT_API void render(Window &parentWindow, Window &windowWindow);
+  REFLECT_API void setVisible(bool flag);
+  REFLECT_API void add(Component comp);
+  REFLECT_API Button(std::string contents, Vector2 pos);
+  REFLECT_API void setVisible(int cmd);
+  REFLECT_API void setFontSize(int size);
+  REFLECT_API void setFont(std::string font);
+  REFLECT_API void setColor(uint8_t r, uint8_t g, uint8_t b);
 };
-} // namespace CinnamonToast
+} // namespace reflect
 
 #endif

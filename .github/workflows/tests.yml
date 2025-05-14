@@ -1,4 +1,4 @@
-name: CinnamonToast Tests
+name: Reflect Tests
 
 on:
   push:

@@ -26,18 +26,18 @@
 #include <string>
 #include <vector>
 
-namespace CinnamonToast {
+namespace reflect {
 /**
  * @brief A namespace primarily for utility functions.
  */
-namespace Utilities {
+namespace utilities {
 /**
  * @brief Converts a C-style string array to a vector of strings.
  *
  * @param arr The C-style string array to convert.
  * @return A vector of strings.
  */
-CTOAST_API std::vector<std::string> cstrArrToVector(const char *arr[]);
+REFLECT_API std::vector<std::string> cstrArrToVector(const char *arr[]);
 
 /**
  * @brief Splits a string into a vector of strings based on a delimiter.
@@ -46,8 +46,8 @@ CTOAST_API std::vector<std::string> cstrArrToVector(const char *arr[]);
  * @param delimiter The character to split the string by.
  * @return A vector of strings.
  */
-CTOAST_API std::vector<std::string> splitString(std::string str,
-                                                char delimiter);
+REFLECT_API std::vector<std::string> splitString(std::string str,
+                                                 char delimiter);
 
 #ifdef _WIN32
 /**
@@ -61,17 +61,17 @@ CTOAST_API std::vector<std::string> splitString(std::string str,
  * @param strikeout Whether the font is struck out. Defaults to false.
  * @return A handle to the created font.
  */
-CTOAST_API HFONT getFont(std::string fontName = DEFAULT_FONT, int size = 16,
-                         int fontWeight = 400, bool italic = false,
-                         bool underline = false, bool strikeout = false);
+REFLECT_API HFONT getFont(std::string fontName = DEFAULT_FONT, int size = 16,
+                          int fontWeight = 400, bool italic = false,
+                          bool underline = false, bool strikeout = false);
 /**
  * @brief Retrieves the last error message as a string.
  */
-CTOAST_API std::string getLastErrorAsString();
+REFLECT_API std::string getLastErrorAsString();
 #endif
 /**
  * @brief Retrieves the current operating system platform and version.
  */
-CTOAST_API std::string getOSPlatformAndVersion();
-} // namespace Utilities
-} // namespace CinnamonToast
+REFLECT_API std::string getOSPlatformAndVersion();
+} // namespace utilities
+} // namespace reflect

@@ -5,7 +5,7 @@
   classname(const classname &) = delete;                                       \
   classname &operator=(const classname &) = delete
 
-namespace CinnamonToast {
+namespace reflect {
 typedef int Extension;
 enum Extensions {
   EXTENSION_NETWORKING = 0x0000,
@@ -17,4 +17,4 @@ public:
   UTILITY(ExtensionManager);
   static constexpr bool isExtensionAvailable(Extension ext);
 };
-} // namespace CinnamonToast
+} // namespace reflect

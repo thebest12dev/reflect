@@ -22,6 +22,7 @@
 #include "Components.h"
 
 #include "Console.h"
+#include "Image.h"
 #include "Label.h"
 #include "MenuBar.h"
 #include "TextComponent.h"
@@ -29,21 +30,21 @@
 #include "Vector2.h"
 #include <iostream>
 #include <string>
+#include <wincodec.h>
 #ifdef _WIN32
 #include "Notification.h"
 #include <cstdio>
 #include <d2d1.h>
 #include <dwmapi.h>
+#include <windowsx.h>
 #pragma comment(lib, "dwmapi.lib")
-using namespace CinnamonToast::Console;
+using namespace reflect::console;
 // Direct2D-specific members
-ID2D1Factory *pFactory = nullptr;
-ID2D1HwndRenderTarget *pRenderTarget = nullptr;
 // Due to floating point operations, may not produce exact color
-void ctoast Window::addStyle(WindowStyle style) {
+void reflect::Window::addStyle(WindowStyle style) {
   switch (style) {
   case STYLE_DARK_TITLE_BAR:
-    ctoastDebug("enabling dark title bar...")
+    reflectDebug("enabling dark title bar...")
         // Enable dark mode title bar
         BOOL dark = TRUE;
     DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &dark,
@@ -60,39 +61,42 @@ void ctoast Window::addStyle(WindowStyle style) {
                           sizeof(backdropType));
   }
 }
-void ctoast Window::setColor(uint8_t r, uint8_t g, uint8_t b) {
+
+void reflect::Window::setColor(uint8_t r, uint8_t g, uint8_t b) {
   this->bgColor[0] = r / 255.0f;
   this->bgColor[1] = g / 255.0f;
   this->bgColor[2] = b / 255.0f;
 }
-CinnamonToast::Vector2 ctoast Window::getSize() { return size; }
+reflect::Vector2 reflect::Window::getSize() { return size; }
 // Due to floating point operations, may not produce exact color
-void ctoast Window::setColor(Color3 color) {
+void reflect::Window::setColor(Color3 color) {
   this->bgColor.r = color.r / 255.0f;
   this->bgColor.g = color.g / 255.0f;
   this->bgColor.b = color.b / 255.0f;
 }
-ctoast Color3 ctoast Window::getColor() {
+reflect::Color3 reflect::Window::getColor() {
   return {static_cast<unsigned char>(bgColor[0] * 255),
           static_cast<unsigned char>(bgColor[1] * 255),
           static_cast<unsigned char>(bgColor[2] * 255)};
 }
 
 // Due to floating point operations, may not produce exact color
-void ctoast Window::setColor(Color3Array color) {
+void reflect::Window::setColor(Color3Array color) {
   this->bgColor[0] = color[0] / 255.0f;
   this->bgColor[1] = color[1] / 255.0f;
   this->bgColor[2] = color[2] / 255.0f;
 }
-void ctoast Window::setRenderLoop(void (*loop)(Window &)) { renderLoop = loop; }
-void initializeDirect2D(HWND hwnd) {
-  if (!pFactory && !pRenderTarget) {
+void reflect::Window::setRenderLoop(void (*loop)(Window &)) {
+  renderLoop = loop;
+}
+void reflect::Window::initializeDirect2D() {
+  if (!this->pFactory && !this->pRenderTarget) {
 
-    ctoastDebug("initializing Direct2D...");
+    reflectDebug("initializing Direct2D...");
     // Create the Direct2D factory
-    if (!pFactory) {
-      ctoastDebug("creating d2d1 factory...");
-      D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory);
+    if (!this->pFactory) {
+      reflectDebug("creating d2d1 factory...");
+      D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &this->pFactory);
     }
 
     // Get window dimensions
@@ -100,18 +104,37 @@ void initializeDirect2D(HWND hwnd) {
     GetClientRect(hwnd, &rc);
 
     // Create the render target
-    ctoastDebug("creating renderer target...");
-    if (!pRenderTarget) {
-      pFactory->CreateHwndRenderTarget(
+    reflectDebug("creating renderer target...");
+    if (!this->pRenderTarget) {
+
+      this->pFactory->CreateHwndRenderTarget(
           D2D1::RenderTargetProperties(),
           D2D1::HwndRenderTargetProperties(
               hwnd, D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top)),
-          &pRenderTarget);
+          &this->pRenderTarget);
     }
+  } else if (!this->pRenderTarget) {
+    RECT rc;
+    GetClientRect(hwnd, &rc);
+
+    // Create the render target
+    reflectDebug("creating renderer target...");
+    this->pFactory->CreateHwndRenderTarget(
+        D2D1::RenderTargetProperties(),
+        D2D1::HwndRenderTargetProperties(
+            hwnd, D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top)),
+        &this->pRenderTarget);
   }
 };
 
 namespace {
+float getDPIScaleForWindow(HWND hwnd) {
+  HDC hdc = GetDC(hwnd);
+  float dpi = GetDeviceCaps(hdc, LOGPIXELSX); // or LOGPIXELSY
+  ReleaseDC(hwnd, hdc);
+  return dpi / 96.0f; // 96 is the default DPI baseline
+}
+
 void safeResize(ID2D1HwndRenderTarget *pRenderTarget, D2D1_SIZE_U size) {
   __try {
     HRESULT hr = pRenderTarget->Resize(size);
@@ -130,36 +153,44 @@ void safeResize(ID2D1HwndRenderTarget *pRenderTarget, D2D1_SIZE_U size) {
 bool openglRendering = false, direct2dRendering = false, firstUpdate = true;
 HGLRC currentContext = nullptr;
 HDC glHdc = nullptr;
-LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
-                                           LPARAM lParam) {
-  CinnamonToast::Window *pThis = nullptr;
+reflect::Image closeIcon;
 
+LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
+                                             WPARAM wParam, LPARAM lParam) {
+  reflect::Window *pThis = nullptr;
   if (uMsg == WM_CREATE) {
-    ctoastDebug("message type: WM_CREATE");
+    reflectDebug("message type: WM_CREATE");
     CREATESTRUCT *pCreate = reinterpret_cast<CREATESTRUCT *>(lParam);
-    pThis = reinterpret_cast<ctoast Window *>(pCreate->lpCreateParams);
+    pThis = reinterpret_cast<reflect::Window *>(pCreate->lpCreateParams);
     SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
 
     // Initialize Direct2D
     if (!pThis->useGL) {
-      ctoastDebug("calling initializeDirect2D...");
-      initializeDirect2D(hwnd);
+      reflectDebug("calling initializeDirect2D...");
+      pThis->initializeDirect2D();
     }
+    closeIcon.setImageLocation("resources://reflectClose");
+    closeIcon.setImageLocation("resources://reflectCloseHover", "hover");
+    closeIcon.setSize({10, 10});
+    Color3Float flt = {0.9f, 0.9f, 0.9f};
+    closeIcon.setColor(flt);
 
   } else {
-    pThis = reinterpret_cast<ctoast Window *>(
+    pThis = reinterpret_cast<reflect::Window *>(
         GetWindowLongPtr(hwnd, GWLP_USERDATA));
+  };
+  if (pThis && !pThis->pRenderTarget) {
+    pThis->initializeDirect2D();
   }
-
   if (pThis) {
 
     // Delegate the handling of messages to the instance
 
     switch (uMsg) {
     case WM_DESTROY:
-      ctoastDebug("message type: WM_DESTROY");
+      reflectDebug("message type: WM_DESTROY");
       PostQuitMessage(0);
-      ctoastInfo("Exiting...");
+      reflectInfo("Exiting...");
       return 0;
     // case WM_KEYDOWN: {
     //   UINT scanCode = MapVirtualKey(wParam, MAPVK_VK_TO_CHAR);
@@ -180,19 +211,57 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
     //  pThis->pressedKeys[ch] = false;
     //  return 0;
     //}
+    case WM_LBUTTONUP: {
+      if (pThis->customTitleBar) {
+        RECT rc;
+        GetWindowRect(hwnd, &rc);
+        int width = rc.right - rc.left; // The width of the client area
+
+        RECT areaRect = {width - 50, 0, width,
+                         40}; // Example area: x=100, y=100 to x=200, y=200
+        int xPos = GET_X_LPARAM(lParam);
+        int yPos = GET_Y_LPARAM(lParam);
+
+        POINT clickPoint = {xPos, yPos};
+
+        if (PtInRect(&areaRect, clickPoint)) {
+          exit(0);
+          // MessageBox(hwnd, L"Clicked inside the area!", L"Click Detected",
+          // MB_OK);
+        } else {
+          //  MessageBox(hwnd, L"Clicked outside the area!", L"Click Detected",
+          //  MB_OK);
+        }
+      }
+      break;
+    }
     case WM_SIZE: {
 
-      if (pRenderTarget) {
+      if (pThis->pRenderTarget) {
         RECT rc;
         GetClientRect(hwnd, &rc);
         D2D1_SIZE_U size = {static_cast<UINT32>(rc.right - rc.left),
                             static_cast<UINT32>(rc.bottom - rc.top)};
-        ::safeResize(pRenderTarget, size);
+        ::safeResize(pThis->pRenderTarget, size);
       }
       // Set the clear color
 
       InvalidateRect(hwnd, NULL,
                      TRUE); // Mark the entire window as needing a repaint
+      break;
+    }
+    case WM_NCACTIVATE:
+      InvalidateRect(hwnd, nullptr, false);
+      return TRUE; // Ensures Windows handles the default behavior
+    case WM_ACTIVATE: {
+      InvalidateRect(hwnd, nullptr, false);
+      if (pThis->customTitleBar) {
+        RECT rc;
+
+        GetWindowRect(hwnd, &rc);
+        closeIcon.setPosition(
+            {rc.right - rc.left - (10 + (40 / 2)), ((10 + (40 / 2)) / 2)});
+      }
       break;
     }
     case WM_MOVE:
@@ -202,6 +271,132 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
     case WM_SIZING: {
       if (pThis->beforeRenderLoop)
         pThis->callInit = true;
+      if (pThis->customTitleBar) {
+        RECT rc;
+
+        GetWindowRect(hwnd, &rc);
+        closeIcon.setPosition(
+            {rc.right - rc.left - (10 + (40 / 2)), ((10 + (40 / 2)) / 2)});
+      }
+      break;
+    }
+    case WM_NCHITTEST: {
+      if (pThis->customTitleBar) {
+
+        LRESULT hit = DefWindowProc(hwnd, uMsg, wParam, lParam);
+
+        POINT pt = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+        ScreenToClient(hwnd, &pt);
+
+        RECT rc;
+        GetClientRect(hwnd, &rc);
+
+        int borderSize = 8; // Resize border thickness
+
+        // Check if mouse is in title bar region (y < 30)
+
+        // Resize hit-test logic
+        if (pt.y < borderSize) {
+          if (pt.x < borderSize)
+            return HTTOPLEFT;
+          if (pt.x > rc.right - borderSize)
+            return HTTOPRIGHT;
+          return HTTOP;
+        }
+        if (pt.y > rc.bottom - borderSize) {
+          if (pt.x < borderSize)
+            return HTBOTTOMLEFT;
+          if (pt.x > rc.right - borderSize)
+            return HTBOTTOMRIGHT;
+          return HTBOTTOM;
+        }
+        if (pt.x < borderSize)
+          return HTLEFT;
+        if (pt.x > rc.right - borderSize)
+          return HTRIGHT;
+        if (pt.y >= 0 && pt.y < 30 && pt.x < rc.right - 50) {
+          return HTCAPTION; // Allows dragging like a standard title bar
+        }
+        return hit; // Default behavior
+      }
+      break;
+    }
+    case WM_MOUSEMOVE: {
+      if (pThis->customTitleBar) {
+        RECT rc;
+        GetWindowRect(hwnd, &rc);
+        int width = rc.right - rc.left; // The width of the client area
+
+        RECT areaRect = {width - 40, 0, width,
+                         40}; // Example area: x=100, y=100 to x=200, y=200
+        int xPos = GET_X_LPARAM(lParam);
+        int yPos = GET_Y_LPARAM(lParam);
+
+        POINT clickPoint = {xPos, yPos};
+
+        if (PtInRect(&areaRect, clickPoint)) {
+          if (!pThis->closeHovering) {
+            pThis->closeHovering = true;
+
+            InvalidateRect(hwnd, nullptr, false);
+
+            // MessageBox(hwnd, L"Clicked inside the area!", L"Click Detected",
+            // MB_OK);
+          }
+        } else {
+          if (pThis->closeHovering) {
+            pThis->closeHovering = false;
+
+            InvalidateRect(hwnd, nullptr, false);
+          }
+          //  MessageBox(hwnd, L"Clicked outside the area!", L"Click Detected",
+          //  MB_OK);
+        }
+      }
+      break;
+    }
+    case WM_NCMOUSEMOVE: {
+      if (pThis->customTitleBar) {
+        RECT rc;
+        GetWindowRect(hwnd, &rc);
+        int width = rc.right - rc.left; // The width of the client area
+
+        RECT areaRect = {width - 40, 0, width,
+                         40}; // Example area: x=100, y=100 to x=200, y=200
+        int xPos = GET_X_LPARAM(lParam);
+        int yPos = GET_Y_LPARAM(lParam);
+
+        POINT clickPoint = {xPos, yPos};
+
+        if (PtInRect(&areaRect, clickPoint)) {
+          if (!pThis->closeHovering) {
+            pThis->closeHovering = true;
+
+            InvalidateRect(hwnd, nullptr, false);
+          }
+
+          // MessageBox(hwnd, L"Clicked inside the area!", L"Click Detected",
+          // MB_OK);
+        } else {
+          if (pThis->closeHovering) {
+            pThis->closeHovering = false;
+
+            InvalidateRect(hwnd, nullptr, false);
+          }
+          //  MessageBox(hwnd, L"Clicked outside the area!", L"Click Detected",
+          //  MB_OK);
+        }
+      }
+      break;
+    }
+    case WM_NCCALCSIZE: {
+      if (pThis->customTitleBar) {
+        if (wParam == TRUE) {
+          NCCALCSIZE_PARAMS *pParams = (NCCALCSIZE_PARAMS *)lParam;
+          pParams->rgrc[0].top += 1; // Shrink the non-client area slightly
+          return 0;
+        }
+      }
       break;
     }
     case WM_PAINT: {
@@ -213,17 +408,17 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
           pThis->glCtx->initializeContext(*pThis, glHdc);
         }
         currentContext = wglGetCurrentContext();
-        ctoastDebug("checking if OpenGL is initialized...");
+        reflectDebug("checking if OpenGL is initialized...");
         if (currentContext) {
-          ctoastDebug("context found, rendering with OpenGL...");
+          reflectDebug("context found, rendering with OpenGL...");
           openglRendering = true;
           wglDeleteContext(currentContext);
           pThis->callInit = true;
         } else {
-          ctoastDebug("OpenGL context not found, falling back to Direct2D...");
+          reflectDebug("OpenGL context not found, falling back to Direct2D...");
           direct2dRendering = true;
         }
-        firstUpdate = false;
+
       } /*else {
         currentContext = wglGetCurrentContext();
       }*/
@@ -232,55 +427,118 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 
       } else if (!openglRendering && direct2dRendering) {
 
-        if (!pRenderTarget) {
-          initializeDirect2D(hwnd);
+        if (pThis->pRenderTarget == nullptr) {
+          pThis->initializeDirect2D();
+        }
+        if (firstUpdate && pThis->customTitleBar) {
+          pThis->add(closeIcon);
         }
 
         // Create a clipping region for the child controls
-        HRGN hrgn = CreateRectRgn(0, 0, 0, 0);
+
+        HRGN hrgnA = nullptr;
         int regionType = GetWindowRgn(
-            hwnd, hrgn); // Get the window's region (valid or ctoastError)
+            hwnd, hrgnA); // Get the window's region (valid or reflectError)
+        // regionType = GetWindowRgn(hwnd, hrgn);
         if (regionType != ERROR) {
           RECT controlRect;
           HWND hChild = GetWindow(hwnd, GW_CHILD); // Get the first child window
 
-          while (hChild != NULL) {
-            GetWindowRect(hChild, &controlRect);
-            MapWindowPoints(NULL, hwnd, (LPPOINT)&controlRect,
-                            2); // Convert to client coordinates
+          // while (hChild != NULL) {
+          //   GetWindowRect(hChild, &controlRect);
+          //   MapWindowPoints(NULL, hwnd, (LPPOINT)&controlRect,
+          //                   2); // Convert to client coordinates
 
-            // Exclude the child control region from the painting area
-            ExcludeClipRect(hdc, controlRect.left, controlRect.top,
-                            controlRect.right, controlRect.bottom);
+          //  // Exclude the child control region from the painting area
+          //  ExcludeClipRect(hdc, controlRect.left, controlRect.top,
+          //                  controlRect.right, controlRect.bottom);
+          //  // wait, is it a direct2d image?
 
-            hChild =
-                GetNextWindow(hChild, GW_HWNDNEXT); // Get the next child window
-          }
+          //  hChild =
+          //      GetNextWindow(hChild, GW_HWNDNEXT); // Get the next child
+          //      window
+          //}
         }
 
         // Start Direct2D rendering
-        pRenderTarget->BeginDraw();
 
-        // Set background color (this will not cover child control areas due to
-        // ExcludeClipRect)
-        pRenderTarget->Clear(D2D1::ColorF(pThis->bgColor[0], pThis->bgColor[1],
-                                          pThis->bgColor[2]));
+        pThis->pRenderTarget->BeginDraw();
 
-        // End drawing
-        HRESULT hr = pRenderTarget->EndDraw();
-        if (hr == D2DERR_RECREATE_TARGET) {
-          // Handle device loss
-          pRenderTarget->Release();
-          pRenderTarget = nullptr;
-          initializeDirect2D(hwnd);
+        // Set background color (this will not cover child control areas due
+        // to ExcludeClipRect)
+        pThis->pRenderTarget->Clear(D2D1::ColorF(
+            pThis->bgColor[0], pThis->bgColor[1], pThis->bgColor[2]));
+        RECT rc;
+
+        // Clear the window
+        if (pThis->customTitleBar) {
+          GetWindowRect(hwnd, &rc);
+          int width = rc.right - rc.left; // The width of the client area
+
+          D2D1_RECT_F rect;
+          rect.left = 0.0f;
+          rect.top = 0.0f;
+          rect.right = width;
+          rect.bottom = 40.0f;
+          ID2D1SolidColorBrush *pBrush = nullptr;
+          HRESULT hr = pThis->pRenderTarget->CreateSolidColorBrush(
+              D2D1::ColorF(0.9f, 0.9f, 0.9f), &pBrush);
+          pThis->pRenderTarget->FillRectangle(rect, pBrush);
+          if (FAILED(hr)) {
+            // Handle brush creation error
+            std::wcerr << L"Failed to create solid color brush." << std::endl;
+            return 0;
+          }
+          if (pThis->closeHovering) {
+            D2D1_RECT_F rect;
+            rect.left = width;
+            rect.top = 0.0f;
+            rect.right = width - 50;
+            rect.bottom = 40.0f;
+            ID2D1SolidColorBrush *pBrush = nullptr;
+            HRESULT hr = pThis->pRenderTarget->CreateSolidColorBrush(
+                D2D1::ColorF(1.0f, 0.0f, 0.0f), &pBrush);
+            pThis->pRenderTarget->FillRectangle(rect, pBrush);
+            if (closeIcon.getActiveImage() != "hover") {
+              Color3Float flt = {1.0f, 0.0f, 0.0f};
+              closeIcon.setColor(flt);
+              closeIcon.setActiveImage("hover");
+              closeIcon.paint();
+            }
+          } else {
+            D2D1_RECT_F rect;
+            rect.left = width;
+            rect.top = 0.0f;
+            rect.right = width - 50;
+            rect.bottom = 40.0f;
+            ID2D1SolidColorBrush *pBrush = nullptr;
+            HRESULT hr = pThis->pRenderTarget->CreateSolidColorBrush(
+                D2D1::ColorF(0.9f, 0.9f, 0.9f), &pBrush);
+
+            pThis->pRenderTarget->FillRectangle(rect, pBrush);
+            if (closeIcon.getActiveImage() != "default") {
+              Color3Float flt = {0.9f, 0.9f, 0.9f};
+              closeIcon.setColor(flt);
+              closeIcon.setActiveImage("default");
+              closeIcon.paint();
+            }
+          }
         }
 
+        //  pThis->pRenderTarget->DrawBitmap(bitmap, {100, 500, 110, 510});
+
+        HRESULT hr = pThis->pRenderTarget->EndDraw();
+        if (hr == D2DERR_RECREATE_TARGET) {
+          // Handle device loss
+          pThis->pRenderTarget->Release();
+          pThis->pRenderTarget = nullptr;
+          pThis->initializeDirect2D();
+        }
         // Clean up
-        DeleteObject(hrgn);
       }
 
       EndPaint(hwnd, &ps);
-
+      firstUpdate = false;
       break;
     }
     }
@@ -289,12 +547,12 @@ LRESULT CALLBACK ctoast Window::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
   return DefWindowProc(hwnd, uMsg, wParam, lParam);
 };
 bool renderContextInitialized = false;
-bool ctoast Window::isKeyPressed(char key) {
+bool reflect::Window::isKeyPressed(char key) {
   return GetAsyncKeyState(key) & 0x8000;
 };
-bool ctoast Window::showNotification(Notification &notif) {
+bool reflect::Window::showNotification(Notification &notif) {
   if (!IsWindow(hwnd)) {
-    ctoastError("Window handle is invalid!", "showNotification");
+    reflectError("Window handle is invalid!");
     return false;
   }
   NOTIFYICONDATA nid = {};
@@ -311,17 +569,16 @@ bool ctoast Window::showNotification(Notification &notif) {
   strcpy_s(nid.szInfo, notif.text.c_str());
   strcpy_s(nid.szTip, "Tooltip");
   strcpy_s(nid.szInfoTitle, notif.title.c_str());
-  // wcsncpy_s(nid.szInfoTitle, wTitle.c_str(), ARRAYSIZE(nid.szInfoTitle) - 1);
-  // wcsncpy_s(nid.szInfo, wText.c_str(), ARRAYSIZE(nid.szInfo) - 1);
+  // wcsncpy_s(nid.szInfoTitle, wTitle.c_str(), ARRAYSIZE(nid.szInfoTitle) -
+  // 1); wcsncpy_s(nid.szInfo, wText.c_str(), ARRAYSIZE(nid.szInfo) - 1);
 
   // std::wstring tooltip = L"Notification Tooltip";
   /*wcsncpy_s(nid.szTip, tooltip.c_str(), ARRAYSIZE(nid.szTip) - 1);*/
 
   nid.dwInfoFlags = NIIF_INFO;
   if (!Shell_NotifyIcon(NIM_ADD, &nid)) {
-    ctoastError("Failed to add notification icon! (" +
-                    std::to_string(GetLastError()) + ")",
-                "showNotification");
+    reflectError("Failed to add notification icon! (" +
+                 std::to_string(GetLastError()) + ")");
     return false;
   }
 
@@ -334,7 +591,7 @@ bool ctoast Window::showNotification(Notification &notif) {
   return true;
 }
 
-// void ctoast Window::ShowNotification(Notification&  notif) {
+// void reflect::Window::ShowNotification(Notification&  notif) {
 //     NOTIFYICONDATA nid = {};
 //     nid.cbSize = sizeof(NOTIFYICONDATA);
 //     nid.hWnd = hwnd;
@@ -342,16 +599,16 @@ bool ctoast Window::showNotification(Notification &notif) {
 //     nid.uFlags = NIF_INFO;
 //     // Convert std::string to std::wstring
 //     std::wstring wTitle = std::wstring(notif.title.begin(),
-//     notif.title.end()); std::wstring wText = std::wstring(notif.text.begin(),
-//     notif.text.end());
+//     notif.title.end()); std::wstring wText =
+//     std::wstring(notif.text.begin(), notif.text.end());
 //     // Convert std::wstring to std::string
-//     int titleSize = WideCharToMultiByte(CP_ACP, 0, wTitle.c_str(), -1, NULL,
-//     0, NULL, NULL); int textSize = WideCharToMultiByte(CP_ACP, 0,
+//     int titleSize = WideCharToMultiByte(CP_ACP, 0, wTitle.c_str(), -1,
+//     NULL, 0, NULL, NULL); int textSize = WideCharToMultiByte(CP_ACP, 0,
 //     wText.c_str(), -1, NULL, 0, NULL, NULL); std::string
 //     narrowTitle(titleSize, 0); std::string narrowText(textSize, 0);
 //     WideCharToMultiByte(CP_ACP, 0, wTitle.c_str(), -1, &narrowTitle[0],
-//     titleSize, NULL, NULL); WideCharToMultiByte(CP_ACP, 0, wText.c_str(), -1,
-//     &narrowText[0], textSize, NULL, NULL); strncpy_s(nid.szInfoTitle,
+//     titleSize, NULL, NULL); WideCharToMultiByte(CP_ACP, 0, wText.c_str(),
+//     -1, &narrowText[0], textSize, NULL, NULL); strncpy_s(nid.szInfoTitle,
 //     narrowTitle.c_str(), ARRAYSIZE(nid.szInfoTitle) - 1);
 //     strncpy_s(nid.szInfo, narrowText.c_str(), ARRAYSIZE(nid.szInfo) - 1);
 //     nid.dwInfoFlags = NIIF_INFO;
@@ -361,23 +618,24 @@ bool ctoast Window::showNotification(Notification &notif) {
 //         "ShowNotification");
 //     }
 // }
-void ctoast Window::add(ctoast Component &comp) {
+
+void reflect::Window::add(reflect::Component &comp) {
   if (customPipeline) {
-    ctoastWarn("Since a custom pipeline is used, the component will not be "
-               "rendered.");
+    reflectWarn("Since a custom pipeline is used, the component will not be "
+                "rendered.");
     return;
   }
-  ctoastDebug("added new component");
+  reflectDebug("added new component");
   comp.winstance = this->winstance;
   comp.render(this->hwnd, this->hwnd);
 }
-void ctoast Window::add(ctoast Component &comp, std::string id) {
+void reflect::Window::add(reflect::Component &comp, std::string id) {
   if (customPipeline) {
-    ctoastWarn("Since a custom pipeline is used, the component will not be "
-               "rendered.");
+    reflectWarn("Since a custom pipeline is used, the component will not be "
+                "rendered.");
     return;
   }
-  ctoastDebug("added new component");
+  reflectDebug("added new component");
   if (Components::gchildren[id] == nullptr) {
     Components::gchildren[id] = &comp;
 
@@ -385,8 +643,8 @@ void ctoast Window::add(ctoast Component &comp, std::string id) {
     comp.render(this->hwnd, this->hwnd);
   }
 }
-void ctoast Window::setSize(Vector2 size_) {
-  ctoastDebug("resized window");
+void reflect::Window::setSize(Vector2 size_) {
+  reflectDebug("resized window");
   size = size_;
   SetWindowPos(hwnd,    // Handle to the window
                NULL,    // Z-order (NULL if not changing the order)
@@ -397,9 +655,13 @@ void ctoast Window::setSize(Vector2 size_) {
                SWP_NOZORDER | SWP_NOACTIVATE // Flags
   );
 }
-ctoast Window::Window(HINSTANCE instance, std::string id)
-    : winstance(instance), useGL(false), glCtx(nullptr), customPipeline(false) {
-  ctoastDebug("initializing win32 parameters...");
+reflect::Window::Window(HINSTANCE instance, std::string id,
+                        WindowCreateInfo *info)
+    : winstance(instance), useGL(false), glCtx(nullptr), customPipeline(false),
+      beforeRenderLoop(nullptr), callInit(false), renderLoop(nullptr),
+      renderRunning(false) {
+  initializeObject(REFLECT_OBJECT_WINDOW, REFLECT_OBJECT_COMPONENT);
+  reflectDebug("initializing win32 parameters...");
   WNDCLASS wc = {};
   wc.lpfnWndProc = windowProc; // Window procedure
   wc.hInstance = instance;
@@ -409,22 +671,46 @@ ctoast Window::Window(HINSTANCE instance, std::string id)
   RegisterClass(&wc);
 
   // Create window
-  ctoastDebug("calling CreateWindowEx...");
-  hwnd = CreateWindowEx(0, "WindowClass", wc.lpszClassName, WS_OVERLAPPEDWINDOW,
-                        CW_USEDEFAULT, CW_USEDEFAULT, 100, 100, nullptr,
-                        nullptr, instance, this);
+  reflectDebug("calling CreateWindowEx...");
+  if (info && info->customTitleBar) {
+    hwnd = CreateWindowEx(0, "WindowClass", wc.lpszClassName,
+                          WS_POPUP | WS_THICKFRAME | WS_CLIPCHILDREN |
+                              WS_CLIPSIBLINGS,
+                          CW_USEDEFAULT, CW_USEDEFAULT, 100, 100, nullptr,
+                          nullptr, instance, this);
 
+    customTitleBar = true;
+  } else {
+    hwnd = CreateWindowEx(0, "WindowClass", wc.lpszClassName,
+                          WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+                          100, 100, nullptr, nullptr, instance, this);
+    customTitleBar = false;
+  }
+  RECT rc;
+
+  GetWindowRect(hwnd, &rc);
+
+  // Create a clipping region for the child controls
+  // HRGN hrgn = CreateRectRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top);
+  HRGN hrgnA = nullptr;
+  int regionType = GetWindowRgn(
+      hwnd, hrgnA); // Get the window's region (valid or reflectError)
+  if (regionType == ERROR) {
+    // SetWindowRgn(hwnd, hrgn, TRUE);
+  }
   if (hwnd == nullptr) {
-    ctoastDebug("whoops, hwnd is nullptr");
+    reflectDebug("whoops, hwnd is nullptr");
     MessageBox(nullptr, "Window creation failed!", "Error",
                MB_OK | MB_ICONERROR);
     exit(1);
   }
-  CinnamonToast::Components::gchildren[id] = this;
+  reflect::Components::gchildren[id] = this;
 }
-ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx, std::string id)
-    : winstance(instance), useGL(true), glCtx(&ctx), customPipeline(true) {
-  ctoastDebug("initializing win32 parameters...");
+reflect::Window::Window(HINSTANCE instance, OpenGLContext ctx, std::string id)
+    : winstance(instance), useGL(true), glCtx(&ctx), customPipeline(true),
+      beforeRenderLoop(nullptr) {
+  initializeObject(REFLECT_OBJECT_WINDOW, REFLECT_OBJECT_COMPONENT);
+  reflectDebug("initializing win32 parameters...");
   WNDCLASS wc = {};
   wc.lpfnWndProc = windowProc; // Window procedure
   wc.hInstance = instance;
@@ -434,21 +720,21 @@ ctoast Window::Window(HINSTANCE instance, OpenGLContext ctx, std::string id)
   RegisterClass(&wc);
 
   // Create window
-  ctoastDebug("calling CreateWindowEx...");
+  reflectDebug("calling CreateWindowEx...");
   hwnd = CreateWindowEx(0, "WindowClass", wc.lpszClassName, WS_OVERLAPPEDWINDOW,
                         CW_USEDEFAULT, CW_USEDEFAULT, 100, 100, nullptr,
                         nullptr, instance, this);
 
   if (hwnd == nullptr) {
-    ctoastDebug("whoops, hwnd is nullptr");
+    reflectDebug("whoops, hwnd is nullptr");
     MessageBox(nullptr, "Window creation failed!", "Error",
                MB_OK | MB_ICONERROR);
     exit(1);
   }
-  CinnamonToast::Components::gchildren[id] = this;
+  reflect::Components::gchildren[id] = this;
 }
-ctoast Window::~Window() {
-  ctoastDebug("releasing memory...");
+reflect::Window::~Window() {
+  reflectDebug("releasing memory...");
   if (pRenderTarget) {
     pRenderTarget->Release();
   }
@@ -459,29 +745,29 @@ ctoast Window::~Window() {
   pRenderTarget = nullptr;
   pFactory = nullptr;
 }
-
-void ctoast Window::setTitle(std::string title) {
-  ctoastDebug("window title set");
+void reflect::Window::setTitle(std::string title) {
+  reflectDebug("window title set");
   SetWindowText(this->hwnd, title.c_str());
 }
 
-void ctoast Window::setVisible(bool flag) {
-  ctoastDebug("window visible = " + (std::string(flag ? "true" : "false")));
+void reflect::Window::setVisible(bool flag) {
+  reflectDebug("window visible = " + (std::string(flag ? "true" : "false")));
   ShowWindow(hwnd, flag ? SW_SHOW : SW_HIDE);
 }
-bool ctoast Window::getVisible() { return IsWindowVisible(hwnd); }
-ctoast Window::operator WindowHandle() const { return this->hwnd; }
-void ctoast Window::setVisible(int cmd) { ShowWindow(hwnd, cmd); }
-void ctoast Window::render(HWND &parentHWND, HWND &windowHWND) {
-  warn("Window::render called, the method is intentionally empty because it is "
-       "not a child component!",
-       "Render");
+bool reflect::Window::getVisible() { return IsWindowVisible(hwnd); }
+reflect::Window::operator WindowHandle() const { return this->hwnd; }
+void reflect::Window::setVisible(int cmd) { ShowWindow(hwnd, cmd); }
+void reflect::Window::render(HWND &parentHWND, HWND &windowHWND) {
+  reflectWarn("Window::render called, the method is intentionally empty "
+              "because it is "
+              "not a child component!",
+              "render");
   // do nothing
 }
-void ctoast Window::close() { PostMessage(hwnd, WM_DESTROY, 0, 0); };
+void reflect::Window::close() { PostMessage(hwnd, WM_DESTROY, 0, 0); };
 HDC renderHdc = nullptr;
-int ctoast Window::run(void (*func)(Window &win)) {
-  ctoastInfo("Running window...");
+int reflect::Window::run(void (*func)(Window &win)) {
+  reflectInfo("Running window...");
   MSG msg;
   bool isExecuted = false;
   while (true) {
@@ -541,10 +827,10 @@ int ctoast Window::run(void (*func)(Window &win)) {
   }
   return static_cast<int>(msg.wParam);
 }
-void ctoast Window::setBeforeRenderLoop(void (*callback)(Window &)) {
+void reflect::Window::setBeforeRenderLoop(void (*callback)(Window &)) {
   this->beforeRenderLoop = callback;
 }
-void ctoast Window::swapBuffers() {
+void reflect::Window::swapBuffers() {
   if (renderHdc)
     SwapBuffers(renderHdc);
 }
@@ -555,12 +841,12 @@ void ctoast Window::swapBuffers() {
 #include <X11/Xutil.h>
 #include <string.h>
 #include <string>
-ctoast Window::Window(Display *instance) {
+reflect::Window::Window(Display *instance) {
   // Initialize the X11 winstance
   winstance = instance;
   if (!winstance) {
     std::cerr << "Cannot open winstance." << std::endl;
-    exit(ctoastError_linux_x11_not_initialized);
+    exit(reflectError_linux_x11_not_initialized);
   }
 
   // Create a window
@@ -582,7 +868,7 @@ ctoast Window::Window(Display *instance) {
   font = XftFontOpenName(winstance, screen, "Ubuntu-20");
   if (!font) {
     std::cerr << "Font not found!" << std::endl;
-    exit(ctoastError_font_not_found);
+    exit(reflectError_font_not_found);
   }
 
   // Create XftDraw for drawing text
@@ -595,12 +881,12 @@ ctoast Window::Window(Display *instance) {
 
   // Cleanup
 }
-void ctoast Window::SetVisible(bool visible) {
+void reflect::Window::SetVisible(bool visible) {
   visible ? XMapWindow(winstance, window)
           : XWithdrawWindow(winstance, window, screen);
 }
 
-int ctoast Window::Run() {
+int reflect::Window::Run() {
   XMapWindow(winstance, window);
   XEvent event;
   while (true) {
@@ -640,15 +926,15 @@ int ctoast Window::Run() {
   XCloseDisplay(winstance);
   return 0;
 }
-void ctoast Window::Add(Component *comp) { children.push_back(comp); }
-void ctoast Window::SetSize(Vector2 size) {}
-void ctoast Window::SetTitle(std::string title) {}
-void ctoast Window::SetColor(uint8_t r, uint8_t g, uint8_t b) {}
-std::string ctoast Window::GetProperty(std::string property) {
+void reflect::Window::Add(Component *comp) { children.push_back(comp); }
+void reflect::Window::SetSize(Vector2 size) {}
+void reflect::Window::SetTitle(std::string title) {}
+void reflect::Window::SetColor(uint8_t r, uint8_t g, uint8_t b) {}
+std::string reflect::Window::GetProperty(std::string property) {
   if (property == "Window") {
     return "true";
   }
   return "";
 }
-ctoast Window::~Window() {}
+reflect::Window::~Window() {}
 #endif

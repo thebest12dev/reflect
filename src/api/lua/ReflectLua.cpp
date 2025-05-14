@@ -1,6 +1,6 @@
-#include "CToastLua.h"
+#include "ReflectLua.h"
 
-namespace CinnamonToast {
+namespace reflect {
 
 // Constructor
 LuaInstance::LuaInstance() {
@@ -150,10 +150,10 @@ void LuaInstance::registerFunction(std::string tableName, std::string name,
 // Initialize Lua APIs
 void LuaInstance::initializeLuaApis(
     void (*customInitializer)(LuaInstance *self)) {
-  createTable("CinnamonToast");
+  createTable("Reflect");
   if (customInitializer != nullptr) {
     customInitializer(this);
   }
 }
 
-} // namespace CinnamonToast
+} // namespace reflect

@@ -21,17 +21,47 @@
 // Include helper header
 #include "ConsoleHelper.h"
 
+#include "../core/logging/LogInstance.h"
 #include "TypeDefinitions.h"
+#include <chrono>
+#include <ctime>
+#include <iomanip>
 #include <iostream>
 #include <string>
 
+namespace {
+#include <chrono>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
+
+std::string getCurrentTimeString() {
+  // Get current time
+  auto now = std::chrono::system_clock::now();
+  std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+
+  // Convert to local time
+  std::tm local_tm;
+#if defined(_WIN32) || defined(_WIN64)
+  localtime_s(&local_tm, &now_c); // Windows
+#else
+  localtime_r(&now_c, &local_tm); // Linux / Unix
+#endif
+
+  // Format as string
+  std::ostringstream oss;
+  oss << std::put_time(&local_tm, "%H:%M:%S");
+
+  return oss.str();
+}
+} // namespace
 /**
  * @brief A shorthand macro for printing to the console. Handles function names
  * automatically.
  *
  * @param obj The object to print.
  */
-#define ctoastPrint(obj) CinnamonToast::Console::print(obj);
+#define reflectPrint(obj) reflect::console::print(obj);
 
 /**
  * @brief A shorthand macro for printing with newline to the console. Handles
@@ -39,7 +69,7 @@
  *
  * @param obj The object to print.
  */
-#define ctoastPrintln(obj) CinnamonToast::Console::println(obj);
+#define reflectPrintln(obj) reflect::console::println(obj);
 
 /**
  * @brief A shorthand macro for logging errors to the console. Handles function
@@ -47,7 +77,7 @@
  *
  * @param obj The error message or object to log.
  */
-#define ctoastError(obj) CinnamonToast::Console::error(obj, __func__);
+#define reflectError(obj) reflect::console::error(obj, __func__);
 
 /**
  * @brief A shorthand macro for logging informational messages to the console.
@@ -55,7 +85,7 @@
  *
  * @param obj The informational message or object to log.
  */
-#define ctoastInfo(obj) CinnamonToast::Console::info(obj, __func__);
+#define reflectInfo(obj) reflect::console::info(obj, __func__);
 
 /**
  * @brief A shorthand macro for logging warnings to the console. Handles
@@ -63,7 +93,7 @@
  *
  * @param obj The warning message or object to log.
  */
-#define ctoastWarn(obj) CinnamonToast::Console::warn(obj, __func__);
+#define reflectWarn(obj) reflect::console::warn(obj, __func__);
 
 /**
  * @brief A shorthand macro for logging debug messages to the console. Handles
@@ -71,19 +101,19 @@
  *
  * @param obj The debug message or object to log.
  */
-#define ctoastDebug(obj) CinnamonToast::Console::debug(obj, __func__);
+#define reflectDebug(obj) reflect::console::debug(obj, __func__);
 
 /**
  * @brief A shorthand macro for enabling or disabling debug logging.
  */
-#define ctoastDebugEnabled CinnamonToast::Console::setDebugEnabled
+#define reflectDebugEnabled reflect::console::setDebugEnabled
 
-namespace CinnamonToast {
+namespace reflect {
 
 /**
  * @brief A namespace for console logging utilities.
  */
-namespace Console {
+namespace console {
 
 /**
  * @brief Prints an object to the console.
@@ -92,11 +122,12 @@ namespace Console {
  * @param obj The object to print.
  * @exception std::exception If an error occurs during printing.
  */
-template <typename T> CTOAST_API inline void print(const T &obj) noexcept {
+template <typename T> REFLECT_API inline void print(const T &obj) noexcept {
   try {
     std::cout << obj;
   } catch (const std::exception &e) {
-    std::cerr << "[ERROR] [" << __func__ << "]: " << e.what() << std::endl;
+    std::cerr << "[ERROR] [" + getCurrentTimeString() + "] [" << __func__
+              << "]: " << e.what() << std::endl;
   }
 };
 
@@ -108,11 +139,12 @@ template <typename T> CTOAST_API inline void print(const T &obj) noexcept {
  * @exception std::exception If an error occurs during printing, however will be
  * caught.
  */
-template <typename T> CTOAST_API inline void println(const T &obj) noexcept {
+template <typename T> REFLECT_API inline void println(const T &obj) noexcept {
   try {
     std::cout << obj << std::endl;
   } catch (const std::exception &e) {
-    std::cerr << "[ERROR] [" << __func__ << "]: " << e.what() << std::endl;
+    std::cerr << "[ERROR] [" + getCurrentTimeString() + "] [" << __func__
+              << "]: " << e.what() << std::endl;
   }
 };
 
@@ -126,12 +158,14 @@ template <typename T> CTOAST_API inline void println(const T &obj) noexcept {
  * caught.
  */
 template <typename T>
-CTOAST_API inline void error(const T &obj,
-                             std::string ctx = "default") noexcept {
+REFLECT_API inline void error(const T &obj,
+                              std::string ctx = "default") noexcept {
   try {
-    std::cerr << "[ERROR] " << "[" << ctx << "]: " << obj << std::endl;
+    std::cerr << "[ERROR] [" + getCurrentTimeString() + "] " << "[" << ctx
+              << "]: " << obj << std::endl;
   } catch (const std::exception &e) {
-    std::cerr << "[ERROR] [" << __func__ << "] " << e.what() << std::endl;
+    std::cerr << "[ERROR] [" + getCurrentTimeString() + "] [" << __func__
+              << "] " << e.what() << std::endl;
   }
 };
 
@@ -145,13 +179,15 @@ CTOAST_API inline void error(const T &obj,
  * caught.
  */
 template <typename T>
-CTOAST_API inline void info(const T &obj,
-                            std::string ctx = "default") noexcept {
+REFLECT_API inline void info(const T &obj,
+                             std::string ctx = "default") noexcept {
   try {
-    std::cout << "[INFO] " << "[" << ctx << "]: " << obj << std::endl;
+    std::cout << "[INFO] [" + getCurrentTimeString() + "] " << "[" << ctx
+              << "]: " << obj << std::endl;
 
   } catch (const std::exception &e) {
-    std::cerr << "[ERROR] [" << __func__ << "] " << e.what() << std::endl;
+    std::cerr << "[ERROR] [" + getCurrentTimeString() + "] [" << __func__
+              << "] " << e.what() << std::endl;
   }
 };
 
@@ -165,12 +201,14 @@ CTOAST_API inline void info(const T &obj,
  * caught.
  */
 template <typename T>
-CTOAST_API inline void warn(const T &obj,
-                            std::string ctx = "default") noexcept {
+REFLECT_API inline void warn(const T &obj,
+                             std::string ctx = "default") noexcept {
   try {
-    std::cout << "[WARN] " << "[" << ctx << "]: " << obj << std::endl;
+    std::cout << "[WARN] [" + getCurrentTimeString() + "] " << "[" << ctx
+              << "]: " << obj << std::endl;
   } catch (const std::exception &e) {
-    std::cerr << "[ERROR] [" << __func__ << "] " << e.what() << std::endl;
+    std::cerr << "[ERROR] [" + getCurrentTimeString() + "] [" << __func__
+              << "] " << e.what() << std::endl;
   }
 };
 
@@ -184,15 +222,17 @@ CTOAST_API inline void warn(const T &obj,
  * caught.
  */
 template <typename T>
-CTOAST_API inline void debug(const T &obj,
-                             std::string ctx = "default") noexcept {
+REFLECT_API inline void debug(const T &obj,
+                              std::string ctx = "default") noexcept {
   try {
     if (getDebugEnabled())
-      std::cout << "[DEBUG] " << "[" << ctx << "]: " << obj << std::endl;
+      std::cout << "[DEBUG] [" + getCurrentTimeString() + "] " << "[" << ctx
+                << "]: " << obj << std::endl;
   } catch (const std::exception &e) {
-    std::cerr << "[ERROR] [" << __func__ << "] " << e.what() << std::endl;
+    std::cerr << "[ERROR] [" + getCurrentTimeString() + "] [" << __func__
+              << "] " << e.what() << std::endl;
   }
 };
 
-} // namespace Console
-} // namespace CinnamonToast
+} // namespace console
+} // namespace reflect

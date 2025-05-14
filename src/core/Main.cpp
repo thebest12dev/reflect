@@ -38,18 +38,18 @@ typedef unsigned char byte;
 
 // other libraries
 #include "tinyxml2.h"
-#ifdef CTOAST_LUA
+#ifdef REFLECT_LUA
 
-#include "../api/lua/CToastLua.h"
+#include "../api/lua/ReflectLua.h"
 
 #endif
 
 // our header files here
-#include "CToastAPI.h"
 #include "Console.h"
 #include "CrashHandler.h"
 #include "Definitions.h"
 #include "Main.h"
+#include "ReflectAPI.h"
 #include "TypeDefinitions.h"
 #include "Utilities.h"
 #include "ui/TextField.h"
@@ -58,11 +58,12 @@ typedef unsigned char byte;
 #include "ui/Colors.h"
 #include "ui/Component.h"
 #include "ui/Components.h"
+#include "ui/Image.h"
 #include "ui/Label.h"
 #include "ui/MenuItem.h"
 #include "ui/TextComponent.h"
 #include "ui/Vector2.h"
-#ifdef CTOAST_LUA
+#ifdef REFLECT_LUA
 #include "LuaAPI.h"
 #endif
 // windows-specific code
@@ -85,92 +86,97 @@ typedef unsigned char byte;
 #include <string>
 #include <vector>
 // using namespaces and alias
-using namespace CinnamonToast::Console;
-using namespace CinnamonToast::Utilities;
+using namespace reflect::console;
+using namespace reflect::utilities;
 
 namespace fs = std::filesystem;
 
 namespace {
-void onExecute(CinnamonToast::Window &win) { /*win.Close();*/ }
+void onExecute(reflect::Window &win) { /*win.Close();*/ }
 std::vector<void *> heapAllocations;
 struct Cleaner {
   ~Cleaner() {
     for (void *ptr : heapAllocations) {
-      CinnamonToast::getHeapPool()->deallocate(ptr, sizeof(ptr));
+      reflect::getHeapPool()->deallocate(ptr, sizeof(ptr));
     }
   }
 };
 Cleaner cleaner;
 
 } // namespace
+#include <ShellScalingAPI.h>
+#pragma comment(lib, "Shcore.lib")
 /**
  * Invokes and loads a .xml file and also loads the specific libraries. It will
  * setup the GUI as well as registering APIs for the libraries to use.
  */
-int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
+int reflect::invokeExecutable(std::string xmlFile, bool blocking) {
   // if lua enabled
   /*INITCOMMONCONTROLSEX icex;
   icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
   icex.dwICC = ICC_STANDARD_CLASSES | ICC_WIN95_CLASSES;
 
   InitCommonControlsEx(&icex);*/
+
   InitCommonControls();
+  HRESULT hr = CoInitialize(nullptr);
   // load the xml file
   tinyxml2::XMLDocument doc;
-
+  SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
   // platform
-  ctoastInfo("platform: " + getOSPlatformAndVersion());
+  reflectInfo("platform: " + getOSPlatformAndVersion());
 
   // common control stuff
 
   // file doesnt exist
   if (!fs::exists(xmlFile)) {
-    // ctoastError and return
-    ctoastError("file not found!");
+    // reflectError and return
+    reflectError("file not found!");
     return ERROR_FILE_NOT_FOUND;
   }
 
-  // ctoastDebug print and load xml file
-  ctoastDebug("loading XML file...");
+  // reflectDebug print and load xml file
+  reflectDebug("loading XML file...");
   tinyxml2::XMLError eResult = doc.LoadFile(xmlFile.c_str());
 
-  // ctoastError handling
+  // reflectError handling
   if (eResult != tinyxml2::XML_SUCCESS) {
-    ctoastError(
+    reflectError(
         std::string("cannot load XML file: " + std::string(doc.ErrorStr())));
-    return CTOAST_ERROR_GENERIC_XML_ERROR;
+    return REFLECT_ERROR_GENERIC_XML_ERROR;
   }
 
   // get the root element
-  ctoastDebug("getting root...");
+  reflectDebug("getting root...");
   tinyxml2::XMLElement *root = doc.FirstChildElement("root");
   // handling
   if (root == nullptr) {
-    ctoastError("no root element found.");
-    return CTOAST_ERROR_XML_NO_ROOT;
+    reflectError("no root element found.");
+    return REFLECT_ERROR_XML_NO_ROOT;
   }
 
   // checking compat
-  ctoastDebug("file is compatible with app?");
+  reflectDebug("file is compatible with app?");
   const uint32_t version = std::stoi(root->Attribute("version"));
   if (version > APP_INTERNAL_VERSION) {
     // handle and return
-    ctoastError("file not compatible! please upgrade to a newer version.");
-    return CTOAST_ERROR_XML_NOT_COMPATIBLE;
+    reflectError("file not compatible! please upgrade to a newer version.");
+    return REFLECT_ERROR_XML_NOT_COMPATIBLE;
   }
   tinyxml2::XMLElement *winXml = root->FirstChildElement("window");
   if (winXml == nullptr) {
-    ctoastError("no window element found.");
-    return CTOAST_ERROR_XML_NO_WINDOW;
+    reflectError("no window element found.");
+    return REFLECT_ERROR_XML_NO_WINDOW;
   }
   std::string winId = winXml->Attribute("id");
   tinyxml2::XMLElement *gctx = winXml->FirstChildElement("graphicsContext");
 #ifdef _WIN32
   Window *win = nullptr;
   if (gctx == nullptr) {
-    ctoastDebug("getting HINSTANCE...");
+    reflectDebug("getting HINSTANCE...");
     HINSTANCE hInstance = GetModuleHandle(nullptr);
-    ctoastDebug("creating window...");
+    reflectDebug("creating window...");
+
     // OpenGLContext ctx;
     win = new Window(hInstance, winId);
     /*win->setBeforeRenderLoop([](Window &win) {
@@ -179,24 +185,24 @@ int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
       std::cout << "i" << std::endl;
     });
     win->setRenderLoop([](Window &win) {
-      ctoastDebug(win.isKeyPressed('W'));
+      reflectDebug(win.isKeyPressed('W'));
       glClearColor(1.0, 0.0, 1.0, 1.0);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       win.swapBuffers();
     });*/
   } else {
-    ctoastDebug("graphics context found!");
+    reflectDebug("graphics context found!");
     std::string ctx = gctx->Attribute("type");
     if (ctx == "opengl") {
-      ctoastDebug("using custom OpenGL context...");
-      ctoastWarn(
+      reflectDebug("using custom OpenGL context...");
+      reflectWarn(
           "Since a custom graphics context is specified, UI controls (buttons, "
           "labels, etc.) will not render. This is only for if you want to "
           "develop things like games or simulations. (To disable this "
           "warning, set contextSetWarning to false in your XML file.");
-      ctoastDebug("getting HINSTANCE...");
+      reflectDebug("getting HINSTANCE...");
       HINSTANCE hInstance = GetModuleHandle(nullptr);
-      ctoastDebug("creating window...");
+      reflectDebug("creating window...");
       OpenGLContext ctx;
       win = new Window(hInstance, ctx, winId);
     }
@@ -204,13 +210,13 @@ int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
   win->addStyle(STYLE_DARK_TITLE_BAR);
 #endif
 
-  ctoastDebug("window title: " + std::string(winXml->Attribute("title")));
+  reflectDebug("window title: " + std::string(winXml->Attribute("title")));
   win->setTitle(winXml->Attribute("title"));
-  ctoastDebug("resizing window...");
+  reflectDebug("resizing window...");
   win->setSize(Vector2(std::stoi(winXml->Attribute("width")),
                        std::stoi(winXml->Attribute("height"))));
   std::string bgColor = winXml->Attribute("bgColor");
-  ctoastDebug("setting window background color...");
+  reflectDebug("setting window background color...");
   if (bgColor == "systemDefault") {
     win->setColor(255, 255, 255);
   } else {
@@ -224,11 +230,11 @@ int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
       const Color3 color = {r, g, b};
       win->setColor(color);
     } else {
-      ctoastError("invalid hex color representation");
-      return CTOAST_ERROR_HEX_COLOR_MALFORMED;
+      reflectError("invalid hex color representation");
+      return REFLECT_ERROR_HEX_COLOR_MALFORMED;
     }
   }
-  ctoastDebug("parsing labels...");
+  reflectDebug("parsing labels...");
   for (tinyxml2::XMLElement *label = winXml->FirstChildElement("label");
        label != nullptr; label = label->NextSiblingElement("label")) {
     // Access attributes
@@ -243,7 +249,7 @@ int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
     labelComp->setFontSize(std::stoi(label->Attribute("fontSize")));
     win->add(*labelComp, id);
   }
-  ctoastDebug("parsing text fields...");
+  reflectDebug("parsing text fields...");
   for (tinyxml2::XMLElement *field = winXml->FirstChildElement("textField");
        field != nullptr; field = field->NextSiblingElement("textField")) {
     // Access attributes
@@ -257,7 +263,7 @@ int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
     fieldComp->setPosition(position);
     win->add(*fieldComp, id);
   }
-  ctoastDebug("parsing progress bars...");
+  reflectDebug("parsing progress bars...");
   for (tinyxml2::XMLElement *label = winXml->FirstChildElement("progressBar");
        label != nullptr; label = label->NextSiblingElement("progressBar")) {
     // Access attributes
@@ -270,12 +276,12 @@ int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
     heapAllocations.push_back(pb);
     pb->setMininumValue(std::stof(label->Attribute("min")));
     pb->setMaximumValue(std::stof(label->Attribute("max")));
-    pb->setValue(std::stoi(label->Attribute("value")));
+    pb->setValue(std::stof(label->Attribute("value")));
     pb->setPosition(position);
     pb->setSize(size);
     win->add(*pb, id);
   }
-  ctoastDebug("parsing buttons...");
+  reflectDebug("parsing buttons...");
   for (tinyxml2::XMLElement *button = winXml->FirstChildElement("button");
        button != nullptr; button = button->NextSiblingElement("button")) {
     std::string contents = button->GetText();
@@ -286,10 +292,11 @@ int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
     heapAllocations.push_back(buttonComp);
     buttonComp->setFont(button->Attribute("font"));
     buttonComp->setFontSize(std::stoi(button->Attribute("fontSize")));
+
     win->add(*buttonComp, id);
   }
-  ctoastDebug("loading libraries...");
-#ifdef CTOAST_LUA
+  reflectDebug("loading libraries...");
+#ifdef REFLECT_LUA
   LuaInstance *lua = nullptr;
 #endif
   for (tinyxml2::XMLElement *sharedLib = winXml->FirstChildElement("library");
@@ -302,36 +309,38 @@ int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
                   "\\" + sharedLib->Attribute("location"))
               .c_str());
       if (!hDll) {
-        ctoastError("cannot load shared library");
-        return CTOAST_ERROR_CANNOT_LOAD_SHARED_LIBRARY;
+        reflectError("cannot load shared library");
+        return REFLECT_ERROR_CANNOT_LOAD_SHARED_LIBRARY;
       }
-      ctoastDebug("loaded shared library!");
+      reflectDebug("loaded shared library!");
 
       // Get the address of the Add function
-      CinnamonToast::SharedLibraryMain mainFunc =
-          (CinnamonToast::SharedLibraryMain)GetProcAddress(hDll, "CToastMain");
+      reflect::SharedLibraryMain mainFunc =
+          (reflect::SharedLibraryMain)GetProcAddress(hDll, "reflectMain");
       if (!mainFunc) {
-        ctoastError("cannot find CToastMain function of library!");
+        reflectError("cannot find reflectMain function of library!");
 
         FreeLibrary(hDll); // Free the DLL
-        return CTOAST_ERROR_CANNOT_LOAD_LIBRARY_FUNCTION;
+        return REFLECT_ERROR_CANNOT_LOAD_LIBRARY_FUNCTION;
       }
-      CinnamonToast::CToastAPI ctoastApi = {};
-      ctoastApi.addComponent = ExternalAPI::addComponent;
-      ctoastApi.getComponentById = ExternalAPI::getComponentById;
-      ctoastApi.getText = ExternalAPI::getComponentText;
-      ctoastApi.setColor = ExternalAPI::setComponentColor;
-      ctoastApi.setFont = ExternalAPI::setComponentFont;
-      ctoastApi.setFontSize = ExternalAPI::setComponentFontSize;
-      ctoastApi.setVisible = ExternalAPI::setComponentVisible;
-      ctoastApi.setVisibleCommand = ExternalAPI::setComponentVisibleCommand;
-      std::thread *thread = new std::thread(mainFunc, &ctoastApi);
+      reflect::ReflectAPI reflectApi = {};
+      reflectApi.addComponent = ExternalAPI::addComponent;
+      reflectApi.getComponentById = ExternalAPI::getComponentById;
+      reflectApi.getText = ExternalAPI::getComponentText;
+      reflectApi.setColor = ExternalAPI::setComponentColor;
+      reflectApi.setFont = ExternalAPI::setComponentFont;
+      reflectApi.setFontSize = ExternalAPI::setComponentFontSize;
+      reflectApi.setVisible = ExternalAPI::setComponentVisible;
+      reflectApi.setVisibleCommand = ExternalAPI::setComponentVisibleCommand;
+
+      reflectApi.setOnClick = ExternalAPI::setOnClick;
+      std::thread *thread = new std::thread(mainFunc, &reflectApi);
     }
-#ifdef CTOAST_LUA
+#ifdef REFLECT_LUA
     else if (std::string(sharedLib->Attribute("type")) == "lua") {
-      ctoastDebug("loading lua file...");
+      reflectDebug("loading lua file...");
       if (lua == nullptr) {
-        ctoastDebug("initializing lua...");
+        reflectDebug("initializing lua...");
         lua = new LuaInstance();
         heapAllocations.push_back(lua);
         lua->initializeLuaApis(injectLuaApis);
@@ -357,22 +366,21 @@ int ctoast invokeExecutable(std::string xmlFile, bool blocking) {
     win->add(*menuBar);
   }
 
-  ctoastDebug("entering main loop...");
+  reflectDebug("entering main loop...");
   win->setVisible(true);
-
   if (blocking) {
     return win->run(onExecute);
   } else {
     return 0;
   }
 }
-int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
+int reflect::cliMain(const uint8_t argc, const std::vector<std::string> argv) {
 
-  CinnamonToast::CrashConfig config = {};
+  reflect::CrashConfig config = {};
   config.crashType = CRASH_INVOKE | CRASH_SEGFAULT | CRASH_UNHANDLED_EXCEPTION;
 
-  CinnamonToast::CrashHandler *ch = new CinnamonToast::CrashHandler(config);
-  CinnamonToast::CrashManager::setActiveCrashHandler(ch);
+  reflect::CrashHandler *ch = new reflect::CrashHandler(config);
+  reflect::CrashManager::setActiveCrashHandler(ch);
 
   /*LogBuffer logbuf;
 
@@ -381,39 +389,39 @@ int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
 
     if (argc <= 1) {
 
-      ctoastError("ctoastError: no files specified. please pass an argument to "
-                  "a valid file");
-      ctoastError("ctoastError code: ERROR_NO_FILES_SPECIFIED");
-      return CTOAST_ERROR_NO_FILES_SPECIFIED;
+      reflectError("error: no files specified. please pass an argument to "
+                   "a valid file");
+      reflectError("error code: ERROR_NO_FILES_SPECIFIED");
+      return REFLECT_ERROR_NO_FILES_SPECIFIED;
     } else {
-      size_t size = 64 * 1024 * 1024;
+      size_t size = 2 * 1024 * 1024;
       for (std::string arg : argv) {
         if (arg == "--help" || arg == "-h") {
-          ctoastPrintln("usage: " + argv[0] + " <file/url> [--verbose]");
-          ctoastPrintln("options:");
-          ctoastPrintln("  --help, -h ");
-          ctoastPrintln("    shows the list of arguments");
-          ctoastPrintln("  --verbose");
-          ctoastPrintln("    enables verbose logging");
-          ctoastPrintln("  --version, -v");
-          ctoastPrintln("    shows the version");
-          ctoastPrintln("  --heap=<size>, -H<size>");
-          ctoastPrintln("    sets the heap size. must be a valid");
-          ctoastPrintln("    number. default is 64MB.");
-          ctoastPrintln("  --ignore-version-compat, -ivc");
-          ctoastPrintln("    ignores version compatibility check");
-          ctoastPrintln("    (use at your own risk)");
+          reflectPrintln("usage: " + argv[0] + " <file/url> [--verbose]");
+          reflectPrintln("options:");
+          reflectPrintln("  --help, -h ");
+          reflectPrintln("    shows the list of arguments");
+          reflectPrintln("  --verbose");
+          reflectPrintln("    enables verbose logging");
+          reflectPrintln("  --version, -v");
+          reflectPrintln("    shows the version");
+          reflectPrintln("  --heap=<size>, -H<size>");
+          reflectPrintln("    sets the heap size. must be a valid");
+          reflectPrintln("    number. default is 64MB.");
+          reflectPrintln("  --ignore-version-compat, -ivc");
+          reflectPrintln("    ignores version compatibility check");
+          reflectPrintln("    (use at your own risk)");
           return 0;
         } else if (arg == "--verbose") {
-          ctoastDebugEnabled(true);
-          ctoastInfo("verbose enabled, debug logs shown");
+          reflectDebugEnabled(true);
+          reflectInfo("verbose enabled, debug logs shown");
         } else if (arg == "--version" || arg == "-v") {
-          ctoastPrintln(APP_NAME + std::string(" ") + APP_VERSION);
+          reflectPrintln(APP_NAME + std::string(" ") + APP_VERSION);
           return 0;
         } else if (arg.starts_with("--heap=")) {
           std::string heapSize = arg.substr(arg.find("=") + 1);
           if (heapSize.empty()) {
-            ctoastError("heap size not specified");
+            reflectError("heap size not specified");
             return 1;
           }
           // MB, KB, etc.
@@ -440,7 +448,7 @@ int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
 
           std::string heapSize = arg.substr(arg.find("-H") + 2);
           if (heapSize.empty()) {
-            ctoastError("heap size not specified");
+            reflectError("heap size not specified");
             return 1;
           }
 
@@ -466,10 +474,10 @@ int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
         }
       }
 
-      ctoastInfo("launching executable...");
+      reflectInfo("launching executable...");
       initializeHeapPool(size);
 
-      return CinnamonToast::invokeExecutable(argv[1]);
+      return reflect::invokeExecutable(argv[1]);
     }
   } catch (std::exception e) {
     ch->invokeUnhandledExceptionCrash(e);
@@ -487,61 +495,62 @@ int ctoast cliMain(const uint8_t argc, const std::vector<std::string> argv) {
 
 #include <vector>
 
-using namespace CinnamonToast::Console;
-using namespace CinnamonToast::Utilities;
+using namespace reflect::console;
+using namespace reflect::utilities;
 namespace fs = std::filesystem;
 
-int ctoast invokeExecutable(std::string xmlFile) {
+int reflect::invokeExecutable(std::string xmlFile) {
   tinyxml2::XMLDocument doc;
   // Load the XML file
-  ctoastInfo("Platform: " + GetOSPlatformAndVersion(), "CLIMain");
+  reflectInfo("Platform: " + GetOSPlatformAndVersion(), "CLIMain");
   if (!fs::exists(xmlFile)) {
-    ctoastError("file not found!");
-    return ctoastError_file_not_found;
+    reflectError("file not found!");
+    return reflectError_file_not_found;
   }
-  ctoastDebug("loading XML file...");
+  reflectDebug("loading XML file...");
   tinyxml2::XMLError eResult = doc.LoadFile(xmlFile.c_str());
 
   if (eResult != tinyxml2::XML_SUCCESS) {
-    ctoastError(string("cannot load XML file: " + std::string(doc.ErrorStr())));
-    return ctoastError_generic_xml_ctoastError;
+    reflectError(
+        string("cannot load XML file: " + std::string(doc.ErrorStr())));
+    return reflectError_generic_xml_reflectError;
   }
 
   // Get the root element
-  ctoastDebug("getting root...");
+  reflectDebug("getting root...");
   tinyxml2::XMLElement *root = doc.FirstChildElement("root");
   if (root == nullptr) {
-    ctoastError("no root element found.");
-    return ctoastError_xml_no_root;
+    reflectError("no root element found.");
+    return reflectError_xml_no_root;
   }
-  ctoastDebug("file is compatible with app?");
+  reflectDebug("file is compatible with app?");
   const uint32_t version = stoi(root->Attribute("version"));
   if (version > app_internal_version) {
-    ctoastError("file not compatible! please upgrade to a newer version.");
+    reflectError("file not compatible! please upgrade to a newer version.");
   }
   tinyxml2::XMLElement *winXml = root->FirstChildElement("window");
   if (winXml == nullptr) {
-    ctoastError("no window element found.");
-    return ctoastError_xml_no_window;
+    reflectError("no window element found.");
+    return reflectError_xml_no_window;
   }
 
 #ifdef _WIN32
-  ctoastDebug("getting HINSTANCE...");
+  reflectDebug("getting HINSTANCE...");
   HINSTANCE hInstance = GetModuleHandle(nullptr);
-  ctoastDebug("creating window...");
+  reflectDebug("creating window...");
   Window win(hInstance);
 #elif __linux__
   Window win(XOpenDisplay(NULL));
 #endif
 
-  ctoastDebug("window title: " + std::string(winXml->Attribute("title")),
-              "invokeExecutable");
+  reflectDebug("window title: " + std::string(winXml->Attribute("title")),
+               "invokeExecutable");
   win.SetTitle(winXml->Attribute("title"));
-  ctoastDebug("resizing window...");
+  reflectDebug("resizing window...");
   win.SetSize(Vector2(stoi(winXml->Attribute("width")),
                       stoi(winXml->Attribute("height"))));
   std::string bgColor = winXml->Attribute("bgColor");
-  ctoastDebug("setting window background color...");
+  reflectDebug("setting window background color...");
   if (bgColor == "systemDefault") {
     win.SetColor(255, 255, 255);
   } else {
@@ -555,11 +564,11 @@ int ctoast invokeExecutable(std::string xmlFile) {
 
       win.SetColor(r, g, b);
     } else {
-      ctoastError("invalid hex color representation");
-      return ctoastError_hex_color_malformed;
+      reflectError("invalid hex color representation");
+      return reflectError_hex_color_malformed;
     }
   }
-  ctoastDebug("parsing labels...");
+  reflectDebug("parsing labels...");
   for (tinyxml2::XMLElement *label = winXml->FirstChildElement("label");
        label != nullptr; label = label->NextSiblingElement("label")) {
     // Access attributes
@@ -571,21 +580,22 @@ int ctoast invokeExecutable(std::string xmlFile) {
 
     win.Add(labelComp);
   }
-  ctoastDebug("entering main loop...");
+  reflectDebug("entering main loop...");
   win.SetVisible(true);
 
   return win.Run();
 }
-int ctoast CLIMain(const uint8_t argc, const vector<string> argv) {
+int reflect::CLIMain(const uint8_t argc, const vector<string> argv) {
   println(app_name + string(" ") + app_version);
   if (argv.size() == 1) {
-    ctoastError("ctoastError: no files specified. please pass an argument to a "
-                "valid file");
-    ctoastError("ctoastError code: ERROR_NO_FILES_SPECIFIED");
-    return ctoastError_no_files_specified;
+    reflectError(
+        "reflectError: no files specified. please pass an argument to a "
+        "valid file");
+    reflectError("reflectError code: ERROR_NO_FILES_SPECIFIED");
+    return reflectError_no_files_specified;
   } else {
-    ctoastInfo("launching executable...", "CLIMain");
-    return CinnamonToast::invokeExecutable(argv[1]);
+    reflectInfo("launching executable...", "CLIMain");
+    return reflect::invokeExecutable(argv[1]);
   }
 }
 #endif

@@ -22,17 +22,18 @@
 #include <vector>
 #pragma once
 
-namespace CinnamonToast {
+namespace reflect {
 /**
  * @brief Loads and executes the specified XML file.
  */
-CTOAST_API int invokeExecutable(std::string xmlFile);
+REFLECT_API int invokeExecutable(std::string xmlFile);
 
 /**
  * @brief Main entry point for the CLI application.
  */
-CTOAST_API int cliMain(const uint8_t argc, const std::vector<std::string> argv);
-} // namespace CinnamonToast
+REFLECT_API int cliMain(const uint8_t argc,
+                        const std::vector<std::string> argv);
+} // namespace reflect
 
 /**
  * @brief Console entry point.

@@ -20,27 +20,27 @@
 #pragma once
 
 /**
- * @brief Default font for the CinnamonToast framework.
+ * @brief Default font for the Reflect framework.
  */
 #define DEFAULT_FONT "Segoe UI"
 
 /**
  * @brief External application name to be shown to the end user.
  */
-#define APP_NAME "Project CinnamonToast"
+#define APP_NAME "Project Reflect"
 
 /**
  * @brief Internal application version for compatibility checks.
  */
-#define APP_INTERNAL_VERSION 0x9C000009L
+#define APP_INTERNAL_VERSION 0x0000000AL
 
 /**
  * @brief External application version to be shown to the end user.
  */
-#define APP_VERSION "1.6.0+snapshot-2025c02a"
+#define APP_VERSION "1.7.0"
 
 /**
- * @brief Error codes used in the CinnamonToast framework.
+ * @brief Error codes used in the Reflect framework.
  *
  * These error codes indicate specific issues, with platform-specific codes
  * indicated by the second leftmost digit:
@@ -49,22 +49,35 @@
  * - 0x2: macOS
  * - 0x3: Linux
  */
-#define CTOAST_ERROR_NO_FILES_SPECIFIED 0x000003f0L
-#define CTOAST_ERROR_GENERIC_XML_ERROR 0x000003f1L
-#define CTOAST_ERROR_XML_NO_ROOT 0x000003f2L
-#define CTOAST_ERROR_XML_NO_WINDOW 0x000003f3L
-#define CTOAST_ERROR_FILE_NOT_FOUND 0x0000002L
-#define CTOAST_ERROR_FONT_NOT_FOUND 0x0000003L
-#define CTOAST_ERROR_HEX_COLOR_MALFORMED 0x000003f4L
-#define CTOAST_ERROR_LINUX_X11_NOT_INITIALIZED 0x030003f5L
-#define CTOAST_ERROR_CANNOT_LOAD_SHARED_LIBRARY 0x000003f9L
-#define CTOAST_ERROR_CANNOT_LOAD_LIBRARY_FUNCTION 0x000003faL
-#define CTOAST_ERROR_XML_NOT_COMPATIBLE 0x000003fbL
-#define CTOAST_ERROR_UNHANDLED_EXCEPTION 0x000003fcL
+#define REFLECT_ERROR_NO_FILES_SPECIFIED 0x000003f0L
+#define REFLECT_ERROR_GENERIC_XML_ERROR 0x000003f1L
+#define REFLECT_ERROR_XML_NO_ROOT 0x000003f2L
+#define REFLECT_ERROR_XML_NO_WINDOW 0x000003f3L
+#define REFLECT_ERROR_FILE_NOT_FOUND 0x0000002L
+#define REFLECT_ERROR_FONT_NOT_FOUND 0x0000003L
+#define REFLECT_ERROR_HEX_COLOR_MALFORMED 0x000003f4L
+#define REFLECT_ERROR_LINUX_X11_NOT_INITIALIZED 0x030003f5L
+#define REFLECT_ERROR_CANNOT_LOAD_SHARED_LIBRARY 0x000003f9L
+#define REFLECT_ERROR_CANNOT_LOAD_LIBRARY_FUNCTION 0x000003faL
+#define REFLECT_ERROR_XML_NOT_COMPATIBLE 0x000003fbL
+#define REFLECT_ERROR_UNHANDLED_EXCEPTION 0x000003fcL
 
 #if defined(_WIN32)
 /**
  * @brief Windows-specific error codes.
  */
-#define CTOAST_ERROR_WIN_PARENT_HWND_INVALID 0x010003f5L
+#define REFLECT_ERROR_WIN_PARENT_HWND_INVALID 0x010003f5L
 #endif
+
+#define REFLECT_OBJECT_OBJECT 0
+#define REFLECT_OBJECT_COMPONENT 1
+#define REFLECT_OBJECT_TEXTCOMPONENT 2
+#define REFLECT_OBJECT_LABEL 3
+#define REFLECT_OBJECT_BUTTON 4
+#define REFLECT_OBJECT_WINDOW 5
+#define REFLECT_OBJECT_MENUBAR 6
+#define REFLECT_OBJECT_MENUITEM 7
+#define REFLECT_OBJECT_TEXTFIELD 8
+#define REFLECT_OBJECT_NOTIFICATION 9
+#define REFLECT_OBJECT_PROGRESSBAR 10
+#define REFLECT_OBJECT_IMAGE 11

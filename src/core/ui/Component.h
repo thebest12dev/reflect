@@ -20,14 +20,15 @@
 #ifdef _WIN32
 #pragma once
 #include "Colors.h"
+#include "Object.h"
 #include "TypeDefinitions.h"
 #include "Vector2.h"
 #include <cstdint>
 #include <windows.h>
 #define COMPONENT_COMMON(classname)                                            \
-  ctoast Vector2 classname::getSize() { return size; };                        \
-  ctoast Vector2 classname::getPosition() { return position; };                \
-  ctoast Color3 classname::getColor() { return color; };                       \
+  reflect::Vector2 classname::getSize() { return size; };                      \
+  reflect::Vector2 classname::getPosition() { return position; };              \
+  reflect::Color3 classname::getColor() { return color; };                     \
   void classname::setColor(Color3 color) { this->color = color; }              \
   void classname::setColor(Color3Array color) {                                \
     this->color.r = color[0];                                                  \
@@ -41,22 +42,22 @@
   }
 
 #define COMPONENT_DECL(classname)                                              \
-  CTOAST_API void render(HWND &parentHWND, HWND &windowHWND);                  \
-  CTOAST_API void setVisible(bool flag);                                       \
-  CTOAST_API void add(Component &comp);                                        \
-  CTOAST_API void setSize(Vector2 size);                                       \
-  CTOAST_API void setVisible(int cmd);                                         \
-  CTOAST_API void setColor(uint8_t r, uint8_t g, uint8_t b);                   \
-  CTOAST_API void setColor(Color3 color);                                      \
-  CTOAST_API void setColor(Color3Array color);                                 \
-  CTOAST_API virtual ~classname();                                             \
-  CTOAST_API Vector2 getPosition();                                            \
-  CTOAST_API Vector2 getSize();                                                \
-  CTOAST_API bool getVisible();                                                \
-  CTOAST_API Color3 getColor()
+  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);                 \
+  REFLECT_API void setVisible(bool flag);                                      \
+  REFLECT_API void add(Component &comp);                                       \
+  REFLECT_API void setSize(Vector2 size);                                      \
+  REFLECT_API void setVisible(int cmd);                                        \
+  REFLECT_API void setColor(uint8_t r, uint8_t g, uint8_t b);                  \
+  REFLECT_API void setColor(Color3 color);                                     \
+  REFLECT_API void setColor(Color3Array color);                                \
+  REFLECT_API virtual ~classname();                                            \
+  REFLECT_API Vector2 getPosition();                                           \
+  REFLECT_API Vector2 getSize();                                               \
+  REFLECT_API bool getVisible();                                               \
+  REFLECT_API Color3 getColor()
 
-namespace CinnamonToast {
-class Component {
+namespace reflect {
+class Component : public Object {
 protected:
   /// @brief The HINSTANCE object associated
   /// with the program required for window creation.
@@ -83,7 +84,7 @@ public:
    * @brief Creation of the component as well as
    * fields and other properties.
    */
-  CTOAST_API Component(/* args */);
+  REFLECT_API Component(/* args */);
 
   /**
    * @brief Method to render the component, primarily handled by the derived
@@ -99,7 +100,7 @@ public:
    * @param windowHWND The window window handle (similar to the parent handle
    * but for the window).
    */
-  CTOAST_API virtual void render(HWND &parentHWND, HWND &windowHWND) = 0;
+  REFLECT_API virtual void render(HWND &parentHWND, HWND &windowHWND) = 0;
 
   /**
    * @brief Sets the component visibility to either show or hide depending on
@@ -107,77 +108,79 @@ public:
    *
    * @param flag The flag to set visibility.
    */
-  CTOAST_API void setVisible(bool flag);
-
+  REFLECT_API void setVisible(bool flag);
+  REFLECT_API void paint();
   /**
    * @brief Adds a component to the hierarchy, as well as calling the `Render`
    * function of the child component to properly render it.
    */
-  CTOAST_API void add(Component &comp);
+  REFLECT_API void add(Component &comp);
 
   /**
    * @brief Sets the size of the component.
    */
-  CTOAST_API void setSize(Vector2 size);
+  REFLECT_API void setSize(Vector2 size);
 
   /**
    * @brief Similar to `SetVisible(bool)` but directly use Win32 commands. On
    * Linux, this is mapped to the appropriate X11 commands.
    */
-  CTOAST_API void setVisible(int cmd);
+  REFLECT_API void setVisible(int cmd);
 
   /**
    * @brief Sets the color of the component by its red, green and blue
    * components.
    */
-  CTOAST_API void setColor(uint8_t r, uint8_t g, uint8_t b);
+  REFLECT_API void setColor(uint8_t r, uint8_t g, uint8_t b);
 
   /**
    * @brief Similar to SetColor(uint8_t, uint8_t, uint8_t) but with a Color3
    * struct.
    */
-  CTOAST_API void setColor(Color3 color);
+  REFLECT_API void setColor(Color3 color);
 
   /**
    * @brief Same as other methods but with an int[3] type.
    */
-  CTOAST_API void setColor(Color3Array color);
+  REFLECT_API void setColor(Color3Array color);
 
   /**
    * @brief Virtual destructor needed for runtime polymorphism.
    */
-  CTOAST_API virtual ~Component() = default; // To allow dynamic_cast to work
+  REFLECT_API virtual ~Component() = default; // To allow dynamic_cast to work
 
   /**
    * @brief Returns the component's position.
    * @returns The component's position.
    */
-  CTOAST_API Vector2 getPosition();
+  REFLECT_API Vector2 getPosition();
   /**
    * @brief Returns the component's size.
    * @returns The component's size.
    */
-  CTOAST_API Vector2 getSize();
+  REFLECT_API Vector2 getSize();
   /**
    * @brief Returns the component's visibility.
    * @returns The component's visibility.
    */
-  CTOAST_API bool getVisible();
+  REFLECT_API bool getVisible();
   /**
    * @brief Returns the component's color.
    * @returns The component's color.
    */
-  CTOAST_API Color3 getColor();
-  CTOAST_API void *operator new(std::size_t size);
-  CTOAST_API void operator delete(void *ptr) noexcept;
-  CTOAST_API void *operator new[](std::size_t size);
-  CTOAST_API void operator delete[](void *ptr) noexcept;
+  REFLECT_API Color3 getColor();
+  REFLECT_API void setPosition(Vector2 pos);
+  REFLECT_API void *operator new(std::size_t size);
+  REFLECT_API void operator delete(void *ptr) noexcept;
+  REFLECT_API void *operator new[](std::size_t size);
+  REFLECT_API void operator delete[](void *ptr) noexcept;
 
   friend class Window;
   friend class Label;
   friend class Button;
 };
-} // namespace CinnamonToast
+
+} // namespace reflect
 #elif __linux__
 #pragma once
 #include <cstdint>
@@ -189,7 +192,7 @@ public:
 #include <X11/Xutil.h>
 #include <string>
 #include <vector>
-// namespace CinnamonToast {
+// namespace reflect {
 // class Component {
 // protected:
 //   Vector2 position;
@@ -201,27 +204,27 @@ public:
 
 // public:
 //   Component(/* args */);
-//   CTOAST_API void SetVisible(bool flag);
-//   CTOAST_API void Add(Component *comp);
-//   CTOAST_API void SetSize(Vector2 size);
-//   CTOAST_API Vector2 GetSize();
-//   CTOAST_API Vector2 GetPosition();
-//   CTOAST_API bool GetVisible();
-//   CTOAST_API int *GetColor();
-//   virtual CTOAST_API std::string GetProperty(std::string name) {
+//   REFLECT_API void SetVisible(bool flag);
+//   REFLECT_API void Add(Component *comp);
+//   REFLECT_API void SetSize(Vector2 size);
+//   REFLECT_API Vector2 GetSize();
+//   REFLECT_API Vector2 GetPosition();
+//   REFLECT_API bool GetVisible();
+//   REFLECT_API int *GetColor();
+//   virtual REFLECT_API std::string GetProperty(std::string name) {
 //     return "null";
 //   };
-//   CTOAST_API void SetVisible(int cmd);
-//   CTOAST_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
+//   REFLECT_API void SetVisible(int cmd);
+//   REFLECT_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
 //   virtual ~Component(){};
 //   friend class Window;
 //   friend class Label;
 //   friend class Button;
 // };
-// } // namespace CinnamonToast
+// } // namespace reflect
 
 // #endif
-namespace CinnamonToast {
+namespace reflect {
 class Component {
 protected:
   /// @brief The Display object associated
@@ -258,7 +261,7 @@ public:
    * @brief Creation of the component as well as
    * fields and other properties.
    */
-  CTOAST_API Component(/* args */);
+  REFLECT_API Component(/* args */);
 
   /**
    * @brief Method to render the component, primarily handled by the derived
@@ -274,7 +277,7 @@ public:
    * @param windowWindow The window window handle (similar to the parent handle
    * but for the window).
    */
-  CTOAST_API virtual void render(XWindow &parentHWND, XWindow &windowHWND) = 0;
+  REFLECT_API virtual void render(XWindow &parentHWND, XWindow &windowHWND) = 0;
 
   /**
    * @brief Sets the component visibility to either show or hide depending on
@@ -282,69 +285,69 @@ public:
    *
    * @param flag The flag to set visibility.
    */
-  CTOAST_API void setVisible(bool flag);
+  REFLECT_API void setVisible(bool flag);
 
   /**
    * @brief Adds a component to the hierarchy, as well as calling the `Render`
    * function of the child component to properly render it.
    */
-  CTOAST_API void add(Component &comp);
+  REFLECT_API void add(Component &comp);
 
   /**
    * @brief Sets the size of the component.
    */
-  CTOAST_API void setSize(Vector2 size);
+  REFLECT_API void setSize(Vector2 size);
 
   /**
    * @brief Similar to `SetVisible(bool)` but directly use Win32 commands.
    */
-  CTOAST_API void setVisible(int cmd);
+  REFLECT_API void setVisible(int cmd);
 
   /**
    * @brief Sets the color of the component by its red, green and blue
    * components.
    */
-  CTOAST_API void setColor(uint8_t r, uint8_t g, uint8_t b);
+  REFLECT_API void setColor(uint8_t r, uint8_t g, uint8_t b);
 
   /**
    * @brief Similar to SetColor(uint8_t, uint8_t, uint8_t) but with a Color3
    * struct.
    */
-  CTOAST_API void setColor(Color3 color);
+  REFLECT_API void setColor(Color3 color);
 
   /**
    * @brief Returns the component's position.
    * @returns The component's position.
    */
-  CTOAST_API Vector2 getPosition();
+  REFLECT_API Vector2 getPosition();
   /**
    * @brief Returns the component's size.
    * @returns The component's size.
    */
-  CTOAST_API Vector2 getSize();
+  REFLECT_API Vector2 getSize();
   /**
    * @brief Returns the component's visibility.
    * @returns The component's visibility.
    */
-  CTOAST_API virtual bool getVisible() { return false; };
+  REFLECT_API virtual bool getVisible() { return false; };
   /**
    * @brief Returns the component's color.
    * @returns The component's color.
    */
-  CTOAST_API Color3 getColor();
+  REFLECT_API Color3 getColor();
 
   /**
    * @brief Same as other methods but with an int[3] type.
    */
-  CTOAST_API void setColor(Color3Array color);
+  REFLECT_API void setColor(Color3Array color);
 
   /**
    * @brief Virtual destructor needed for runtime polymorphism.
    */
-  CTOAST_API virtual ~Component() = default; // To allow dynamic_cast to work
+  REFLECT_API virtual ~Component() = default; // To allow dynamic_cast to work
   friend class Window;
   friend class Label;
   friend class Button;
 };
-} // namespace CinnamonToast
+} // namespace reflect
 #endif

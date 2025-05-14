@@ -4,15 +4,15 @@
 
 class VectorTestFixture : public ::testing::Test {
 protected:
-  CinnamonToast::Vector2 vec1;
+  reflect::Vector2 vec1;
 
   void SetUp() override { 
-    vec1 = CinnamonToast::Vector2(1, 5);
+    vec1 = reflect::Vector2(1, 5);
   }
 };
 TEST_F(VectorTestFixture, VectorAddTest) { 
-    CinnamonToast::Vector2 vec2(1, 2); 
-    CinnamonToast::Vector2 added = vec1 + vec2;
+    reflect::Vector2 vec2(1, 2); 
+    reflect::Vector2 added = vec1 + vec2;
     EXPECT_EQ(added.x, 2);
     EXPECT_EQ(added.y, 7);
 }

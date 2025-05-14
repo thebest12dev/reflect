@@ -1,15 +1,16 @@
 #include "TextField.h"
 #include "../Utilities.h"
 #include "Console.h"
+#include "Window.h"
 #include <CommCtrl.h>
 namespace {
 WNDPROC originalEditProc = nullptr; // Store the original window procedure
 } // namespace
-namespace CinnamonToast {
+namespace reflect {
 LRESULT CALLBACK TextField::editProc(HWND hwnd, UINT msg, WPARAM wParam,
                                      LPARAM lParam) {
   TextField *pThis = nullptr;
-  pThis = reinterpret_cast<ctoast TextField *>(
+  pThis = reinterpret_cast<reflect::TextField *>(
       GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
   switch (msg) {
@@ -27,26 +28,31 @@ LRESULT CALLBACK TextField::editProc(HWND hwnd, UINT msg, WPARAM wParam,
 TextField::TextField()
     : winstance(GetModuleHandle(nullptr)), hwnd(nullptr), position(0, 0),
       size(200, 20), bgColor(0.2f, 0.2f, 0.2f), focused(false),
-      focusCallback(nullptr) {}
+      focusCallback(nullptr) {
+  initializeObject(REFLECT_OBJECT_TEXTFIELD, REFLECT_OBJECT_TEXTCOMPONENT);
+}
 void TextField::setSize(Vector2 size) { this->size = size; };
 void TextField::setPosition(Vector2 pos) { position = pos; };
 void TextField::render(HWND &parentHWND, HWND &windowHWND) {
-  hwnd = CreateWindowEx(WS_EX_CLIENTEDGE, // Extended styles
-                        WC_EDIT,          // Class name
-                        "",               // Initial text
-                        WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, position.x,
-                        position.y, size.x, size.y,
+  reflect::Window *window = reinterpret_cast<reflect::Window *>(
+      GetWindowLongPtr(windowHWND, GWLP_USERDATA));
+  hwnd = CreateWindowEx(
+      WS_EX_CLIENTEDGE, // Extended styles
+      WC_EDIT,          // Class name
+      "",               // Initial text
+      WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, position.x,
+      position.y + window->getProperty<int>("customTitleBarSize"), size.x,
+      size.y,
 
-                        parentHWND, // Parent window
-                        NULL,
-                        winstance, // App instance
-                        this       // Additional data
+      parentHWND, // Parent window
+      NULL,
+      winstance, // App instance
+      this       // Additional data
   );
   originalEditProc =
       (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)editProc);
   SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-  SendMessage(hwnd, WM_SETFONT, (WPARAM)CinnamonToast::Utilities::getFont(),
-              TRUE);
+  SendMessage(hwnd, WM_SETFONT, (WPARAM)reflect::utilities::getFont(), TRUE);
 }
 void TextField::setText(std::string text) {
   this->text = text;
@@ -69,7 +75,6 @@ void TextField::onFocus(void (*callback)(TextField &)) {
 void TextField::setFont(std::string font) {
   fontStr = font;
   SendMessage(hwnd, WM_SETFONT,
-              (WPARAM)CinnamonToast::Utilities::getFont(fontStr, fontSize),
-              TRUE);
+              (WPARAM)reflect::utilities::getFont(fontStr, fontSize), TRUE);
 }
-} // namespace CinnamonToast
+} // namespace reflect

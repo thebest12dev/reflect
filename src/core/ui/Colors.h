@@ -18,13 +18,17 @@
  */
 #pragma once
 #include <stdexcept>
-namespace CinnamonToast {
+namespace {
+float value0 = 0.0f;
+}
+namespace reflect {
 struct Color3 {
   unsigned char r, g, b;
-  Color3() {}
+  Color3() : r(0), g(0), b(0) {}
   Color3(unsigned char r, unsigned char g, unsigned char b)
       : r(r), g(g), b(b) {}
 };
+
 struct Color3Float {
   union {
     struct {
@@ -32,7 +36,7 @@ struct Color3Float {
     };
     float data[3]; // allows array-style access
   };
-  Color3Float() {};
+  Color3Float() : r(0.0f), g(0.0f), b(0.0f) {};
   Color3Float(float r, float g, float b) : r(r), g(g), b(b) {};
   operator Color3() {
     return Color3(static_cast<unsigned char>(r * 255),
@@ -46,10 +50,10 @@ struct Color3Float {
     return *this;
   }
   // Array-style access (read/write)
+
   float &operator[](size_t index) {
     if (index >= 3) {
-      float value = 0.0f;
-      return value;
+      return value0;
     }
     return data[index];
   }
@@ -62,4 +66,4 @@ struct Color3Float {
   }
 };
 typedef unsigned char Color3Array[3];
-} // namespace CinnamonToast
+} // namespace reflect

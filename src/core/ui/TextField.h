@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <windows.h>
 
-namespace CinnamonToast {
+namespace reflect {
 class TextField : public TextComponent {
 protected:
   HINSTANCE winstance;
@@ -20,20 +20,20 @@ protected:
   Color3Float bgColor;
   void (*focusCallback)(TextField &);
   bool focused;
-  CTOAST_API static LRESULT CALLBACK editProc(HWND hwnd, UINT uMsg,
-                                              WPARAM wParam, LPARAM lParam);
+  REFLECT_API static LRESULT CALLBACK editProc(HWND hwnd, UINT uMsg,
+                                               WPARAM wParam, LPARAM lParam);
 
 public:
-  CTOAST_API TextField();
-  CTOAST_API void render(HWND &parentHWND, HWND &windowHWND);
-  CTOAST_API void setText(std::string text);
-  CTOAST_API std::string getText();
-  CTOAST_API void setSize(Vector2 size);
-  CTOAST_API void setPosition(Vector2 pos);
-  CTOAST_API bool isFocused();
-  CTOAST_API void setFont(std::string font);
-  CTOAST_API void focus();
-  CTOAST_API void onFocus(void (*callback)(TextField &));
+  REFLECT_API TextField();
+  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
+  REFLECT_API void setText(std::string text);
+  REFLECT_API std::string getText();
+  REFLECT_API void setSize(Vector2 size);
+  REFLECT_API void setPosition(Vector2 pos);
+  REFLECT_API bool isFocused();
+  REFLECT_API void setFont(std::string font);
+  REFLECT_API void focus();
+  REFLECT_API void onFocus(void (*callback)(TextField &));
 };
-} // namespace CinnamonToast
+} // namespace reflect
 #endif

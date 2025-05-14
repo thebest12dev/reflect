@@ -16,11 +16,9 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
 #pragma once
 #include <iostream>
 #include <map>
-
 /**
  * @brief Alias for an unsigned byte.
  */
@@ -28,20 +26,20 @@ typedef unsigned char byte;
 
 #include "Definitions.h"
 
-// Check if CTOAST_API is already defined
-#if !defined(CTOAST_API) && !defined(CTOAST_BUILDING) &&                       \
-    !defined(CTOAST_STATIC_LIBRARY)
-#define CTOAST_API __declspec(dllimport)
-#define CTOAST_IMPORT __declspec(dllimport)
+// Check if REFLECT_API is already defined
+#if !defined(REFLECT_API) && !defined(REFLECT_BUILDING) &&                     \
+    !defined(REFLECT_STATIC_LIBRARY)
+#define REFLECT_API __declspec(dllimport)
+#define REFLECT_IMPORT __declspec(dllimport)
 #ifdef __linux__
-#undef CTOAST_IMPORT
-#define CTOAST_IMPORT extern
+#undef REFLECT_IMPORT
+#define REFLECT_IMPORT extern
 #endif
 #endif
 
-#ifdef CTOAST_BUNDLED
-#undef CTOAST_IMPORT
-#define CTOAST_IMPORT
+#ifdef REFLECT_BUNDLED
+#undef REFLECT_IMPORT
+#define REFLECT_IMPORT
 #endif
 
 #ifdef __linux__
@@ -52,33 +50,30 @@ typedef unsigned char byte;
 typedef XID XWindow;
 #endif
 
-#ifdef CTOAST_STATIC_LIBRARY
-#undef CTOAST_API
-#define CTOAST_API
-#undef CTOAST_IMPORT
-#define CTOAST_IMPORT
+#ifdef REFLECT_STATIC_LIBRARY
+#undef REFLECT_API
+#define REFLECT_API
+#undef REFLECT_IMPORT
+#define REFLECT_IMPORT
 
 #endif
-/*
-Alias for CinnamonToast
-*/
-#define ctoast CinnamonToast::
-#define LIBC_NAMESPACE CinnamonToast
+
+#define LIBC_NAMESPACE reflect
 
 /**
- * @brief Namespace for the CinnamonToast framework.
+ * @brief Namespace for the Reflect framework.
  */
-namespace CinnamonToast {}
+namespace reflect {} // namespace reflect
 
 // if defined
-#undef CTOAST_SHARED_LIBRARY
-#define CTOAST_SHARED_LIBRARY
-#if defined(CTOAST_SHARED_LIBRARY) && !defined(CTOAST_EXTERNAL)
+#undef REFLECT_SHARED_LIBRARY
+#define REFLECT_SHARED_LIBRARY
+#if defined(REFLECT_SHARED_LIBRARY) && !defined(REFLECT_EXTERNAL)
 #ifdef _WIN32
-#undef CTOAST_API
-#define CTOAST_API __declspec(dllexport)
+#undef REFLECT_API
+#define REFLECT_API __declspec(dllexport)
 #elif __linux__
-#undef CTOAST_API
-#define CTOAST_API __attribute__((visibility("default")))
+#undef REFLECT_API
+#define REFLECT_API __attribute__((visibility("default")))
 #endif
 #endif

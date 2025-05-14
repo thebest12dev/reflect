@@ -26,29 +26,31 @@ typedef unsigned char byte;
 #endif
 
 #include <string>
-namespace CinnamonToast {
+namespace reflect {
 typedef unsigned long long ComponentId;
-typedef const char *CToastString;
-struct CToastAPI {
+typedef const char *ReflectString;
+struct ReflectAPI {
   ComponentId (*getComponentById)(const char *id);
   bool (*setColor)(ComponentId component, uint8_t r, uint8_t g, uint8_t b);
-  CToastString (*getText)(ComponentId component);
+  ReflectString (*getText)(ComponentId component);
   bool (*addComponent)(ComponentId parent, ComponentId child);
   bool (*setVisibleCommand)(ComponentId comp, uint8_t cmd);
   bool (*setVisible)(ComponentId comp, bool flag);
-  bool (*setFont)(ComponentId comp, CToastString font);
+  bool (*setFont)(ComponentId comp, ReflectString font);
   bool (*setFontSize)(ComponentId comp, uint8_t fontSize);
+  bool (*setOnClick)(ComponentId comp, void (*callback)(ComponentId));
 };
 namespace ExternalAPI {
-CTOAST_API ComponentId getComponentById(const char *id);
-CTOAST_API const char *getComponentText(ComponentId ref);
-CTOAST_API bool setComponentColor(ComponentId component, uint8_t r, uint8_t g,
-                                  uint8_t b);
-CTOAST_API bool addComponent(ComponentId parent, ComponentId child);
-CTOAST_API bool setComponentVisibleCommand(ComponentId comp, uint8_t cmd);
-CTOAST_API bool setComponentVisible(ComponentId comp, bool flag);
-CTOAST_API bool setComponentFont(ComponentId comp, CToastString font);
-CTOAST_API bool setComponentFontSize(ComponentId comp, uint8_t fontSize);
+REFLECT_API ComponentId getComponentById(const char *id);
+REFLECT_API const char *getComponentText(ComponentId ref);
+REFLECT_API bool setComponentColor(ComponentId component, uint8_t r, uint8_t g,
+                                   uint8_t b);
+REFLECT_API bool addComponent(ComponentId parent, ComponentId child);
+REFLECT_API bool setComponentVisibleCommand(ComponentId comp, uint8_t cmd);
+REFLECT_API bool setComponentVisible(ComponentId comp, bool flag);
+REFLECT_API bool setComponentFont(ComponentId comp, ReflectString font);
+REFLECT_API bool setComponentFontSize(ComponentId comp, uint8_t fontSize);
+REFLECT_API bool setOnClick(ComponentId comp, void (*callback)(ComponentId));
 } // namespace ExternalAPI
-typedef void (*SharedLibraryMain)(CToastAPI *api);
-} // namespace CinnamonToast
+typedef void (*SharedLibraryMain)(ReflectAPI *api);
+} // namespace reflect

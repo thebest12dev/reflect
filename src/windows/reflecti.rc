@@ -12,14 +12,19 @@ VS_VERSION_INFO VERSIONINFO
         "StringFileInfo" BEGIN BLOCK
             "040904B0" // Language and code page (040904B0 = English, Unicode)
             BEGIN VALUE "FileDescription",
-            "CinnamonToast Interpreter" VALUE "InternalName",
-            "ctoasti" VALUE "LegalCopyright",
+            "Reflect Interpreter" VALUE "InternalName",
+            "reflecti" VALUE "LegalCopyright",
             "Copyright © 2025 thebest12lines" VALUE "OriginalFilename",
-            "ctoasti.exe" VALUE "ProductName",
-            "CinnamonToast" END END
+            "reflecti.exe" VALUE "ProductName",
+            "Reflect" END END
 
             BLOCK "VarFileInfo" BEGIN VALUE "Translation",
             0x0409,
             0x04B0 // Language and code page (English, Unicode)
         END
-    END
+    END 
+
+    
+reflectClose RCDATA "../../resources/ui/close.png"
+reflectCloseDark RCDATA "../../resources/ui/closeDark.png"
+reflectCloseHover RCDATA "../../resources/ui/closeHover.png"

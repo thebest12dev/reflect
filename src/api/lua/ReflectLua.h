@@ -37,7 +37,7 @@ extern "C" {
 
 // For some reason, extern "C++" is required for the build to work.
 extern "C++" {
-namespace CinnamonToast {
+namespace reflect {
 template <typename T>
 /**
  * @brief A concept to check if the type is a valid Lua type.
@@ -92,7 +92,7 @@ private:
   lua_State *L;
 
   // Helper method to set a value in the Lua stack
-  template <LuaType T> CTOAST_API void setValue(int index, T value);
+  template <LuaType T> void setValue(int index, T value);
 
 public:
   /**
@@ -101,7 +101,7 @@ public:
    *
    * This maps directly to Lua APIs.
    */
-  CTOAST_API void execute(std::string code);
+  REFLECT_API void execute(std::string code);
 
   /**
    * @brief A method to execute a Lua file.
@@ -109,20 +109,20 @@ public:
    *
    * This maps directly to Lua APIs.
    */
-  CTOAST_API void executeFile(std::string filePath);
+  REFLECT_API void executeFile(std::string filePath);
   /**
    * @brief A method to register a function in Lua.
    * @param name The name of the function to register.
    * @param func The function to register.
    */
-  CTOAST_API void registerFunction(std::string name, lua_CFunction func);
+  REFLECT_API void registerFunction(std::string name, lua_CFunction func);
 
   /**
    * @brief A method to set a value in Lua.
    * @param name The name of the variable to set.
    * @param value The value to set. Must be a valid Lua type.
    */
-  template <LuaType T> CTOAST_API void setValue(std::string name, T value);
+  template <LuaType T> REFLECT_API void setValue(std::string name, T value);
   template <LuaType T>
   /**
    * @brief Sets the value to a valid Lua type.
@@ -130,12 +130,12 @@ public:
    * @param key The key, as a string.
    * @param value The value, as a Lua type.
    */
-  CTOAST_API void setValue(std::string hierarchy, std::string key, T value);
+  REFLECT_API void setValue(std::string hierarchy, std::string key, T value);
   /**
    * @brief A method to create a table.
    * @param name The name of the table.
    */
-  CTOAST_API void createTable(std::string name);
+  REFLECT_API void createTable(std::string name);
 
   /**
    * Note: hierarchy corresponds to the table hierarchy (not including the table
@@ -143,17 +143,17 @@ public:
    * initialized).
    */
 
-  CTOAST_API void createTable(std::string hierarchy, std::string name);
-  // CTOAST_IMPORT void SetValue(std::string tableName, std::string key,
+  REFLECT_API void createTable(std::string hierarchy, std::string name);
+  // REFLECT_IMPORT void SetValue(std::string tableName, std::string key,
   //  int value);
-  // CTOAST_IMPORT void SetValue(std::string tableName, std::string key,
+  // REFLECT_IMPORT void SetValue(std::string tableName, std::string key,
   //  double value);
 
   /**
    * @brief Same as setValue but value is a string.
    */
-  CTOAST_API void setValue(std::string tableName, std::string key,
-                           std::string value);
+  REFLECT_API void setValue(std::string tableName, std::string key,
+                            std::string value);
 
   /**
    * @brief Sets a value in a table to a function.
@@ -161,16 +161,16 @@ public:
    * @param name The key to the function.
    * @param func The function.
    */
-  CTOAST_API void registerFunction(std::string tableName, std::string name,
-                                   lua_CFunction func);
+  REFLECT_API void registerFunction(std::string tableName, std::string name,
+                                    lua_CFunction func);
   /**
    * @brief A method to initialize Lua APIs.
    * @param customInitializer A custom initializer function.
    */
-  CTOAST_API void
+  REFLECT_API void
   initializeLuaApis(void (*customInitializer)(LuaInstance *self));
-  CTOAST_API LuaInstance();
+  REFLECT_API LuaInstance();
 };
 
-} // namespace CinnamonToast
+} // namespace reflect
 }

@@ -18,50 +18,50 @@
  */
 
 // Includes
-#include "CToastC.h"
-#include "../../core/CToastAPI.h"
+#include "ReflectC.h"
+#include "../../core/ReflectAPI.h"
 
 // For convenience
-using namespace CinnamonToast;
+using namespace reflect;
 
 // C-style API functions
 
-CTOAST_API CToastComponent CToast_getComponentById(CToastString id) {
-  // Return a CToastComponent with the given id
+REFLECT_API ReflectComponent Reflect_getComponentById(ReflectString id) {
+  // Return a ReflectComponent with the given id
   return {(uint8_t)ExternalAPI::getComponentById(id)};
 };
-CTOAST_API bool CToast_setColor(CToastComponent component, uint8_t r, uint8_t g,
-                                uint8_t b) {
+REFLECT_API bool Reflect_setColor(ReflectComponent component, uint8_t r,
+                                  uint8_t g, uint8_t b) {
   // Set the color of the component
   ExternalAPI::setComponentColor(component.id, r, g, b);
   return true;
 };
-CTOAST_API CToastString CToast_getText(CToastComponent component) {
+REFLECT_API ReflectString Reflect_getText(ReflectComponent component) {
   // Get the text of the component
   return ExternalAPI::getComponentText(component.id);
 }
-CTOAST_API bool CToast_addComponent(CToastComponent parent,
-                                    CToastComponent child) {
+REFLECT_API bool Reflect_addComponent(ReflectComponent parent,
+                                      ReflectComponent child) {
   // Add a child component to the parent component
   ExternalAPI::addComponent(parent.id, child.id);
   return true;
 };
-CTOAST_API bool CToast_setVisibleCommand(CToastComponent comp, uint8_t cmd) {
+REFLECT_API bool Reflect_setVisibleCommand(ReflectComponent comp, uint8_t cmd) {
   // Set the visibility command of the component
   ExternalAPI::setComponentVisibleCommand(comp.id, cmd);
   return true;
 };
-CTOAST_API bool CToast_setVisible(CToastComponent comp, bool flag) {
+REFLECT_API bool Reflect_setVisible(ReflectComponent comp, bool flag) {
   // Set the visibility of the component
   ExternalAPI::setComponentVisible(comp.id, flag);
   return true;
 }
-CTOAST_API bool CToast_setFont(CToastComponent comp, CToastString font) {
+REFLECT_API bool Reflect_setFont(ReflectComponent comp, ReflectString font) {
   // Set the font of the component
   ExternalAPI::setComponentFont(comp.id, font);
   return true;
 }
-CTOAST_API bool CToast_setFontSize(CToastComponent comp, uint8_t fontSize) {
+REFLECT_API bool Reflect_setFontSize(ReflectComponent comp, uint8_t fontSize) {
   // Set the font size of the component
   ExternalAPI::setComponentFontSize(comp.id, fontSize);
   return true;

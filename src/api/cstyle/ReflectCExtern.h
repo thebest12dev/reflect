@@ -24,11 +24,19 @@
 // if not supported, use #ifndef
 #ifndef CTOASTC_H
 #define CTOASTC_H
-#undef CTOAST_API
-#ifdef CTOAST_BUILDING
-#define CTOAST_API __declspec(dllexport)
+#undef REFLECT_API
+
+#if defined(REFLECT_BUILDING) && defined(_WIN32)
+#undef REFLECT_API
+#define REFLECT_API __declspec(dllexport)
+#elif !defined(REFLECT_BUILDING) && defined(_WIN32)
+#undef REFLECT_API
+#define REFLECT_API __declspec(dllimport)
+#endif
+#if defined(REFLECT_BUILDING) && __linux__
+#define REFLECT_API __attribute__((visibility("default")))
 #else
-#define CTOAST_API __declspec(dllimport)
+#define REFLECT_API extern
 #endif
 #ifdef __cplusplus
 // use c++ standard libraries
@@ -50,7 +58,7 @@ extern "C" {
  * @brief A C-style component structure mapping to C++.
  *
  * Every component in C has an ID, which maps to the component in
- * `CinnamonToast::Components`.
+ * `reflect::Components`.
  */
 typedef struct {
   /**
@@ -60,12 +68,13 @@ typedef struct {
    * Note that for now, only 256 components are supported.
    */
   uint8_t id;
-} CToastComponent;
+
+} ReflectComponent;
 
 /**
  * @brief A type alias for a string in C.
  */
-typedef const char *CToastString;
+typedef const char *ReflectString;
 
 /**
  * @brief Method to get a component by its ID.
@@ -73,9 +82,9 @@ typedef const char *CToastString;
  * It uses the `ExternalAPI::getComponentById` method to get the component,
  * which goes to `Components::getComponentById`.
  *
- * @return A CToastComponent with the given ID.
+ * @return A ReflectComponent with the given ID.
  */
-CTOAST_API CToastComponent CToast_getComponentById(CToastString id);
+REFLECT_API ReflectComponent Reflect_getComponentById(ReflectString id);
 
 /**
  * @brief Method to set the color of a component.
@@ -89,8 +98,8 @@ CTOAST_API CToastComponent CToast_getComponentById(CToastString id);
  * @param b The blue value of the color.
  * @return true if successful, false otherwise.
  */
-CTOAST_API bool CToast_setColor(CToastComponent component, uint8_t r, uint8_t g,
-                                uint8_t b);
+REFLECT_API bool Reflect_setColor(ReflectComponent component, uint8_t r,
+                                  uint8_t g, uint8_t b);
 
 /**
  * @brief Method to get the text of a component.
@@ -102,7 +111,7 @@ CTOAST_API bool CToast_setColor(CToastComponent component, uint8_t r, uint8_t g,
  * @param component The component to get the text of.
  * @return The text of the component.
  */
-CTOAST_API CToastString CToast_getText(CToastComponent component);
+REFLECT_API ReflectString Reflect_getText(ReflectComponent component);
 
 /**
  * @brief Method to add a child component to a parent component.
@@ -114,8 +123,8 @@ CTOAST_API CToastString CToast_getText(CToastComponent component);
  * @param child The child component.
  * @return true if successful, false otherwise.
  */
-CTOAST_API bool CToast_addComponent(CToastComponent parent,
-                                    CToastComponent child);
+REFLECT_API bool Reflect_addComponent(ReflectComponent parent,
+                                      ReflectComponent child);
 /**
  * @brief Method to set the visibility command of a component.
  *
@@ -127,7 +136,7 @@ CTOAST_API bool CToast_addComponent(CToastComponent parent,
  * @param cmd The visibility command.
  * @return true if successful, false otherwise.
  */
-CTOAST_API bool CToast_setVisibleCommand(CToastComponent comp, uint8_t cmd);
+REFLECT_API bool Reflect_setVisibleCommand(ReflectComponent comp, uint8_t cmd);
 /**
  * @brief Method to set the visibility of a component.
  *
@@ -138,7 +147,7 @@ CTOAST_API bool CToast_setVisibleCommand(CToastComponent comp, uint8_t cmd);
  * @param flag The visibility flag.
  * @return true if successful, false otherwise.
  */
-CTOAST_API bool CToast_setVisible(CToastComponent comp, bool flag);
+REFLECT_API bool Reflect_setVisible(ReflectComponent comp, bool flag);
 /**
  * @brief Method to set the font of a component.
  *
@@ -149,7 +158,7 @@ CTOAST_API bool CToast_setVisible(CToastComponent comp, bool flag);
  * @param font The font to set.
  * @return true if successful, false otherwise.
  */
-CTOAST_API bool CToast_setFont(CToastComponent comp, CToastString font);
+REFLECT_API bool Reflect_setFont(ReflectComponent comp, ReflectString font);
 /**
  * @brief Method to set the font size of a component.
  *
@@ -160,7 +169,7 @@ CTOAST_API bool CToast_setFont(CToastComponent comp, CToastString font);
  * @param fontSize The font size to set.
  * @return true if successful, false otherwise.
  */
-CTOAST_API bool CToast_setFontSize(CToastComponent comp, uint8_t fontSize);
+REFLECT_API bool Reflect_setFontSize(ReflectComponent comp, uint8_t fontSize);
 #ifdef __cplusplus
 // end extern "C"
 }

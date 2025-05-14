@@ -19,7 +19,7 @@
 #include "Vector2.h"
 #include "TypeDefinitions.h"
 
-namespace CinnamonToast {
+namespace reflect {
 
 Vector2::Vector2() = default;
 
@@ -83,4 +83,4 @@ Vector2 Vector2::operator|(const Vector2 &vec) const noexcept {
 Vector2::operator std::vector<int>() const noexcept {
   return std::vector<int>{x, y};
 }
-} // namespace CinnamonToast
+} // namespace reflect

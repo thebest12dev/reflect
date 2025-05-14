@@ -22,9 +22,11 @@
 #include "Vector2.h"
 #include <string>
 
-void ctoast TextComponent::setText(std::string text_) { this->text = text_; }
-std::string ctoast TextComponent::getText() { return text; }
-void ctoast TextComponent::setFont(std::string f) { fontStr = f; }
-void ctoast TextComponent::setFontSize(int fs) { fontSize = fs; }
-ctoast TextComponent::TextComponent() : position({0, 0}), size({0, 0}) {}
-ctoast TextComponent::~TextComponent() {}
+void reflect::TextComponent::setText(std::string text_) { this->text = text_; }
+std::string reflect::TextComponent::getText() { return text; }
+void reflect::TextComponent::setFont(std::string f) { fontStr = f; }
+void reflect::TextComponent::setFontSize(int fs) { fontSize = fs; }
+reflect::TextComponent::TextComponent() : position({0, 0}), size({0, 0}) {
+  initializeObject(REFLECT_OBJECT_TEXTCOMPONENT, REFLECT_OBJECT_COMPONENT);
+}
+reflect::TextComponent::~TextComponent() {}

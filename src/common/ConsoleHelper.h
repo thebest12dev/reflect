@@ -19,22 +19,23 @@
 #pragma once
 #include "TypeDefinitions.h"
 
-namespace CinnamonToast {
-namespace Console {
+namespace reflect {
+class LogInstance;
+namespace console {
 
 /**
  * @brief Enables or disables debug logging.
  *
  * @param enabled A boolean indicating whether debug logging should be enabled.
  */
-CTOAST_API void setDebugEnabled(bool enabled);
+REFLECT_API void setDebugEnabled(bool enabled);
 
 /**
  * @brief Retrieves the current debug logging state.
  *
  * @return True if debug logging is enabled, false otherwise.
  */
-CTOAST_API bool getDebugEnabled();
-
-} // namespace Console
-} // namespace CinnamonToast
+REFLECT_API bool getDebugEnabled();
+REFLECT_API void setLogInstance(LogInstance inst);
+} // namespace console
+} // namespace reflect

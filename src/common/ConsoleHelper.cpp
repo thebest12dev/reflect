@@ -19,25 +19,29 @@
 
 #include "ConsoleHelper.h"
 
+#include "../core/logging/LogInstance.h"
 namespace {
 // Indicates whether debug logging is enabled.
 bool debugEnabled = false;
 } // namespace
 
-namespace CinnamonToast {
+namespace reflect {
 
 /**
  * @brief Enables or disables debug logging.
  *
  * @param enabled A boolean indicating whether debug logging should be enabled.
  */
-void Console::setDebugEnabled(bool enabled) { debugEnabled = enabled; }
+void console::setDebugEnabled(bool enabled) { debugEnabled = enabled; }
 
 /**
  * @brief Retrieves the current debug logging state.
  *
  * @return True if debug logging is enabled, false otherwise.
  */
-bool Console::getDebugEnabled() { return debugEnabled; }
-
-} // namespace CinnamonToast
+bool console::getDebugEnabled() { return debugEnabled; }
+inline void console::setLogInstance(LogInstance inst) {
+  std::cout.rdbuf(&(std::streambuf &)inst);
+  std::cerr.rdbuf(&(std::streambuf &)inst);
+};
+} // namespace reflect

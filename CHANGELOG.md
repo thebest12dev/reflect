@@ -1,3 +1,8 @@
+# v1.7.0 (2025-05-15)
+- Added custom title bar (not accessible)
+- Renamed CinnamonToast to Reflect
+- Bug fixes
+
 # v1.6.0 (2025-04-24)
 - Resolved issues #5, #6, #7, #8
 - Bug fixes
@@ -5,7 +10,7 @@
 # v1.5.0 (2025-04-08)
 - Added networking module (optional)
 - Added a bunch of resource files
-- Added some console macros (ctoastInfo, ctoastDebug, etc.)
+- Added some console macros (reflectInfo, reflectDebug, etc.)
 - Fixed some bugs
 - Add networking tests
 - Use OpenSSL for networking

@@ -1,20 +1,20 @@
 #pragma once
 #include "TypeDefinitions.h"
 #include <string>
-namespace CinnamonToast {
+namespace reflect {
 class Notification {
 private:
   std::string title, text;
 
 public:
-  CTOAST_API Notification();
-  CTOAST_API Notification(std::string title, std::string text);
-  CTOAST_API Notification(std::string text);
-  CTOAST_API void setTitle(std::string title);
-  CTOAST_API void setText(std::string text);
-  CTOAST_API ~Notification();
+  REFLECT_API Notification();
+  REFLECT_API Notification(std::string title, std::string text);
+  REFLECT_API Notification(std::string text);
+  REFLECT_API void setTitle(std::string title);
+  REFLECT_API void setText(std::string text);
+  REFLECT_API ~Notification();
   friend class Window;
 };
-} // namespace CinnamonToast
+} // namespace reflect
 
 // add more platform support

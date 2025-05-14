@@ -22,7 +22,7 @@ A clear and concise description what would happen.
 If applicable, add screenshots to help explain your problem.
 
 **Information**
-CinnamonToast Version: `fully-qualified-version`
+Reflect Version: `fully-qualified-version`
 Platform: `windows`
 
 **Log File**

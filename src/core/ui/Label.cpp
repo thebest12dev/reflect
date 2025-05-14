@@ -22,36 +22,41 @@
 #include "Console.h"
 #include "Definitions.h"
 #include "TypeDefinitions.h"
+#include "Window.h"
 #include <iostream>
 #include <windows.h>
 
-using namespace CinnamonToast::Console;
-using namespace CinnamonToast::Utilities;
-void ctoast Label::setFont(std::string font) {
+using namespace reflect::console;
+using namespace reflect::utilities;
+void reflect::Label::setFont(std::string font) {
   fontStr = font;
   if (font == "default") {
     fontStr = DEFAULT_FONT;
   }
 }
-void ctoast Label::setFontSize(int size) { fontSize = size; }
-std::string ctoast Label::getText() { return text; }
+void reflect::Label::setFontSize(int size) { fontSize = size; }
+std::string reflect::Label::getText() { return text; }
 
-void ctoast Label::render(HWND &parentHWND, HWND &windowHWND) {
+void reflect::Label::render(HWND &parentHWND, HWND &windowHWND) {
   if (!IsWindow(parentHWND)) {
-    ctoastError("parent HWND is invalid!");
-    std::exit(CTOAST_ERROR_WIN_PARENT_HWND_INVALID);
+    reflectError("parent HWND is invalid!");
+    std::exit(REFLECT_ERROR_WIN_PARENT_HWND_INVALID);
   }
+  reflect::Window *window = reinterpret_cast<reflect::Window *>(
+      GetWindowLongPtr(windowHWND, GWLP_USERDATA));
 
   // Create the label window
   hwnd = CreateWindow("STATIC",              // Predefined class for a label
                       text.c_str(),          // Label text
                       WS_VISIBLE | WS_CHILD, // Styles: visible and child window
-                      position.x, position.y, // Position (x, y)
-                      size.x, size.y,         // Size (width, height)
-                      parentHWND,             // Parent window handle
-                      NULL,                   // No menu or child ID
-                      winstance,              // Instance handle
-                      NULL                    // Additional application data
+                      position.x,
+                      position.y + window->getProperty<int>(
+                                       "customTitleBarSize"), // Position (x, y)
+                      size.x, size.y, // Size (width, height)
+                      parentHWND,     // Parent window handle
+                      NULL,           // No menu or child ID
+                      winstance,      // Instance handle
+                      NULL            // Additional application data
   );
 
   if (!hwnd) {
@@ -60,7 +65,7 @@ void ctoast Label::render(HWND &parentHWND, HWND &windowHWND) {
   }
 
   // Create a custom font
-  HFONT hFont = ctoast Utilities::getFont(fontStr, fontSize);
+  HFONT hFont = reflect::utilities::getFont(fontStr, fontSize);
 
   if (hFont) {
     // Set the font for the label
@@ -92,11 +97,13 @@ void ctoast Label::render(HWND &parentHWND, HWND &windowHWND) {
   }
 }
 
-void ctoast Label::setVisible(bool flag) {
+void reflect::Label::setVisible(bool flag) {
   ShowWindow(this->hwnd, flag ? SW_SHOW : SW_HIDE);
 }
-ctoast Label::Label(std::string text, Vector2 pos)
-    : position(pos), size(Vector2(0, 0)), text(text) {}
+reflect::Label::Label(std::string text, Vector2 pos)
+    : position(pos), size(Vector2(0, 0)), text(text) {
+  initializeObject(REFLECT_OBJECT_LABEL, REFLECT_OBJECT_TEXTCOMPONENT);
+}
 #elif __linux__
 #include "../Console.h"
 #include "../Definitions.h"
@@ -110,15 +117,15 @@ ctoast Label::Label(std::string text, Vector2 pos)
 
 // XftDrawStringUtf8(draw, &color, font, 50, 100, (const FcChar8 *)"Hello, X11
 // with Font!", 21);
-ctoast Label::Label(std::string text, Vector2 pos)
+reflect::Label::Label(std::string text, Vector2 pos)
     : position(pos), size(Vector2(0, 0)), text(text) {}
-void ctoast Label::SetVisible(bool flag) { this->visible = true; }
-void ctoast Label::SetFont(std::string font) { fontStr = font; }
-void ctoast Label::SetFontSize(int fontSize_) { fontSize = fontSize_; }
-ctoast Label::Label()
+void reflect::Label::SetVisible(bool flag) { this->visible = true; }
+void reflect::Label::SetFont(std::string font) { fontStr = font; }
+void reflect::Label::SetFontSize(int fontSize_) { fontSize = fontSize_; }
+reflect::Label::Label()
     : position(Vector2(0, 0)), size(Vector2(0, 0)), text("") {};
-std::string ctoast Label::GetText() { return text; }
-std::string ctoast Label::GetProperty(std::string property) {
+std::string reflect::Label::GetText() { return text; }
+std::string reflect::Label::GetProperty(std::string property) {
   if (property == "Text") {
     return text;
   } else {

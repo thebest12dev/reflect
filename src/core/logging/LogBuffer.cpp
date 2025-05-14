@@ -17,16 +17,18 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #include "LogBuffer.h"
+#ifdef _WIN32
 #include <windows.h>
+#endif
 
-namespace CinnamonToast {
+namespace reflect {
 
 /**
  * @brief Constructs a LogBuffer object and initializes the file stream.
  *
  * Redirects `std::cout` to both the console and a log file.
  */
-LogBuffer::LogBuffer() : fileStream("log.txt") {
+LogBuffer::LogBuffer() : fileStream("logs/current.log") {
   sb1 = std::cout.rdbuf();
   sb2 = fileStream.rdbuf();
 }
@@ -49,6 +51,7 @@ int LogBuffer::overflow(int c) {
       return EOF;
   } __except (EXCEPTION_EXECUTE_HANDLER) {
     // Handle exception
+
     return EOF;
   }
 
@@ -70,5 +73,8 @@ int LogBuffer::sync() {
     return -1;
   }
 }
-
-} // namespace CinnamonToast
+void LogBuffer::setOutputFile(std::string file) {
+  fileStream = std::ofstream(file);
+  sb2 = fileStream.rdbuf();
+}
+} // namespace reflect

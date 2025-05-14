@@ -12,11 +12,11 @@ VS_VERSION_INFO VERSIONINFO
         "StringFileInfo" BEGIN BLOCK
             "040904B0" // Language and code page (040904B0 = English, Unicode)
             BEGIN VALUE "FileDescription",
-            "CinnamonToast Crash Handler" VALUE "InternalName",
-            "CinnamonToast.CrashHandler" VALUE "LegalCopyright",
+            "Reflect Crash Handler" VALUE "InternalName",
+            "Reflect.CrashHandler" VALUE "LegalCopyright",
             "Copyright © 2025 thebest12lines" VALUE "OriginalFilename",
-            "CinnamonToast.JavaAPI.dll" VALUE "ProductName",
-            "CinnamonToast" END END
+            "Reflect.JavaAPI.dll" VALUE "ProductName",
+            "Reflect" END END
 
             BLOCK "VarFileInfo" BEGIN VALUE "Translation",
             0x0409,
