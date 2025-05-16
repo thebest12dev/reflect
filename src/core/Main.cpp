@@ -324,16 +324,16 @@ int reflect::invokeExecutable(std::string xmlFile, bool blocking) {
         return REFLECT_ERROR_CANNOT_LOAD_LIBRARY_FUNCTION;
       }
       reflect::ReflectAPI reflectApi = {};
-      reflectApi.addComponent = ExternalAPI::addComponent;
-      reflectApi.getComponentById = ExternalAPI::getComponentById;
-      reflectApi.getText = ExternalAPI::getComponentText;
-      reflectApi.setColor = ExternalAPI::setComponentColor;
-      reflectApi.setFont = ExternalAPI::setComponentFont;
-      reflectApi.setFontSize = ExternalAPI::setComponentFontSize;
-      reflectApi.setVisible = ExternalAPI::setComponentVisible;
-      reflectApi.setVisibleCommand = ExternalAPI::setComponentVisibleCommand;
+      reflectApi.addComponent = external::addComponent;
+      reflectApi.getComponentById = external::getComponentById;
+      reflectApi.getText = external::getComponentText;
+      reflectApi.setColor = external::setComponentColor;
+      reflectApi.setFont = external::setComponentFont;
+      reflectApi.setFontSize = external::setComponentFontSize;
+      reflectApi.setVisible = external::setComponentVisible;
+      reflectApi.setVisibleCommand = external::setComponentVisibleCommand;
 
-      reflectApi.setOnClick = ExternalAPI::setOnClick;
+      reflectApi.setOnClick = external::setOnClick;
       std::thread *thread = new std::thread(mainFunc, &reflectApi);
     }
 #ifdef REFLECT_LUA

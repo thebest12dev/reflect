@@ -32,12 +32,12 @@ namespace {
 std::vector<const char *> cull = {};
 }
 
-ComponentId ExternalAPI::getComponentById(const char *id) {
+ComponentId external::getComponentById(const char *id) {
 
   cull.push_back(id);
   return cull.size();
 };
-const char *ExternalAPI::getComponentText(ComponentId ref) {
+const char *external::getComponentText(ComponentId ref) {
   // Ensure the ref is within bounds
   if (ref - 1 < 0 || ref - 1 >= cull.size()) {
 
@@ -60,7 +60,7 @@ const char *ExternalAPI::getComponentText(ComponentId ref) {
     return nullptr; // Return null if the cast fails
   }
 }
-// const char* ExternalAPI::GetComponentText(ComponentId ref) {
+// const char* external::GetComponentText(ComponentId ref) {
 //     // Ensure the ref is within bounds
 //     if (ref - 1 < 0 || ref - 1 >= cull.size()) {
 //
@@ -84,8 +84,8 @@ const char *ExternalAPI::getComponentText(ComponentId ref) {
 //     }
 // }
 #include <functional>
-bool ExternalAPI::setComponentColor(ComponentId component, uint8_t r, uint8_t g,
-                                    uint8_t b) {
+bool external::setComponentColor(ComponentId component, uint8_t r, uint8_t g,
+                                 uint8_t b) {
   // Ensure the component is within bounds
   if (component - 1 < 0 || component - 1 >= cull.size()) {
     return false; // Return false if invalid
@@ -105,8 +105,8 @@ bool ExternalAPI::setComponentColor(ComponentId component, uint8_t r, uint8_t g,
 static ComponentId comp1_;
 void (*callback_)(ComponentId comp);
 void staticWrapper(Button &button) { callback_(comp1_); }
-bool ExternalAPI::setOnClick(ComponentId comp1,
-                             void (*callback)(ComponentId comp)) {
+bool external::setOnClick(ComponentId comp1,
+                          void (*callback)(ComponentId comp)) {
   if (comp1 - 1 < 0 || comp1 - 1 >= cull.size()) {
     return false; // Return false if invalid
   }
@@ -122,7 +122,7 @@ bool ExternalAPI::setOnClick(ComponentId comp1,
     return false; // Return false if the cast fails
   }
 }
-bool ExternalAPI::addComponent(ComponentId parent, ComponentId child) {
+bool external::addComponent(ComponentId parent, ComponentId child) {
   // Ensure the parent and child are within bounds
   if (parent - 1 < 0 || parent - 1 >= cull.size() || child - 1 < 0 ||
       child - 1 >= cull.size()) {
@@ -140,8 +140,8 @@ bool ExternalAPI::addComponent(ComponentId parent, ComponentId child) {
   }
 }
 
-// ExternalAPI::SetComponentVisibleCommand
-bool ExternalAPI::setComponentVisibleCommand(ComponentId comp, uint8_t cmd) {
+// external::SetComponentVisibleCommand
+bool external::setComponentVisibleCommand(ComponentId comp, uint8_t cmd) {
   // Ensure the component is within bounds
   if (comp - 1 < 0 || comp - 1 >= cull.size()) {
     return false; // Return false if invalid
@@ -157,8 +157,8 @@ bool ExternalAPI::setComponentVisibleCommand(ComponentId comp, uint8_t cmd) {
   }
 }
 
-// ExternalAPI::SetComponentVisible
-bool ExternalAPI::setComponentVisible(ComponentId comp, bool flag) {
+// external::SetComponentVisible
+bool external::setComponentVisible(ComponentId comp, bool flag) {
   // Ensure the component is within bounds
   if (comp - 1 < 0 || comp - 1 >= cull.size()) {
     return false; // Return false if invalid
@@ -174,8 +174,8 @@ bool ExternalAPI::setComponentVisible(ComponentId comp, bool flag) {
   }
 }
 
-// ExternalAPI::SetComponentFont
-bool ExternalAPI::setComponentFont(ComponentId comp2, ReflectString font) {
+// external::SetComponentFont
+bool external::setComponentFont(ComponentId comp2, ReflectString font) {
   // Ensure the font is not null
   if (font == nullptr) {
     return false; // Return false if invalid
@@ -191,8 +191,8 @@ bool ExternalAPI::setComponentFont(ComponentId comp2, ReflectString font) {
     return false; // Return false if the cast fails
   }
 }
-// ExternalAPI::SetComponentFontSize
-bool ExternalAPI::setComponentFontSize(ComponentId comp_, uint8_t fontSize) {
+// external::SetComponentFontSize
+bool external::setComponentFontSize(ComponentId comp_, uint8_t fontSize) {
   // Ensure the font size is not null
   if (fontSize == 0) {
     return false; // Return false if invalid

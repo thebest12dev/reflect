@@ -10,6 +10,11 @@
       <label x="20" y="75" font="Segoe UI" fontSize="16" id="label2">Messsage Content</label>
       <progressBar x="130" y="410" width="200" height="20" value="50" min="0" max="100" id="pb1"/>
     </window>
+    <resources>
+      <shader type="glsl" version="330" id="fragment">
+
+      </shader>
+    </resources>
 </root>
 <!-- <root version="1" uiVersion="1.0.0">
     <window title="CinnamonToast Demo" width="800" height="500" bgColor="systemDefault" id="mainWindow">

@@ -34,6 +34,7 @@
 #define REFLECT_API __declspec(dllimport)
 #endif
 #if defined(REFLECT_BUILDING) && __linux__
+// LINUX
 #define REFLECT_API __attribute__((visibility("default")))
 #else
 #define REFLECT_API extern
@@ -52,13 +53,13 @@
 // extern "C" to prevent name mangling
 extern "C" {
 #endif
-// C-style API functions
+// c-style API functions
 
 /**
  * @brief A C-style component structure mapping to C++.
  *
  * Every component in C has an ID, which maps to the component in
- * `reflect::Components`.
+ * `reflect::components`.
  */
 typedef struct {
   /**
@@ -79,7 +80,7 @@ typedef const char *ReflectString;
 /**
  * @brief Method to get a component by its ID.
  *
- * It uses the `ExternalAPI::getComponentById` method to get the component,
+ * It uses the `external::getComponentById` method to get the component,
  * which goes to `Components::getComponentById`.
  *
  * @return A ReflectComponent with the given ID.
@@ -89,7 +90,7 @@ REFLECT_API ReflectComponent Reflect_getComponentById(ReflectString id);
 /**
  * @brief Method to set the color of a component.
  *
- * It uses the `ExternalAPI::setComponentColor` method to set the color of the
+ * It uses the `external::setComponentColor` method to set the color of the
  * component, which goes to `Component::setColor`.
  *
  * @param component The component to set the color of.
@@ -104,7 +105,7 @@ REFLECT_API bool Reflect_setColor(ReflectComponent component, uint8_t r,
 /**
  * @brief Method to get the text of a component.
  *
- * It uses the `ExternalAPI::getComponentText` method to get the text of the
+ * It uses the `external::getComponentText` method to get the text of the
  * component, which goes to `TextComponent::getText`. Please note that this
  * only works for `TextComponent`.
  *
@@ -116,7 +117,7 @@ REFLECT_API ReflectString Reflect_getText(ReflectComponent component);
 /**
  * @brief Method to add a child component to a parent component.
  *
- * It uses the `ExternalAPI::addComponent` method to add the child component
+ * It uses the `external::addComponent` method to add the child component
  * to the parent component, which goes to `Component::add`.
  *
  * @param parent The parent component.
@@ -128,7 +129,7 @@ REFLECT_API bool Reflect_addComponent(ReflectComponent parent,
 /**
  * @brief Method to set the visibility command of a component.
  *
- * It uses the `ExternalAPI::setComponentVisibleCommand` method to set the
+ * It uses the `external::setComponentVisibleCommand` method to set the
  * visibility command of the component, which goes to
  * `Component::setVisible`.
  *
@@ -140,7 +141,7 @@ REFLECT_API bool Reflect_setVisibleCommand(ReflectComponent comp, uint8_t cmd);
 /**
  * @brief Method to set the visibility of a component.
  *
- * It uses the `ExternalAPI::setVisible` method to set the
+ * It uses the `external::setVisible` method to set the
  * visibility of the component, which goes to `Component::setVisible`.
  *
  * @param comp The component to set the visibility of.
@@ -151,7 +152,7 @@ REFLECT_API bool Reflect_setVisible(ReflectComponent comp, bool flag);
 /**
  * @brief Method to set the font of a component.
  *
- * It uses the `ExternalAPI::setFont` method to set the
+ * It uses the `external::setFont` method to set the
  * font of the component, which goes to `TextComponent::setFont`.
  *
  * @param comp The component to set the font of.
@@ -162,7 +163,7 @@ REFLECT_API bool Reflect_setFont(ReflectComponent comp, ReflectString font);
 /**
  * @brief Method to set the font size of a component.
  *
- * It uses the `ExternalAPI::setFontSize` method to set the
+ * It uses the `external::setFontSize` method to set the
  * font size of the component, which goes to `TextComponent::setFontSize`.
  *
  * @param comp The component to set the font size of.
