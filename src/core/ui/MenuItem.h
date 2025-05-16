@@ -27,11 +27,11 @@
 namespace reflect {
 class MenuItem : public TextComponent {
 protected:
-  HINSTANCE winstance;
+  ApplicationHandle winstance;
   HMENU hmenu;
 
-  HINSTANCE parentInstance;
-  // HWND parentHWND;
+  ApplicationHandle parentInstance;
+  // WindowHandle parentHWND;
 
   // Vector2 position;
   Vector2 size;
@@ -43,7 +43,7 @@ private:
 
 public:
   friend class Component;
-  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
+  REFLECT_API void render(WindowHandle &parentHWND, WindowHandle &windowHWND);
   REFLECT_API void setVisible(bool flag);
   REFLECT_API void add(MenuItem &comp);
   REFLECT_API void setText(std::string contents);

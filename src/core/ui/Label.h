@@ -17,7 +17,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #pragma once
-#ifdef _WIN32
 #include "Component.h"
 #include "TextComponent.h"
 #include "TypeDefinitions.h"
@@ -26,11 +25,11 @@
 namespace reflect {
 class Label : public TextComponent {
 protected:
-  HINSTANCE winstance;
-  HWND hwnd;
+  ApplicationHandle winstance;
+  WindowHandle hwnd;
 
-  HINSTANCE parentInstance;
-  // HWND parentHWND;
+  ApplicationHandle parentInstance;
+  // WindowHandle parentHWND;
 
   Vector2 position;
   Vector2 size;
@@ -42,7 +41,7 @@ private:
 
 public:
   friend class Component;
-  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
+  REFLECT_API void render(WindowHandle &parentHWND, WindowHandle &windowHWND);
   REFLECT_API void setVisible(bool flag);
   REFLECT_API void add(Component comp);
   REFLECT_API Label(std::string contents, Vector2 pos);
@@ -53,44 +52,3 @@ public:
   REFLECT_API void setColor(uint8_t r, uint8_t g, uint8_t b);
 };
 } // namespace reflect
-
-#elif __linux__
-#pragma once
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <cstdint>
-
-#include "../TypeDefinitions.h"
-#include "Component.h"
-#include "Vector2.h"
-#include <string>
-namespace reflect {
-class Label : public Component {
-protected:
-  Vector2 position;
-  Vector2 size;
-
-private:
-  std::string text;
-  std::string fontStr;
-  int fontSize;
-  bool visible;
-
-public:
-  friend class Component;
-  REFLECT_API void SetVisible(bool flag);
-  REFLECT_API bool GetVisible();
-  REFLECT_API void Add(Component comp);
-  REFLECT_API Label();
-  REFLECT_API Label(std::string contents, Vector2 pos);
-  REFLECT_API void SetVisible(int cmd);
-  REFLECT_API void SetFontSize(int size);
-  REFLECT_API std::string GetText();
-  REFLECT_API std::string GetProperty(std::string property) override;
-  REFLECT_API void SetFont(std::string font);
-  REFLECT_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
-  friend class Window;
-};
-} // namespace reflect
-
-#endif

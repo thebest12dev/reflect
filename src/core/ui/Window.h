@@ -17,16 +17,17 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #pragma once
-
 #ifdef _WIN32
 #include <Windows.h>
+#include <d2d1.h>
 #undef byte
+#endif
 #include "Component.h"
 #include "Notification.h"
 #include "OpenGLContext.h"
 #include "TypeDefinitions.h"
 #include <condition_variable>
-#include <d2d1.h>
+
 #include <mutex>
 #include <thread>
 
@@ -43,9 +44,17 @@ struct WindowCreateInfo {
   bool customTitleBar = false;
 };
 class Window : public Component {
+  private:
+  bool useGL;
+  bool customPipeline;
+  OpenGLContext *glCtx;
+  bool closeHovering;
+  bool customTitleBar;
+  void (*renderLoop)(Window &);
+  void (*beforeRenderLoop)(Window &);
 protected:
-  HINSTANCE winstance;
-  HWND hwnd;
+  ApplicationHandle winstance;
+  WindowHandle hwnd;
   // std::map<char, bool> pressedKeys;
   std::thread *renderThread = nullptr;
   std::condition_variable renderCondition;
@@ -60,35 +69,33 @@ protected:
            return 0;
          }
        }},
+       #ifdef _WIN32
       {"direct2DRenderTarget",
        [this]() -> std::any {
          return pRenderTarget; // ID2D1HwndRenderTarget
        }},
       {"direct2DFactory", [this]() -> std::any {
          return pFactory; // ID2D1Factory
-       }}};
+       }};
+       #endif
+      };
   bool renderRunning;
   bool callInit;
+  #ifdef _WIN32
   ID2D1HwndRenderTarget *pRenderTarget;
   ID2D1Factory *pFactory;
-  static LRESULT CALLBACK windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+  static LRESULT CALLBACK windowProc(WindowHandle hwnd, UINT uMsg, WPARAM wParam,
                                      LPARAM lParam);
   void initializeDirect2D();
+  #endif
 
-private:
-  bool useGL;
-  bool customPipeline;
-  OpenGLContext *glCtx;
-  bool closeHovering;
-  bool customTitleBar;
-  void (*renderLoop)(Window &);
-  void (*beforeRenderLoop)(Window &);
+
 
 public:
   COMPONENT_DECL(Window);
-  REFLECT_API Window(HINSTANCE instance, std::string id,
+  REFLECT_API Window(ApplicationHandle instance, std::string id,
                      WindowCreateInfo *info = nullptr);
-  REFLECT_API Window(HINSTANCE instance, OpenGLContext ctx, std::string id);
+  REFLECT_API Window(ApplicationHandle instance, OpenGLContext ctx, std::string id);
   REFLECT_API void setTitle(std::string title);
   REFLECT_API void addStyle(WindowStyle style);
   // // void SetSize(Vector2 dim);
@@ -107,50 +114,10 @@ public:
   REFLECT_API int run(void (*func)(Window &win));
   REFLECT_API void setRenderLoop(void (*loop)(Window &));
   REFLECT_API void close();
-  REFLECT_API operator HWND() const;
+  REFLECT_API operator WindowHandle() const;
 
   friend class Component;
   friend class Label;
   friend class OpenGLContext;
 };
-} // namespace reflect
-
-#elif __linux__
-#include "../TypeDefinitions.h"
-#include "Component.h"
-#include "Vector2.h"
-#include <X11/Xft/Xft.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <cstdint>
-#include <string>
-typedef Window XWindow;
-namespace reflect {
-class Window : public Component {
-protected:
-  Display *winstance;
-  XWindow window;
-  int screen;
-  XftFont *font;
-  XftDraw *draw;
-
-private:
-  uint8_t bgColor[3];
-
-public:
-  REFLECT_API Window(Display *instance);
-  REFLECT_API void SetTitle(std::string title);
-  // // void SetSize(Vector2 dim);
-  REFLECT_API void SetColor(uint8_t r, uint8_t g, uint8_t b);
-  REFLECT_API void SetVisible(bool flag);
-  REFLECT_API void Add(Component *comp);
-  REFLECT_API std::string GetProperty(std::string property);
-  REFLECT_API void SetSize(Vector2 size);
-  REFLECT_API void SetVisible(int cmd);
-  REFLECT_API int Run();
-  REFLECT_API ~Window();
-  friend class Component;
-  friend class Label;
-};
-} // namespace reflect
-#endif
+}; // namespace reflect

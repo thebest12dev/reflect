@@ -160,7 +160,7 @@ void Image::getBitmap(std::wstring imagePath, ID2D1RenderTarget *pRenderTarget,
   pDecoder->Release();
   pWICFactory->Release();
 }
-LRESULT CALLBACK Image::imageProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+LRESULT CALLBACK Image::imageProc(WindowHandle hwnd, UINT uMsg, WPARAM wParam,
                                   LPARAM lParam) {
   reflect::Image *pThis = nullptr;
 
@@ -235,7 +235,7 @@ LRESULT CALLBACK Image::imageProc(HWND hwnd, UINT uMsg, WPARAM wParam,
   return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-void Image::render(HWND &parentHWND, HWND &windowHWND) {
+void Image::render(WindowHandle &parentHWND, WindowHandle &windowHWND) {
   registerClass();
 
   hwnd = CreateWindowEx(0, "D2D1BitmapImage", nullptr, WS_CHILD | WS_VISIBLE,

@@ -122,7 +122,7 @@ void CrashHandler::setUnhandledExceptionCrashFunction(CrashFunction function) {
 }
 } // namespace reflect
 #elif __linux__
-#include <execreflectInfo.h>
+#include <execinfo.h>
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
@@ -171,6 +171,7 @@ CrashHandler *CrashManager::getActiveCrashHandler() { return handler; };
 
 void CrashHandler::invokeCrash(std::string crashMessage) {
   if (throwCrash) {
+    
     std::cerr << "[FATAL] [invokeUnhandledExceptionCrash]: Program crashed! "
               << std::endl;
     std::cerr << "[FATAL] [invokeUnhandledExceptionCrash]: Showing message! "

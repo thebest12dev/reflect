@@ -44,6 +44,7 @@ typedef unsigned char byte;
 
 #ifdef __linux__
 #include <X11/X.h>
+#include <X11/Xlib.h>
 /**
  * @brief Alias for an X11 window identifier.
  */
@@ -63,7 +64,15 @@ typedef XID XWindow;
 /**
  * @brief Namespace for the Reflect framework.
  */
-namespace reflect {} // namespace reflect
+namespace reflect {
+#ifdef __linux__
+using WindowHandle = XWindow;
+using ApplicationHandle = Display *;
+#elif _WIN32
+using WindowHandle = HWND;
+using ApplicationHandle = ApplicationHandle;
+#endif
+} // namespace reflect
 
 // if defined
 #undef REFLECT_SHARED_LIBRARY
@@ -77,3 +86,5 @@ namespace reflect {} // namespace reflect
 #define REFLECT_API __attribute__((visibility("default")))
 #endif
 #endif
+
+

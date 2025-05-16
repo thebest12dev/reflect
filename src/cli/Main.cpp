@@ -35,7 +35,7 @@ using byte = unsigned char;
 #include "Utilities.h"
 #ifdef REFLECT_NO_CONSOLE
 // use windows APIs intead of int main
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+int WINAPI WinMain(ApplicationHandle hInstance, ApplicationHandle hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
   // expression to load reflect
   reflect::LogBuffer logbuf;

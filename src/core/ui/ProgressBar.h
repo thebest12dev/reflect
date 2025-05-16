@@ -7,13 +7,13 @@ private:
   float minValue;
   float value;
   float maxValue;
-  /// @brief The HINSTANCE object associated
+  /// @brief The ApplicationHandle object associated
   /// with the program required for window creation.
-  HINSTANCE winstance;
+  ApplicationHandle winstance;
 
-  /// @brief The window handle (HWND) associated
+  /// @brief The window handle (WindowHandle) associated
   /// with the object needed for Win32 APIs.
-  HWND hwnd;
+  WindowHandle hwnd;
 
   /// @brief The color of the
   /// component in RGB.
@@ -23,7 +23,7 @@ public:
   // COMPONENT_DECL(ProgressBar);
   ProgressBar();
   REFLECT_API void setPosition(Vector2 pos);
-  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
+  REFLECT_API void render(WindowHandle &parentHWND, WindowHandle &windowHWND);
   void setValue(float value);
   void setMaximumValue(float value);
   void setMininumValue(float value);

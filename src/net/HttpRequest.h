@@ -1,3 +1,4 @@
+#pragma once
 #include "TypeDefinitions.h"
 #ifdef _WIN32
 #include <WS2tcpip.h>
@@ -18,7 +19,7 @@ private:
 
 public:
   REFLECT_API HttpRequest(const std::string &url,
-                          HttpRequestMethod method = HTTP_GET,
+                          HttpRequestMethod method = HttpRequestMethod::HTTP_GET,
                           const std::string &headers = "",
                           const std::string &body = "");
   REFLECT_API void setUrl(const std::string &newUrl);

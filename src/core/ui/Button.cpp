@@ -54,7 +54,7 @@ WNDPROC originalBtnProc = nullptr;
 void reflect::Button::onClick(void (*callback)(Button &)) {
   this->clickCallback = callback;
 }
-long long CALLBACK reflect::Button::buttonProc(HWND hwnd, UINT uMsg,
+long long CALLBACK reflect::Button::buttonProc(WindowHandle hwnd, UINT uMsg,
                                                WPARAM wParam, LPARAM lParam,
                                                UINT_PTR uIdSubclass,
                                                DWORD_PTR dwRefData) {
@@ -77,7 +77,7 @@ long long CALLBACK reflect::Button::buttonProc(HWND hwnd, UINT uMsg,
  * @param parentHWND The handle to the parent window.
  * @param windowHWND The handle to the window.
  */
-void reflect::Button::render(HWND &parentHWND, HWND &windowHWND) {
+void reflect::Button::render(WindowHandle &parentHWND, WindowHandle &windowHWND) {
   if (!IsWindow(parentHWND)) {
     reflectError("parent HWND is invalid!");
     std::exit(REFLECT_ERROR_WIN_PARENT_HWND_INVALID);

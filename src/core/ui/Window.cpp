@@ -128,7 +128,7 @@ void reflect::Window::initializeDirect2D() {
 };
 
 namespace {
-float getDPIScaleForWindow(HWND hwnd) {
+float getDPIScaleForWindow(WindowHandle hwnd) {
   HDC hdc = GetDC(hwnd);
   float dpi = GetDeviceCaps(hdc, LOGPIXELSX); // or LOGPIXELSY
   ReleaseDC(hwnd, hdc);
@@ -155,7 +155,7 @@ HGLRC currentContext = nullptr;
 HDC glHdc = nullptr;
 reflect::Image closeIcon;
 
-LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
+LRESULT CALLBACK reflect::Window::windowProc(WindowHandle hwnd, UINT uMsg,
                                              WPARAM wParam, LPARAM lParam) {
   reflect::Window *pThis = nullptr;
   if (uMsg == WM_CREATE) {
@@ -442,7 +442,7 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
         // regionType = GetWindowRgn(hwnd, hrgn);
         if (regionType != ERROR) {
           RECT controlRect;
-          HWND hChild = GetWindow(hwnd, GW_CHILD); // Get the first child window
+          WindowHandle hChild = GetWindow(hwnd, GW_CHILD); // Get the first child window
 
           // while (hChild != NULL) {
           //   GetWindowRect(hChild, &controlRect);
@@ -655,7 +655,7 @@ void reflect::Window::setSize(Vector2 size_) {
                SWP_NOZORDER | SWP_NOACTIVATE // Flags
   );
 }
-reflect::Window::Window(HINSTANCE instance, std::string id,
+reflect::Window::Window(ApplicationHandle instance, std::string id,
                         WindowCreateInfo *info)
     : winstance(instance), useGL(false), glCtx(nullptr), customPipeline(false),
       beforeRenderLoop(nullptr), callInit(false), renderLoop(nullptr),
@@ -706,7 +706,7 @@ reflect::Window::Window(HINSTANCE instance, std::string id,
   }
   reflect::Components::gchildren[id] = this;
 }
-reflect::Window::Window(HINSTANCE instance, OpenGLContext ctx, std::string id)
+reflect::Window::Window(ApplicationHandle instance, OpenGLContext ctx, std::string id)
     : winstance(instance), useGL(true), glCtx(&ctx), customPipeline(true),
       beforeRenderLoop(nullptr) {
   initializeObject(REFLECT_OBJECT_WINDOW, REFLECT_OBJECT_COMPONENT);
@@ -757,7 +757,7 @@ void reflect::Window::setVisible(bool flag) {
 bool reflect::Window::getVisible() { return IsWindowVisible(hwnd); }
 reflect::Window::operator WindowHandle() const { return this->hwnd; }
 void reflect::Window::setVisible(int cmd) { ShowWindow(hwnd, cmd); }
-void reflect::Window::render(HWND &parentHWND, HWND &windowHWND) {
+void reflect::Window::render(WindowHandle &parentHWND, WindowHandle &windowHWND) {
   reflectWarn("Window::render called, the method is intentionally empty "
               "because it is "
               "not a child component!",

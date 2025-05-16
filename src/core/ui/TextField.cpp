@@ -7,7 +7,7 @@ namespace {
 WNDPROC originalEditProc = nullptr; // Store the original window procedure
 } // namespace
 namespace reflect {
-LRESULT CALLBACK TextField::editProc(HWND hwnd, UINT msg, WPARAM wParam,
+LRESULT CALLBACK TextField::editProc(WindowHandle hwnd, UINT msg, WPARAM wParam,
                                      LPARAM lParam) {
   TextField *pThis = nullptr;
   pThis = reinterpret_cast<reflect::TextField *>(
@@ -33,7 +33,7 @@ TextField::TextField()
 }
 void TextField::setSize(Vector2 size) { this->size = size; };
 void TextField::setPosition(Vector2 pos) { position = pos; };
-void TextField::render(HWND &parentHWND, HWND &windowHWND) {
+void TextField::render(WindowHandle &parentHWND, WindowHandle &windowHWND) {
   reflect::Window *window = reinterpret_cast<reflect::Window *>(
       GetWindowLongPtr(windowHWND, GWLP_USERDATA));
   hwnd = CreateWindowEx(

@@ -37,9 +37,9 @@ void reflect::Label::setFont(std::string font) {
 void reflect::Label::setFontSize(int size) { fontSize = size; }
 std::string reflect::Label::getText() { return text; }
 
-void reflect::Label::render(HWND &parentHWND, HWND &windowHWND) {
+void reflect::Label::render(WindowHandle &parentHWND, WindowHandle &windowHWND) {
   if (!IsWindow(parentHWND)) {
-    reflectError("parent HWND is invalid!");
+    reflectError("parent WindowHandle is invalid!");
     std::exit(REFLECT_ERROR_WIN_PARENT_HWND_INVALID);
   }
   reflect::Window *window = reinterpret_cast<reflect::Window *>(

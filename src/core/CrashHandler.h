@@ -21,7 +21,10 @@
 #include <cstdint>
 #include <exception>
 #include <string>
+#ifdef _WIN32
 #include <windows.h>
+
+#endif
 
 #define CRASH_UNHANDLED_EXCEPTION 0x10
 #define CRASH_INVOKE 0x100

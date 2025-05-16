@@ -18,22 +18,22 @@
  */
 #pragma once
 #include "TextComponent.h"
-#ifdef _WIN32
 #include "Component.h"
 #include <cstdint>
+#ifdef _WIN32
 #include <windows.h>
-
+#endif
 #include "TypeDefinitions.h"
 #include "Vector2.h"
 #include <string>
 namespace reflect {
 class Button : public TextComponent {
 protected:
-  HINSTANCE winstance;
-  HWND hwnd;
+  ApplicationHandle winstance;
+  WindowHandle hwnd;
 
-  HINSTANCE parentInstance;
-  // HWND parentHWND;
+  ApplicationHandle parentInstance;
+  // WindowHandle parentHWND;
 
   Vector2 position;
   Vector2 size;
@@ -43,13 +43,15 @@ private:
   std::string text;
   std::string fontStr;
   int fontSize;
-  static LRESULT CALLBACK buttonProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+  #ifdef _WIN32
+  static LRESULT CALLBACK buttonProc(WindowHandle hwnd, UINT uMsg, WPARAM wParam,
                                      LPARAM lParam, UINT_PTR uIdSubclass,
                                      DWORD_PTR dwRefData);
+                                     #endif
 
 public:
   friend class Component;
-  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
+  REFLECT_API void render(WindowHandle &parentHWND, WindowHandle &windowHWND);
   REFLECT_API void setVisible(bool flag);
   REFLECT_API void add(Component comp);
   REFLECT_API Button(std::string contents, Vector2 pos);
@@ -62,43 +64,3 @@ public:
   REFLECT_API void setColor(uint8_t r, uint8_t g, uint8_t b);
 };
 } // namespace reflect
-#elif __linux__
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <cstdint>
-
-#include "../TypeDefinitions.h"
-#include "Component.h"
-#include "Vector2.h"
-#include <string>
-namespace reflect {
-class Button : public Component {
-protected:
-  Display *winstance;
-  Window window;
-
-  Display *parentInstance;
-  // Window parentWindow;
-
-  Vector2 position;
-  Vector2 size;
-
-private:
-  std::string text;
-  std::string fontStr;
-  int fontSize;
-
-public:
-  friend class Component;
-  REFLECT_API void render(Window &parentWindow, Window &windowWindow);
-  REFLECT_API void setVisible(bool flag);
-  REFLECT_API void add(Component comp);
-  REFLECT_API Button(std::string contents, Vector2 pos);
-  REFLECT_API void setVisible(int cmd);
-  REFLECT_API void setFontSize(int size);
-  REFLECT_API void setFont(std::string font);
-  REFLECT_API void setColor(uint8_t r, uint8_t g, uint8_t b);
-};
-} // namespace reflect
-
-#endif

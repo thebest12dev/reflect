@@ -24,7 +24,9 @@ typedef unsigned char byte;
 #include "ui/Components.h"
 #include "ui/Label.h"
 #include "ui/TextComponent.h"
-#include <Windows.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #include <iostream>
 #include <vector>
 using namespace reflect;
@@ -46,7 +48,7 @@ const char *external::getComponentText(ComponentId ref) {
 
   // Attempt dynamic_cast to TextComponent*
   TextComponent *comp =
-      fastCast<TextComponent>(Components::getComponentById(cull[ref - 1]),
+      reflect::fastCast<TextComponent>(Components::getComponentById(cull[ref - 1]),
                               REFLECT_OBJECT_TEXTCOMPONENT);
   // Label *label = dynamic_cast<Label *>(comp);
   if (comp) {

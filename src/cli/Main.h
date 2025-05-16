@@ -43,5 +43,5 @@ int main(const int argc, const char *argv[]);
 /**
  * @brief Windows entry point.
  */
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+int WINAPI WinMain(ApplicationHandle hInstance, ApplicationHandle hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow);

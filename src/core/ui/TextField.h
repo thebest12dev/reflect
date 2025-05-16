@@ -11,8 +11,8 @@
 namespace reflect {
 class TextField : public TextComponent {
 protected:
-  HINSTANCE winstance;
-  HWND hwnd;
+  ApplicationHandle winstance;
+  WindowHandle hwnd;
 
   Vector2 position;
   std::map<std::string, bool> pressedKeys;
@@ -20,12 +20,12 @@ protected:
   Color3Float bgColor;
   void (*focusCallback)(TextField &);
   bool focused;
-  REFLECT_API static LRESULT CALLBACK editProc(HWND hwnd, UINT uMsg,
+  REFLECT_API static LRESULT CALLBACK editProc(WindowHandle hwnd, UINT uMsg,
                                                WPARAM wParam, LPARAM lParam);
 
 public:
   REFLECT_API TextField();
-  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
+  REFLECT_API void render(WindowHandle &parentHWND, WindowHandle &windowHWND);
   REFLECT_API void setText(std::string text);
   REFLECT_API std::string getText();
   REFLECT_API void setSize(Vector2 size);
