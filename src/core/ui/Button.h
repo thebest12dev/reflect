@@ -17,8 +17,8 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #pragma once
-#include "TextComponent.h"
 #include "Component.h"
+#include "TextComponent.h"
 #include <cstdint>
 #ifdef _WIN32
 #include <windows.h>
@@ -43,11 +43,11 @@ private:
   std::string text;
   std::string fontStr;
   int fontSize;
-  #ifdef _WIN32
-  static LRESULT CALLBACK buttonProc(WindowHandle hwnd, UINT uMsg, WPARAM wParam,
-                                     LPARAM lParam, UINT_PTR uIdSubclass,
-                                     DWORD_PTR dwRefData);
-                                     #endif
+#ifdef _WIN32
+  static LRESULT CALLBACK buttonProc(WindowHandle hwnd, UINT uMsg,
+                                     WPARAM wParam, LPARAM lParam,
+                                     UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
+#endif
 
 public:
   friend class Component;

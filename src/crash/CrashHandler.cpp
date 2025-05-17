@@ -171,7 +171,7 @@ CrashHandler *CrashManager::getActiveCrashHandler() { return handler; };
 
 void CrashHandler::invokeCrash(std::string crashMessage) {
   if (throwCrash) {
-    
+
     std::cerr << "[FATAL] [invokeUnhandledExceptionCrash]: Program crashed! "
               << std::endl;
     std::cerr << "[FATAL] [invokeUnhandledExceptionCrash]: Showing message! "

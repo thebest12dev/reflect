@@ -42,7 +42,7 @@
   }
 
 #define COMPONENT_DECL(classname)                                              \
-  REFLECT_API void render(WindowHandle &parentHWND, WindowHandle &windowHWND);                 \
+  REFLECT_API void render(WindowHandle &parentHWND, WindowHandle &windowHWND); \
   REFLECT_API void setVisible(bool flag);                                      \
   REFLECT_API void add(Component &comp);                                       \
   REFLECT_API void setSize(Vector2 size);                                      \
@@ -79,6 +79,10 @@ protected:
   /// component in RGB.
   Color3Float bgColor;
 
+#ifdef __linux__
+  // Passed to the X11 window loop
+  bool visible = true;
+#endif
 public:
   /**
    * @brief Creation of the component as well as
@@ -100,7 +104,8 @@ public:
    * @param windowHWND The window window handle (similar to the parent handle
    * but for the window).
    */
-  REFLECT_API virtual void render(WindowHandle &parentHWND, WindowHandle &windowHWND) = 0;
+  REFLECT_API virtual void render(WindowHandle &parentHWND,
+                                  WindowHandle &windowHWND) = 0;
 
   /**
    * @brief Sets the component visibility to either show or hide depending on

@@ -86,5 +86,3 @@ using ApplicationHandle = ApplicationHandle;
 #define REFLECT_API __attribute__((visibility("default")))
 #endif
 #endif
-
-

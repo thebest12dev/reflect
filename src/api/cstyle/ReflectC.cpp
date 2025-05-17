@@ -24,7 +24,6 @@
 // why do you need this really?
 using namespace reflect;
 
-
 // literally whatever
 REFLECT_API ReflectComponent Reflect_getComponentById(ReflectString id) {
   return {(uint8_t)external::getComponentById(id)}; // do not segfault!
@@ -36,7 +35,7 @@ REFLECT_API bool Reflect_setColor(ReflectComponent component, uint8_t r,
   return true; // false false false
 };
 
-// string manipulation 
+// string manipulation
 REFLECT_API ReflectString Reflect_getText(ReflectComponent component) {
   // text
   return external::getComponentText(component.id);

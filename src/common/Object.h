@@ -27,7 +27,6 @@ public:
   friend T *fastCast(Object *comp, ObjectUID expectedType);
 };
 
-
 template <DerivedFromObject T>
 T *fastCast(Object *comp, ObjectUID expectedType) {
   if (!comp)

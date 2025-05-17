@@ -1,6 +1,8 @@
 #pragma once
 #include "Component.h"
+#ifdef _WIN32
 #include <d2d1.h>
+#endif
 #include <unordered_map>
 namespace reflect {
 using ImageBitmap = ID2D1Bitmap;

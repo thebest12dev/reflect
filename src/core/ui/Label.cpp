@@ -16,7 +16,6 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifdef _WIN32
 #include "Label.h"
 #include "../Utilities.h"
 #include "Console.h"
@@ -24,8 +23,9 @@
 #include "TypeDefinitions.h"
 #include "Window.h"
 #include <iostream>
+#ifdef _WIN32
 #include <windows.h>
-
+#endif
 using namespace reflect::console;
 using namespace reflect::utilities;
 void reflect::Label::setFont(std::string font) {
@@ -37,7 +37,9 @@ void reflect::Label::setFont(std::string font) {
 void reflect::Label::setFontSize(int size) { fontSize = size; }
 std::string reflect::Label::getText() { return text; }
 
-void reflect::Label::render(WindowHandle &parentHWND, WindowHandle &windowHWND) {
+void reflect::Label::render(WindowHandle &parentHWND,
+                            WindowHandle &windowHWND) {
+#ifdef _WIN32
   if (!IsWindow(parentHWND)) {
     reflectError("parent WindowHandle is invalid!");
     std::exit(REFLECT_ERROR_WIN_PARENT_HWND_INVALID);
@@ -95,41 +97,19 @@ void reflect::Label::render(WindowHandle &parentHWND, WindowHandle &windowHWND) 
     SelectObject(hdc, oldFont);
     ReleaseDC(hwnd, hdc);
   }
+#elif __linux__
+  // do nothing, as you cannot create a label in linux
+#endif
 }
 
 void reflect::Label::setVisible(bool flag) {
+#ifdef _WIN32
   ShowWindow(this->hwnd, flag ? SW_SHOW : SW_HIDE);
+#elif __linux__
+
+#endif
 }
 reflect::Label::Label(std::string text, Vector2 pos)
     : position(pos), size(Vector2(0, 0)), text(text) {
   initializeObject(REFLECT_OBJECT_LABEL, REFLECT_OBJECT_TEXTCOMPONENT);
 }
-#elif __linux__
-#include "../Console.h"
-#include "../Definitions.h"
-#include "../TypeDefinitions.h"
-#include "../Utilities.h"
-#include "Label.h"
-#include <X11/Xft/Xft.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <iostream>
-
-// XftDrawStringUtf8(draw, &color, font, 50, 100, (const FcChar8 *)"Hello, X11
-// with Font!", 21);
-reflect::Label::Label(std::string text, Vector2 pos)
-    : position(pos), size(Vector2(0, 0)), text(text) {}
-void reflect::Label::SetVisible(bool flag) { this->visible = true; }
-void reflect::Label::SetFont(std::string font) { fontStr = font; }
-void reflect::Label::SetFontSize(int fontSize_) { fontSize = fontSize_; }
-reflect::Label::Label()
-    : position(Vector2(0, 0)), size(Vector2(0, 0)), text("") {};
-std::string reflect::Label::GetText() { return text; }
-std::string reflect::Label::GetProperty(std::string property) {
-  if (property == "Text") {
-    return text;
-  } else {
-    return "";
-  }
-}
-#endif

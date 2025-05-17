@@ -442,7 +442,8 @@ LRESULT CALLBACK reflect::Window::windowProc(WindowHandle hwnd, UINT uMsg,
         // regionType = GetWindowRgn(hwnd, hrgn);
         if (regionType != ERROR) {
           RECT controlRect;
-          WindowHandle hChild = GetWindow(hwnd, GW_CHILD); // Get the first child window
+          WindowHandle hChild =
+              GetWindow(hwnd, GW_CHILD); // Get the first child window
 
           // while (hChild != NULL) {
           //   GetWindowRect(hChild, &controlRect);
@@ -706,7 +707,8 @@ reflect::Window::Window(ApplicationHandle instance, std::string id,
   }
   reflect::Components::gchildren[id] = this;
 }
-reflect::Window::Window(ApplicationHandle instance, OpenGLContext ctx, std::string id)
+reflect::Window::Window(ApplicationHandle instance, OpenGLContext ctx,
+                        std::string id)
     : winstance(instance), useGL(true), glCtx(&ctx), customPipeline(true),
       beforeRenderLoop(nullptr) {
   initializeObject(REFLECT_OBJECT_WINDOW, REFLECT_OBJECT_COMPONENT);
@@ -757,7 +759,8 @@ void reflect::Window::setVisible(bool flag) {
 bool reflect::Window::getVisible() { return IsWindowVisible(hwnd); }
 reflect::Window::operator WindowHandle() const { return this->hwnd; }
 void reflect::Window::setVisible(int cmd) { ShowWindow(hwnd, cmd); }
-void reflect::Window::render(WindowHandle &parentHWND, WindowHandle &windowHWND) {
+void reflect::Window::render(WindowHandle &parentHWND,
+                             WindowHandle &windowHWND) {
   reflectWarn("Window::render called, the method is intentionally empty "
               "because it is "
               "not a child component!",

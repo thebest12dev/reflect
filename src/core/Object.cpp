@@ -2,7 +2,7 @@
 
 namespace reflect {
 std::map<int, int> Object::parentOf;
-Object::Object() {};
+Object::Object(){};
 unsigned int Object::getUID() const noexcept { return uid; }
 std::string Object::toString() noexcept { return typeid(*this).name(); }
 Object::~Object() = default;

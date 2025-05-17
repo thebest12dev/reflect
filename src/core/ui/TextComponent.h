@@ -42,7 +42,8 @@ protected:
 
 public:
   REFLECT_API TextComponent();
-  REFLECT_API virtual void render(WindowHandle &parentHWND, WindowHandle &windowHWND) = 0;
+  REFLECT_API virtual void render(WindowHandle &parentHWND,
+                                  WindowHandle &windowHWND) = 0;
   REFLECT_API void setVisible(bool flag);
   REFLECT_API void add(Component &comp);
   REFLECT_API void setVisible(int cmd);

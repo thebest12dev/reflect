@@ -47,9 +47,9 @@ const char *external::getComponentText(ComponentId ref) {
   }
 
   // Attempt dynamic_cast to TextComponent*
-  TextComponent *comp =
-      reflect::fastCast<TextComponent>(Components::getComponentById(cull[ref - 1]),
-                              REFLECT_OBJECT_TEXTCOMPONENT);
+  TextComponent *comp = reflect::fastCast<TextComponent>(
+      Components::getComponentById(cull[ref - 1]),
+      REFLECT_OBJECT_TEXTCOMPONENT);
   // Label *label = dynamic_cast<Label *>(comp);
   if (comp) {
 

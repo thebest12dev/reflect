@@ -18,10 +18,10 @@ private:
   std::string response;
 
 public:
-  REFLECT_API HttpRequest(const std::string &url,
-                          HttpRequestMethod method = HttpRequestMethod::HTTP_GET,
-                          const std::string &headers = "",
-                          const std::string &body = "");
+  REFLECT_API
+  HttpRequest(const std::string &url,
+              HttpRequestMethod method = HttpRequestMethod::HTTP_GET,
+              const std::string &headers = "", const std::string &body = "");
   REFLECT_API void setUrl(const std::string &newUrl);
   REFLECT_API void setMethod(HttpRequestMethod newMethod);
   REFLECT_API void setHeaders(const std::string &newHeaders);

@@ -44,7 +44,7 @@ struct WindowCreateInfo {
   bool customTitleBar = false;
 };
 class Window : public Component {
-  private:
+private:
   bool useGL;
   bool customPipeline;
   OpenGLContext *glCtx;
@@ -52,6 +52,7 @@ class Window : public Component {
   bool customTitleBar;
   void (*renderLoop)(Window &);
   void (*beforeRenderLoop)(Window &);
+
 protected:
   ApplicationHandle winstance;
   WindowHandle hwnd;
@@ -61,63 +62,63 @@ protected:
   std::mutex renderMutex;
 
   std::unordered_map<std::string, std::function<std::any()>> propertyMap = {
-      {"customTitleBarSize",
-       [this]() -> std::any {
-         if (customTitleBar) {
-           return 40;
-         } else {
-           return 0;
-         }
-       }},
-       #ifdef _WIN32
-      {"direct2DRenderTarget",
-       [this]() -> std::any {
-         return pRenderTarget; // ID2D1HwndRenderTarget
-       }},
-      {"direct2DFactory", [this]() -> std::any {
-         return pFactory; // ID2D1Factory
-       }};
-       #endif
-      };
-  bool renderRunning;
-  bool callInit;
-  #ifdef _WIN32
-  ID2D1HwndRenderTarget *pRenderTarget;
-  ID2D1Factory *pFactory;
-  static LRESULT CALLBACK windowProc(WindowHandle hwnd, UINT uMsg, WPARAM wParam,
-                                     LPARAM lParam);
-  void initializeDirect2D();
-  #endif
-
-
+    {"customTitleBarSize",
+     [this]() -> std::any {
+       if (customTitleBar) {
+         return 40;
+       } else {
+         return 0;
+       }
+     }},
+#ifdef _WIN32
+    {"direct2DRenderTarget",
+     [this]() -> std::any {
+       return pRenderTarget; // ID2D1HwndRenderTarget
+     }},
+    {"direct2DFactory", [this]() -> std::any {
+       return pFactory; // ID2D1Factory
+     }};
+#endif
+};
+bool renderRunning;
+bool callInit;
+#ifdef _WIN32
+ID2D1HwndRenderTarget *pRenderTarget;
+ID2D1Factory *pFactory;
+static LRESULT CALLBACK windowProc(WindowHandle hwnd, UINT uMsg, WPARAM wParam,
+                                   LPARAM lParam);
+void initializeDirect2D();
+#endif
 
 public:
-  COMPONENT_DECL(Window);
-  REFLECT_API Window(ApplicationHandle instance, std::string id,
-                     WindowCreateInfo *info = nullptr);
-  REFLECT_API Window(ApplicationHandle instance, OpenGLContext ctx, std::string id);
-  REFLECT_API void setTitle(std::string title);
-  REFLECT_API void addStyle(WindowStyle style);
-  // // void SetSize(Vector2 dim);
+COMPONENT_DECL(Window);
+REFLECT_API Window(ApplicationHandle instance, std::string id,
+                   WindowCreateInfo *info = nullptr);
+REFLECT_API Window(ApplicationHandle instance, OpenGLContext ctx,
+                   std::string id);
+REFLECT_API void setTitle(std::string title);
+REFLECT_API void addStyle(WindowStyle style);
+// // void SetSize(Vector2 dim);
 
-  template <typename T>
+template <typename T>
 
-  REFLECT_API T getProperty(std::string property) {
-    std::any anyType = propertyMap[property]();
-    return std::any_cast<T>(anyType);
-  };
-  REFLECT_API void setBeforeRenderLoop(void (*callback)(Window &));
-  REFLECT_API void swapBuffers();
-  REFLECT_API bool isKeyPressed(char key);
-  REFLECT_API void add(Component &comp, std::string id);
-  REFLECT_API bool showNotification(reflect::Notification &notif);
-  REFLECT_API int run(void (*func)(Window &win));
-  REFLECT_API void setRenderLoop(void (*loop)(Window &));
-  REFLECT_API void close();
-  REFLECT_API operator WindowHandle() const;
-
-  friend class Component;
-  friend class Label;
-  friend class OpenGLContext;
+REFLECT_API T getProperty(std::string property) {
+  std::any anyType = propertyMap[property]();
+  return std::any_cast<T>(anyType);
 };
+REFLECT_API void setBeforeRenderLoop(void (*callback)(Window &));
+REFLECT_API void swapBuffers();
+REFLECT_API bool isKeyPressed(char key);
+REFLECT_API void add(Component &comp, std::string id);
+REFLECT_API bool showNotification(reflect::Notification &notif);
+REFLECT_API int run(void (*func)(Window &win));
+REFLECT_API void setRenderLoop(void (*loop)(Window &));
+REFLECT_API void close();
+REFLECT_API operator WindowHandle() const;
+
+friend class Component;
+friend class Label;
+friend class OpenGLContext;
 }; // namespace reflect
+}
+; // namespace reflect
