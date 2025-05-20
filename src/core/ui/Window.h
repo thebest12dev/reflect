@@ -20,6 +20,7 @@
 #ifdef _WIN32
 #include <Windows.h>
 #include <d2d1.h>
+#include <dwrite.h>
 #undef byte
 #endif
 #include "Component.h"
@@ -54,71 +55,81 @@ private:
   void (*beforeRenderLoop)(Window &);
 
 protected:
-  ApplicationHandle winstance;
-  WindowHandle hwnd;
+  HINSTANCE winstance;
+  HWND hwnd;
   // std::map<char, bool> pressedKeys;
   std::thread *renderThread = nullptr;
   std::condition_variable renderCondition;
   std::mutex renderMutex;
-
-  std::unordered_map<std::string, std::function<std::any()>> propertyMap = {
-    {"customTitleBarSize",
-     [this]() -> std::any {
-       if (customTitleBar) {
-         return 40;
-       } else {
-         return 0;
-       }
-     }},
+  std::unordered_map<std::string, std::function<std::any()>> getPropertyMap() {
+    return {{"customTitleBarSize",
+             [this]() -> std::any {
+               if (customTitleBar) {
+                 return 40;
+               } else {
+                 return 0;
+               }
+             }},
 #ifdef _WIN32
-    {"direct2DRenderTarget",
-     [this]() -> std::any {
-       return pRenderTarget; // ID2D1HwndRenderTarget
-     }},
-    {"direct2DFactory", [this]() -> std::any {
-       return pFactory; // ID2D1Factory
-     }};
+            {"direct2DRenderTarget",
+             [this]() -> std::any {
+               return pRenderTarget; // ID2D1HwndRenderTarget
+             }},
+            {"direct2DFactory",
+             [this]() -> std::any {
+               return pFactory; // ID2D1Factory
+             }},
+            {"directWriteFactory",
+             [this]() -> std::any {
+               return pDWriteFactory; // IDWriteFactory
+             }}
 #endif
-};
-bool renderRunning;
-bool callInit;
+    };
+  }
+
+  bool renderRunning;
+  bool callInit;
 #ifdef _WIN32
-ID2D1HwndRenderTarget *pRenderTarget;
-ID2D1Factory *pFactory;
-static LRESULT CALLBACK windowProc(WindowHandle hwnd, UINT uMsg, WPARAM wParam,
-                                   LPARAM lParam);
-void initializeDirect2D();
+  ID2D1HwndRenderTarget *pRenderTarget = nullptr;
+  ID2D1Factory *pFactory = nullptr;
+  IDWriteFactory *pDWriteFactory = nullptr;
+  static LRESULT CALLBACK windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+                                     LPARAM lParam);
+  void initializeDirect2D();
+  void initializeDirectWrite(); // Add
 #endif
 
 public:
-COMPONENT_DECL(Window);
-REFLECT_API Window(ApplicationHandle instance, std::string id,
-                   WindowCreateInfo *info = nullptr);
-REFLECT_API Window(ApplicationHandle instance, OpenGLContext ctx,
-                   std::string id);
-REFLECT_API void setTitle(std::string title);
-REFLECT_API void addStyle(WindowStyle style);
-// // void SetSize(Vector2 dim);
+  COMPONENT_DECL(Window);
+  REFLECT_API Window(HINSTANCE instance, std::string id,
+                     WindowCreateInfo *info = nullptr);
+  REFLECT_API Window(HINSTANCE instance, OpenGLContext ctx, std::string id);
+  REFLECT_API void setTitle(std::string title);
+  REFLECT_API void addStyle(WindowStyle style);
+  // // void SetSize(Vector2 dim);
 
-template <typename T>
+  template <typename T>
 
-REFLECT_API T getProperty(std::string property) {
-  std::any anyType = propertyMap[property]();
-  return std::any_cast<T>(anyType);
-};
-REFLECT_API void setBeforeRenderLoop(void (*callback)(Window &));
-REFLECT_API void swapBuffers();
-REFLECT_API bool isKeyPressed(char key);
-REFLECT_API void add(Component &comp, std::string id);
-REFLECT_API bool showNotification(reflect::Notification &notif);
-REFLECT_API int run(void (*func)(Window &win));
-REFLECT_API void setRenderLoop(void (*loop)(Window &));
-REFLECT_API void close();
-REFLECT_API operator WindowHandle() const;
+  REFLECT_API T getProperty(std::string property) {
+    std::any anyType = getPropertyMap()[property]();
+    return std::any_cast<T>(anyType);
+  };
+  REFLECT_API void setBeforeRenderLoop(void (*callback)(Window &));
+  REFLECT_API void swapBuffers();
+  REFLECT_API bool isKeyPressed(char key);
+  REFLECT_API void add(Component &comp, std::string id);
+  REFLECT_API bool showNotification(reflect::Notification &notif);
+  REFLECT_API int run(void (*func)(Window &win));
+  REFLECT_API void setRenderLoop(void (*loop)(Window &));
+  REFLECT_API void close();
+  REFLECT_API operator HWND() const;
+  REFLECT_API Window(const Window &) = delete;
+  REFLECT_API Window &operator=(const Window &) = delete;
+  REFLECT_API Window(Window &&) = delete;
+  REFLECT_API Window &operator=(Window &&) = delete;
 
-friend class Component;
-friend class Label;
-friend class OpenGLContext;
+  friend class Component;
+  friend class Label;
+  friend class OpenGLContext;
 }; // namespace reflect
-}
-; // namespace reflect
+}; // namespace reflect

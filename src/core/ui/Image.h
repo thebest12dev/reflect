@@ -17,7 +17,7 @@ protected:
   void registerClass();
   static void getBitmap(std::wstring image, ID2D1RenderTarget *pRenderTarget,
                         ImageBitmap **bitmap);
-  static LRESULT CALLBACK imageProc(WindowHandle hwnd, UINT uMsg, WPARAM wParam,
+  static LRESULT CALLBACK imageProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                                     LPARAM lParam);
 
 public:
@@ -26,6 +26,6 @@ public:
                                     std::string id = "default");
   REFLECT_API void setActiveImage(std::string id = "default");
   REFLECT_API std::string getActiveImage();
-  REFLECT_API void render(WindowHandle &parentHWND, WindowHandle &windowHWND);
+  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
 };
 } // namespace reflect

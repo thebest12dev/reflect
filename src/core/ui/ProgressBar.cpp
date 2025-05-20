@@ -17,7 +17,7 @@ void ProgressBar::setPosition(Vector2 pos) {
                SWP_NOSIZE | SWP_NOZORDER);
 }
 
-void ProgressBar::render(WindowHandle &parentHWND, WindowHandle &windowHWND) {
+void ProgressBar::render(HWND &parentHWND, HWND &windowHWND) {
   reflect::Window *window = reinterpret_cast<reflect::Window *>(
       GetWindowLongPtr(windowHWND, GWLP_USERDATA));
   hwnd = CreateWindowEx(

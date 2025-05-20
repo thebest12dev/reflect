@@ -17,12 +17,14 @@ if (POLICY CMP0141)
 endif()
 # Enable exceptions in MSVC
 if(MSVC)
-    add_compile_options(/EHsc)
+    add_compile_options(/EHsc /Zc:__cplusplus)
 endif()
 
 # Define the project
-set(TRIPLET "x64-linux")
+set(TRIPLET "x64-windows")
 project("cinnamontoast")
+set(CMAKE_GENERATOR_PLATFORM "x64")
+
 enable_testing()
 
 file(GLOB_RECURSE REFLECT_CORE "src/core/*.cpp" "src/core/*.h")

@@ -20,35 +20,32 @@
 #include "Component.h"
 #include "TextComponent.h"
 #include "TypeDefinitions.h"
+#include <d2d1.h>
 #include <string>
 
 namespace reflect {
 class Label : public TextComponent {
 protected:
-  ApplicationHandle winstance;
-  WindowHandle hwnd;
+  HINSTANCE winstance;
+  HWND hwnd;
 
-  ApplicationHandle parentInstance;
-  // WindowHandle parentHWND;
-
-  Vector2 position;
-  Vector2 size;
-
-private:
-  std::string text;
-  std::string fontStr;
-  int fontSize;
+  HINSTANCE parentInstance;
+  // HWND parentHWND;
+  void registerClass();
+  static LRESULT CALLBACK labelProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+                                    LPARAM lParam);
+  ID2D1HwndRenderTarget *childRenderTarget;
 
 public:
   friend class Component;
-  REFLECT_API void render(WindowHandle &parentHWND, WindowHandle &windowHWND);
+  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
   REFLECT_API void setVisible(bool flag);
   REFLECT_API void add(Component comp);
   REFLECT_API Label(std::string contents, Vector2 pos);
   REFLECT_API void setVisible(int cmd);
   REFLECT_API void setFontSize(int size) override;
   REFLECT_API void setFont(std::string font) override;
-  REFLECT_API std::string getText() override;
   REFLECT_API void setColor(uint8_t r, uint8_t g, uint8_t b);
+  REFLECT_API Color3 getColor();
 };
 } // namespace reflect

@@ -29,11 +29,11 @@
 namespace reflect {
 class Button : public TextComponent {
 protected:
-  ApplicationHandle winstance;
-  WindowHandle hwnd;
+  HINSTANCE winstance;
+  HWND hwnd;
 
-  ApplicationHandle parentInstance;
-  // WindowHandle parentHWND;
+  HINSTANCE parentInstance;
+  // HWND parentHWND;
 
   Vector2 position;
   Vector2 size;
@@ -44,14 +44,14 @@ private:
   std::string fontStr;
   int fontSize;
 #ifdef _WIN32
-  static LRESULT CALLBACK buttonProc(WindowHandle hwnd, UINT uMsg,
-                                     WPARAM wParam, LPARAM lParam,
-                                     UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
+  static LRESULT CALLBACK buttonProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+                                     LPARAM lParam, UINT_PTR uIdSubclass,
+                                     DWORD_PTR dwRefData);
 #endif
 
 public:
   friend class Component;
-  REFLECT_API void render(WindowHandle &parentHWND, WindowHandle &windowHWND);
+  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
   REFLECT_API void setVisible(bool flag);
   REFLECT_API void add(Component comp);
   REFLECT_API Button(std::string contents, Vector2 pos);

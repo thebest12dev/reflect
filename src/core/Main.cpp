@@ -58,6 +58,7 @@ typedef unsigned char byte;
 #include "ui/Colors.h"
 #include "ui/Component.h"
 #include "ui/Components.h"
+#include "ui/Container.h"
 #include "ui/Image.h"
 #include "ui/Label.h"
 #include "ui/MenuItem.h"
@@ -173,8 +174,8 @@ int reflect::invokeExecutable(std::string xmlFile, bool blocking) {
 #ifdef _WIN32
   Window *win = nullptr;
   if (gctx == nullptr) {
-    reflectDebug("getting ApplicationHandle...");
-    ApplicationHandle hInstance = GetModuleHandle(nullptr);
+    reflectDebug("getting HINSTANCE...");
+    HINSTANCE hInstance = GetModuleHandle(nullptr);
     reflectDebug("creating window...");
 
     // OpenGLContext ctx;
@@ -200,8 +201,8 @@ int reflect::invokeExecutable(std::string xmlFile, bool blocking) {
           "labels, etc.) will not render. This is only for if you want to "
           "develop things like games or simulations. (To disable this "
           "warning, set contextSetWarning to false in your XML file.");
-      reflectDebug("getting ApplicationHandle...");
-      ApplicationHandle hInstance = GetModuleHandle(nullptr);
+      reflectDebug("getting HINSTANCE...");
+      HINSTANCE hInstance = GetModuleHandle(nullptr);
       reflectDebug("creating window...");
       OpenGLContext ctx;
       win = new Window(hInstance, ctx, winId);
@@ -365,7 +366,6 @@ int reflect::invokeExecutable(std::string xmlFile, bool blocking) {
     }
     win->add(*menuBar);
   }
-
   reflectDebug("entering main loop...");
   win->setVisible(true);
   if (blocking) {
@@ -535,8 +535,8 @@ int reflect::invokeExecutable(std::string xmlFile) {
   }
 
 #ifdef _WIN32
-  reflectDebug("getting ApplicationHandle...");
-  ApplicationHandle hInstance = GetModuleHandle(nullptr);
+  reflectDebug("getting HINSTANCE...");
+  HINSTANCE hInstance = GetModuleHandle(nullptr);
   reflectDebug("creating window...");
   Window win(hInstance);
 #elif __linux__

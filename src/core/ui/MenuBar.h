@@ -27,11 +27,11 @@
 namespace reflect {
 class MenuBar : public Component {
 protected:
-  ApplicationHandle winstance;
+  HINSTANCE winstance;
   HMENU hmenu;
 
-  ApplicationHandle parentInstance;
-  // WindowHandle parentHWND;
+  HINSTANCE parentInstance;
+  // HWND parentHWND;
 
   // Vector2 position;
   /*Vector2 size;*/
@@ -39,7 +39,7 @@ protected:
 private:
 public:
   friend class Component;
-  REFLECT_API void render(WindowHandle &parentHWND, WindowHandle &windowHWND);
+  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
   // REFLECT_API void SetVisible(bool flag);
   REFLECT_API void add(Component &comp);
   REFLECT_API MenuBar();
@@ -64,8 +64,8 @@ protected:
   Display *winstance;
   Menu hmenu;
 
-  ApplicationHandle parentInstance;
-  // WindowHandle parentHWND;
+  HINSTANCE parentInstance;
+  // HWND parentHWND;
 
   // Vector2 position;
   /*Vector2 size;*/
@@ -73,7 +73,7 @@ protected:
 private:
 public:
   friend class Component;
-  REFLECT_API void render(WindowHandle &parentHWND, WindowHandle &windowHWND);
+  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
   // REFLECT_API void SetVisible(bool flag);
   REFLECT_API void add(Component &comp);
   REFLECT_API MenuBar();

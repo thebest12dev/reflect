@@ -27,14 +27,12 @@
 namespace reflect {
 class TextComponent : public Component {
 protected:
-  ApplicationHandle winstance;
-  WindowHandle hwnd;
+  HINSTANCE winstance;
+  HWND hwnd;
 
-  ApplicationHandle parentInstance;
+  HINSTANCE parentInstance;
   // Window parentWindow;
 
-  Vector2 position;
-  Vector2 size;
   Color3 color;
   std::string text;
   std::string fontStr;
@@ -42,8 +40,7 @@ protected:
 
 public:
   REFLECT_API TextComponent();
-  REFLECT_API virtual void render(WindowHandle &parentHWND,
-                                  WindowHandle &windowHWND) = 0;
+  REFLECT_API virtual void render(HWND &parentHWND, HWND &windowHWND) = 0;
   REFLECT_API void setVisible(bool flag);
   REFLECT_API void add(Component &comp);
   REFLECT_API void setVisible(int cmd);

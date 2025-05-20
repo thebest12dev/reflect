@@ -4,7 +4,7 @@
 #include <GL/glew.h>
 #include <GL/wglew.h>
 namespace reflect {
-void OpenGLContext::initializeContext(WindowHandle hwnd, HDC hdc) {
+void OpenGLContext::initializeContext(HWND hwnd, HDC hdc) {
 
   if (!hdc) {
     std::cerr << "Failed to get device context!" << std::endl;

@@ -66,14 +66,11 @@ typedef XID XWindow;
  */
 namespace reflect {
 #ifdef __linux__
-using WindowHandle = XWindow;
-using ApplicationHandle = Display *;
+
 #elif _WIN32
-using WindowHandle = HWND;
-using ApplicationHandle = ApplicationHandle;
+
 #endif
 } // namespace reflect
-
 // if defined
 #undef REFLECT_SHARED_LIBRARY
 #define REFLECT_SHARED_LIBRARY

@@ -6,6 +6,6 @@
 namespace reflect {
 class OpenGLContext {
 public:
-  REFLECT_API void initializeContext(WindowHandle hwnd, ApplicationHandle hdc);
+  REFLECT_API void initializeContext(HWND hwnd, HDC hdc);
 };
 } // namespace reflect

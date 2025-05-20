@@ -10,7 +10,7 @@ MenuItem::MenuItem(std::string contents)
   // do nothing
   initializeObject(REFLECT_OBJECT_MENUITEM, REFLECT_OBJECT_TEXTCOMPONENT);
 }
-void MenuItem::render(WindowHandle &parentHWND, WindowHandle &windowHWND) {
+void MenuItem::render(HWND &parentHWND, HWND &windowHWND) {
   // do nothing
 }
 void MenuItem::setText(std::string contents) { text = contents; }

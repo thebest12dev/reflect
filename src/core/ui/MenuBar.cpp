@@ -9,7 +9,7 @@ void MenuBar::add(Component &comp) {
                (comp2->getText()).c_str());
   }
 };
-void MenuBar::render(WindowHandle &parentHWND, WindowHandle &windowHWND) {
+void MenuBar::render(HWND &parentHWND, HWND &windowHWND) {
   SetMenu(windowHWND, hmenu);
 };
 MenuBar::MenuBar() : hmenu(CreateMenu()) {

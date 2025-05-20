@@ -26,7 +26,7 @@ void reflect::TextComponent::setText(std::string text_) { this->text = text_; }
 std::string reflect::TextComponent::getText() { return text; }
 void reflect::TextComponent::setFont(std::string f) { fontStr = f; }
 void reflect::TextComponent::setFontSize(int fs) { fontSize = fs; }
-reflect::TextComponent::TextComponent() : position({0, 0}), size({0, 0}) {
+reflect::TextComponent::TextComponent() {
   initializeObject(REFLECT_OBJECT_TEXTCOMPONENT, REFLECT_OBJECT_COMPONENT);
 }
 reflect::TextComponent::~TextComponent() {}

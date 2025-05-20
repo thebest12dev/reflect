@@ -50,7 +50,7 @@ void reflect::Component::setVisible(int cmd) {
 void reflect::Component::setVisible(bool cmd) {
   // Do nothing
 }
-
+bool reflect::Component::getVisible() { return IsWindowVisible(hwnd); }
 void reflect::Component::setSize(Vector2 size) {
   if (!hwnd) {
     this->size = size;

@@ -1,5 +1,6 @@
 #include "HeapPool.h"
 #include "Console.h"
+#include <Windows.h>
 #include <new>
 namespace {
 reflect::HeapPool *heapPool = nullptr; // Pointer to a HeapPool instance
