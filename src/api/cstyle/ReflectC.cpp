@@ -21,48 +21,48 @@
 #include "ReflectC.h"
 #include "../../core/ReflectAPI.h"
 
-// For convenience
+// why do you need this really?
 using namespace reflect;
 
-// C-style API functions
-
+// literally whatever
 REFLECT_API ReflectComponent Reflect_getComponentById(ReflectString id) {
-  // Return a ReflectComponent with the given id
-  return {(uint8_t)ExternalAPI::getComponentById(id)};
+  return {(uint8_t)external::getComponentById(id)}; // do not segfault!
 };
 REFLECT_API bool Reflect_setColor(ReflectComponent component, uint8_t r,
                                   uint8_t g, uint8_t b) {
-  // Set the color of the component
-  ExternalAPI::setComponentColor(component.id, r, g, b);
-  return true;
+  // color coding?
+  external::setComponentColor(component.id, r, g, b);
+  return true; // false false false
 };
+
+// string manipulation
 REFLECT_API ReflectString Reflect_getText(ReflectComponent component) {
-  // Get the text of the component
-  return ExternalAPI::getComponentText(component.id);
+  // text
+  return external::getComponentText(component.id);
 }
 REFLECT_API bool Reflect_addComponent(ReflectComponent parent,
                                       ReflectComponent child) {
-  // Add a child component to the parent component
-  ExternalAPI::addComponent(parent.id, child.id);
+  // drag and drop component inside of component
+  external::addComponent(parent.id, child.id);
   return true;
 };
 REFLECT_API bool Reflect_setVisibleCommand(ReflectComponent comp, uint8_t cmd) {
-  // Set the visibility command of the component
-  ExternalAPI::setComponentVisibleCommand(comp.id, cmd);
+  // make the button disappear
+  external::setComponentVisibleCommand(comp.id, cmd);
   return true;
 };
 REFLECT_API bool Reflect_setVisible(ReflectComponent comp, bool flag) {
-  // Set the visibility of the component
-  ExternalAPI::setComponentVisible(comp.id, flag);
+  // wizardo disappear?
+  external::setComponentVisible(comp.id, flag);
   return true;
 }
 REFLECT_API bool Reflect_setFont(ReflectComponent comp, ReflectString font) {
-  // Set the font of the component
-  ExternalAPI::setComponentFont(comp.id, font);
+  // font color coding???
+  external::setComponentFont(comp.id, font);
   return true;
 }
 REFLECT_API bool Reflect_setFontSize(ReflectComponent comp, uint8_t fontSize) {
-  // Set the font size of the component
-  ExternalAPI::setComponentFontSize(comp.id, fontSize);
+  // font color sizing???
+  external::setComponentFontSize(comp.id, fontSize);
   return true;
 };

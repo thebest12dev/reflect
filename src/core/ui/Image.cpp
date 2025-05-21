@@ -1,8 +1,9 @@
 #include "Image.h"
 #include "Window.h"
+#if _WIN32 && defined(_MSC_VER)
 #include <wincodec.h>
 #pragma comment(lib, "windowscodecs")
-
+#endif
 namespace reflect {
 Image::Image() {
   initializeObject(REFLECT_OBJECT_IMAGE, REFLECT_OBJECT_COMPONENT);

@@ -1,10 +1,11 @@
 #pragma once
 #include "TypeDefinitions.h"
+#ifdef _WIN32
 #include <Windows.h>
-typedef HWND WindowHandle;
+#endif
 namespace reflect {
 class OpenGLContext {
 public:
-  REFLECT_API void initializeContext(WindowHandle hwnd, HDC hdc);
+  REFLECT_API void initializeContext(HWND hwnd, HDC hdc);
 };
 } // namespace reflect

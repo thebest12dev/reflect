@@ -22,7 +22,6 @@
 #include "Vector2.h"
 #include <cstdint>
 #include <string>
-#include <windows.h>
 
 #include "TypeDefinitions.h"
 namespace reflect {
@@ -34,8 +33,6 @@ protected:
   HINSTANCE parentInstance;
   // Window parentWindow;
 
-  Vector2 position;
-  Vector2 size;
   Color3 color;
   std::string text;
   std::string fontStr;

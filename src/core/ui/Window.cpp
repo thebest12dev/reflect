@@ -36,7 +36,10 @@
 #include <cstdio>
 #include <d2d1.h>
 #include <dwmapi.h>
+#include <dwrite.h>
 #include <windowsx.h>
+#pragma comment(lib, "dwrite.lib")
+
 #pragma comment(lib, "dwmapi.lib")
 using namespace reflect::console;
 // Direct2D-specific members
@@ -59,6 +62,17 @@ void reflect::Window::addStyle(WindowStyle style) {
     DWM_SYSTEMBACKDROP_TYPE backdropType = DWMSBT_MAINWINDOW;
     DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &backdropType,
                           sizeof(backdropType));
+  }
+}
+void reflect::Window::initializeDirectWrite() {
+  if (!this->pDWriteFactory) {
+    HRESULT hr = DWriteCreateFactory(
+        DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
+        reinterpret_cast<IUnknown **>(&this->pDWriteFactory));
+    if (FAILED(hr)) {
+      std::wcerr << L"Failed to create DirectWrite factory." << std::endl;
+      this->pDWriteFactory = nullptr;
+    }
   }
 }
 
@@ -90,30 +104,16 @@ void reflect::Window::setRenderLoop(void (*loop)(Window &)) {
   renderLoop = loop;
 }
 void reflect::Window::initializeDirect2D() {
-  if (!this->pFactory && !this->pRenderTarget) {
+  if (!this->pFactory) {
 
     reflectDebug("initializing Direct2D...");
     // Create the Direct2D factory
-    if (!this->pFactory) {
-      reflectDebug("creating d2d1 factory...");
-      D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &this->pFactory);
-    }
 
-    // Get window dimensions
-    RECT rc;
-    GetClientRect(hwnd, &rc);
-
-    // Create the render target
-    reflectDebug("creating renderer target...");
-    if (!this->pRenderTarget) {
-
-      this->pFactory->CreateHwndRenderTarget(
-          D2D1::RenderTargetProperties(),
-          D2D1::HwndRenderTargetProperties(
-              hwnd, D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top)),
-          &this->pRenderTarget);
-    }
-  } else if (!this->pRenderTarget) {
+    reflectDebug("creating d2d1 factory...");
+    HRESULT hr =
+        D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &this->pFactory);
+  }
+  if (!this->pRenderTarget) {
     RECT rc;
     GetClientRect(hwnd, &rc);
 
@@ -168,6 +168,8 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
     if (!pThis->useGL) {
       reflectDebug("calling initializeDirect2D...");
       pThis->initializeDirect2D();
+      reflectDebug("calling initializeDirectWrite...");
+      pThis->initializeDirectWrite();
     }
     closeIcon.setImageLocation("resources://reflectClose");
     closeIcon.setImageLocation("resources://reflectCloseHover", "hover");
@@ -235,6 +237,19 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
       }
       break;
     }
+    // case WM_CTLCOLORSTATIC: {
+    //   HDC hdcStatic = (HDC)wParam;                 // Get device context
+    //   SetTextColor(hdcStatic, RGB(255, 255, 255)); // Set text color (Red)
+    //   SetBkColor(hdcStatic,
+    //              RGB(pThis->bgColor.r * 255, pThis->bgColor.b * 255,
+    //                  pThis->bgColor.b * 255)); // Set background color
+    //                  (Green)
+
+    //  static HBRUSH hbrBkgnd = CreateSolidBrush(
+    //      RGB(pThis->bgColor.r * 255, pThis->bgColor.b * 255,
+    //          pThis->bgColor.b * 255)); // Create background brush
+    //  return (INT_PTR)hbrBkgnd;         // Return brush handle
+    //}
     case WM_SIZE: {
 
       if (pThis->pRenderTarget) {
@@ -528,13 +543,13 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
         //  pThis->pRenderTarget->DrawBitmap(bitmap, {100, 500, 110, 510});
 
         HRESULT hr = pThis->pRenderTarget->EndDraw();
-        if (hr == D2DERR_RECREATE_TARGET) {
-          // Handle device loss
-          pThis->pRenderTarget->Release();
-          pThis->pRenderTarget = nullptr;
-          pThis->initializeDirect2D();
-        }
-        // Clean up
+        // if (hr == D2DERR_RECREATE_TARGET) {
+        //   // Handle device loss
+        //   pThis->pRenderTarget->Release();
+        //   pThis->pRenderTarget = nullptr;
+        //   // pThis->initializeDirect2D();
+        // }
+        //  Clean up
       }
 
       EndPaint(hwnd, &ps);
@@ -737,13 +752,13 @@ reflect::Window::~Window() {
   reflectDebug("releasing memory...");
   if (pRenderTarget) {
     pRenderTarget->Release();
+    pRenderTarget = nullptr;
   }
   if (pFactory) {
     pFactory->Release();
+    pFactory = nullptr;
   }
   // set to nullptr to avoid dangling pointers
-  pRenderTarget = nullptr;
-  pFactory = nullptr;
 }
 void reflect::Window::setTitle(std::string title) {
   reflectDebug("window title set");
@@ -755,7 +770,7 @@ void reflect::Window::setVisible(bool flag) {
   ShowWindow(hwnd, flag ? SW_SHOW : SW_HIDE);
 }
 bool reflect::Window::getVisible() { return IsWindowVisible(hwnd); }
-reflect::Window::operator WindowHandle() const { return this->hwnd; }
+reflect::Window::operator HWND() const { return this->hwnd; }
 void reflect::Window::setVisible(int cmd) { ShowWindow(hwnd, cmd); }
 void reflect::Window::render(HWND &parentHWND, HWND &windowHWND) {
   reflectWarn("Window::render called, the method is intentionally empty "

@@ -1,6 +1,5 @@
 #include "TypeDefinitions.h"
 #include <Console.h>
-#include <Windows.h>
 #include <cassert>
 #include <cstring> // For memset
 #include <iostream>

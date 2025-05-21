@@ -30,5 +30,6 @@ private:
 public:
   REFLECT_API static reflect::Component *getComponentById(std::string id);
   friend class Window;
+  friend class Container;
 };
 } // namespace reflect

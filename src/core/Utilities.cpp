@@ -127,7 +127,7 @@ std::string utilities::getOSPlatformAndVersion() {
 #include <sstream>
 #include <sys/utsname.h>
 
-std::string reflect::utilities::GetOSPlatformAndVersion() {
+std::string reflect::utilities::getOSPlatformAndVersion() {
   struct utsname buffer;
   std::stringstream ss;
   if (uname(&buffer) == 0) {

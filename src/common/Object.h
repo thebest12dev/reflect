@@ -2,6 +2,9 @@
 #include "TypeDefinitions.h"
 #include <string>
 namespace reflect {
+class Object;
+template <typename T>
+concept DerivedFromObject = std::is_base_of_v<Object, T>;
 
 using ObjectUID = unsigned int;
 class Object {
@@ -20,11 +23,9 @@ public:
   REFLECT_API virtual ~Object() = 0;
 
   friend void setUidToParent(Object &obj, ObjectUID parentUid);
-  template <typename T>
+  template <DerivedFromObject T>
   friend T *fastCast(Object *comp, ObjectUID expectedType);
 };
-template <typename T>
-concept DerivedFromObject = std::is_base_of_v<Object, T>;
 
 template <DerivedFromObject T>
 T *fastCast(Object *comp, ObjectUID expectedType) {

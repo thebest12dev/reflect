@@ -58,6 +58,7 @@ typedef unsigned char byte;
 #include "ui/Colors.h"
 #include "ui/Component.h"
 #include "ui/Components.h"
+#include "ui/Container.h"
 #include "ui/Image.h"
 #include "ui/Label.h"
 #include "ui/MenuItem.h"
@@ -104,6 +105,7 @@ struct Cleaner {
 Cleaner cleaner;
 
 } // namespace
+#include "xml/ProcessorRegistry.h"
 #include <ShellScalingAPI.h>
 #pragma comment(lib, "Shcore.lib")
 /**
@@ -234,66 +236,11 @@ int reflect::invokeExecutable(std::string xmlFile, bool blocking) {
       return REFLECT_ERROR_HEX_COLOR_MALFORMED;
     }
   }
-  reflectDebug("parsing labels...");
-  for (tinyxml2::XMLElement *label = winXml->FirstChildElement("label");
-       label != nullptr; label = label->NextSiblingElement("label")) {
-    // Access attributes
-    std::string c = std::string(label->GetText());
-    std::string *contents = &c;
-    std::string id = label->Attribute("id");
-    Vector2 position(std::stoi(label->Attribute("x")),
-                     std::stoi(label->Attribute("y")));
-    Label *labelComp = new Label(*contents, position);
-    heapAllocations.push_back(labelComp);
-    labelComp->setFont(label->Attribute("font"));
-    labelComp->setFontSize(std::stoi(label->Attribute("fontSize")));
-    win->add(*labelComp, id);
-  }
-  reflectDebug("parsing text fields...");
-  for (tinyxml2::XMLElement *field = winXml->FirstChildElement("textField");
-       field != nullptr; field = field->NextSiblingElement("textField")) {
-    // Access attributes
-    std::string id = field->Attribute("id");
-    Vector2 position(std::stoi(field->Attribute("x")),
-                     std::stoi(field->Attribute("y")));
-    TextField *fieldComp = new TextField();
-    heapAllocations.push_back(fieldComp);
-    fieldComp->setSize(Vector2(std::stoi(field->Attribute("width")),
-                               std::stoi(field->Attribute("height"))));
-    fieldComp->setPosition(position);
-    win->add(*fieldComp, id);
-  }
-  reflectDebug("parsing progress bars...");
-  for (tinyxml2::XMLElement *label = winXml->FirstChildElement("progressBar");
-       label != nullptr; label = label->NextSiblingElement("progressBar")) {
-    // Access attributes
-    std::string id = label->Attribute("id");
-    Vector2 position(std::stoi(label->Attribute("x")),
-                     std::stoi(label->Attribute("y")));
-    Vector2 size(std::stoi(label->Attribute("width")),
-                 std::stoi(label->Attribute("height")));
-    ProgressBar *pb = new ProgressBar();
-    heapAllocations.push_back(pb);
-    pb->setMininumValue(std::stof(label->Attribute("min")));
-    pb->setMaximumValue(std::stof(label->Attribute("max")));
-    pb->setValue(std::stof(label->Attribute("value")));
-    pb->setPosition(position);
-    pb->setSize(size);
-    win->add(*pb, id);
-  }
-  reflectDebug("parsing buttons...");
-  for (tinyxml2::XMLElement *button = winXml->FirstChildElement("button");
-       button != nullptr; button = button->NextSiblingElement("button")) {
-    std::string contents = button->GetText();
-    std::string id = button->Attribute("id");
-    Vector2 position(std::stoi(button->Attribute("x")),
-                     std::stoi(button->Attribute("y")));
-    Button *buttonComp = new Button(contents, position);
-    heapAllocations.push_back(buttonComp);
-    buttonComp->setFont(button->Attribute("font"));
-    buttonComp->setFontSize(std::stoi(button->Attribute("fontSize")));
-
-    win->add(*buttonComp, id);
+  for (tinyxml2::XMLElement *element = winXml->FirstChildElement();
+       element != nullptr; element = element->NextSiblingElement()) {
+    reflect::Component &comp = reflect::ProcessorRegistry::invokeProcessor(
+        element->Name(), win, element);
+    heapAllocations.push_back(&comp);
   }
   reflectDebug("loading libraries...");
 #ifdef REFLECT_LUA
@@ -324,16 +271,16 @@ int reflect::invokeExecutable(std::string xmlFile, bool blocking) {
         return REFLECT_ERROR_CANNOT_LOAD_LIBRARY_FUNCTION;
       }
       reflect::ReflectAPI reflectApi = {};
-      reflectApi.addComponent = ExternalAPI::addComponent;
-      reflectApi.getComponentById = ExternalAPI::getComponentById;
-      reflectApi.getText = ExternalAPI::getComponentText;
-      reflectApi.setColor = ExternalAPI::setComponentColor;
-      reflectApi.setFont = ExternalAPI::setComponentFont;
-      reflectApi.setFontSize = ExternalAPI::setComponentFontSize;
-      reflectApi.setVisible = ExternalAPI::setComponentVisible;
-      reflectApi.setVisibleCommand = ExternalAPI::setComponentVisibleCommand;
+      reflectApi.addComponent = external::addComponent;
+      reflectApi.getComponentById = external::getComponentById;
+      reflectApi.getText = external::getComponentText;
+      reflectApi.setColor = external::setComponentColor;
+      reflectApi.setFont = external::setComponentFont;
+      reflectApi.setFontSize = external::setComponentFontSize;
+      reflectApi.setVisible = external::setComponentVisible;
+      reflectApi.setVisibleCommand = external::setComponentVisibleCommand;
 
-      reflectApi.setOnClick = ExternalAPI::setOnClick;
+      reflectApi.setOnClick = external::setOnClick;
       std::thread *thread = new std::thread(mainFunc, &reflectApi);
     }
 #ifdef REFLECT_LUA
@@ -365,7 +312,6 @@ int reflect::invokeExecutable(std::string xmlFile, bool blocking) {
     }
     win->add(*menuBar);
   }
-
   reflectDebug("entering main loop...");
   win->setVisible(true);
   if (blocking) {
