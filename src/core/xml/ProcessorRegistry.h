@@ -7,7 +7,8 @@
 #include <tinyxml2.h>
 #include <unordered_map>
 namespace reflect {
-using Processor = std::function<Component &(Window *win)>;
+using Processor =
+    std::function<Component &(Window *win, tinyxml2::XMLElement *element)>;
 class ProcessorRegistry {
 private:
   static std::unordered_map<std::string, Processor> mapOfProcessors;
@@ -15,6 +16,7 @@ private:
 public:
   static void createProcessor(Processor processor,
                               const std::string &elementId);
-  static void invokeProcessor(const std::string &elementId, Window *win);
+  static Component &invokeProcessor(const std::string &elementId, Window *win,
+                                    tinyxml2::XMLElement *element);
 };
 } // namespace reflect

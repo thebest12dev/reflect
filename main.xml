@@ -7,11 +7,6 @@
       <label x="320" y="70" font="Inter" fontSize="16" id="label2">This wizard will guide you through installing Reflect. thisa dsajdjsalkhfkjdsakfdsahlkfhsajdfThis wizard will guide you through installing Reflect. thisa dsajdjsalkhfkjdsakfdsahlkfhsajdfThis wizard will guide you through installing Reflect. thisa dsajdjsalkhfkjdsakfdsahlkfhsajdfThis wizard will guide you through installing Reflect. thisa dsajdjsalkhfkjdsakfdsahlkfhsajdfThis wizard will guide you through installing Reflect. thisa dsajdjsalkhfkjdsakfdsahlkfhsajdf</label>
       
     </window>
-    <resources>
-      <shader type="glsl" version="330" id="fragment">
-
-      </shader>
-    </resources>
 </root>
 <!-- <root version="1" uiVersion="1.0.0">
     <window title="CinnamonToast Demo" width="800" height="500" bgColor="systemDefault" id="mainWindow">

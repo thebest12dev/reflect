@@ -32,12 +32,12 @@
 /**
  * @brief Internal application version for compatibility checks.
  */
-#define APP_INTERNAL_VERSION 0x0000000AL
+#define APP_INTERNAL_VERSION 0x0000000BL
 
 /**
  * @brief External application version to be shown to the end user.
  */
-#define APP_VERSION "1.7.0"
+#define APP_VERSION "1.8.0"
 
 /**
  * @brief Error codes used in the Reflect framework.
