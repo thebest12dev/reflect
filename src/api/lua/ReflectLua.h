@@ -24,9 +24,9 @@
 
 // Include Lua headers
 extern "C" {
-#include "lauxlib.h"
-#include "lua.h"
-#include "lualib.h"
+#include "luajit/lua.h"
+#include "luajit/lualib.h"
+#include <luajit/lauxlib.h>
 }
 // Include C++ headers
 #include "TypeDefinitions.h"

@@ -83,3 +83,9 @@ namespace reflect {
 #define REFLECT_API __attribute__((visibility("default")))
 #endif
 #endif
+
+#if __cplusplus < 202002L && !defined(_MSVC_LANG)
+#error "Please use C++20 or a newer standard, or define REFLECT_COMPATIBILITY."
+#elif _MSVC_LANG < 202002L
+#error "Please use C++20 or a newer standard, or define REFLECT_COMPATIBILITY."
+#endif

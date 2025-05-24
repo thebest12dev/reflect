@@ -76,7 +76,7 @@ reflect::Vector2 reflect::Component::getSize() { return size; };
 namespace reflect {
 void *Component::operator new(std::size_t size) {
   if (!getHeapPool()) {
-    throw std::bad_alloc(); // Handle allocation failure
+    initializeHeapPool(2 * 1024 * 1024);
   }
   void *ptr = getHeapPool()->allocate(size);
   if (!ptr) {
@@ -87,14 +87,14 @@ void *Component::operator new(std::size_t size) {
 
 void Component::operator delete(void *ptr) {
   if (!getHeapPool()) {
-    throw std::bad_alloc(); // Handle deallocation failure
+    initializeHeapPool(2 * 1024 * 1024);
   }
   getHeapPool()->deallocate(ptr, sizeof(ptr));
 }
 
 void *Component::operator new[](std::size_t size) {
   if (!getHeapPool()) {
-    throw std::bad_alloc(); // Handle deallocation failure
+    initializeHeapPool(2 * 1024 * 1024);
   }
   void *ptr = getHeapPool()->allocate(size);
   return ptr;
@@ -102,7 +102,7 @@ void *Component::operator new[](std::size_t size) {
 
 void Component::operator delete[](void *ptr) {
   if (!getHeapPool()) {
-    throw std::bad_alloc(); // Handle deallocation failure
+    initializeHeapPool(2 * 1024 * 1024);
   }
   getHeapPool()->deallocate(ptr, sizeof(ptr));
 }

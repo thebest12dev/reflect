@@ -108,6 +108,8 @@ Cleaner cleaner;
 #include "xml/ProcessorRegistry.h"
 #include <ShellScalingAPI.h>
 #pragma comment(lib, "Shcore.lib")
+
+void reflect::addToHeap(void *ptr) { heapAllocations.push_back(ptr); };
 /**
  * Invokes and loads a .xml file and also loads the specific libraries. It will
  * setup the GUI as well as registering APIs for the libraries to use.
@@ -180,6 +182,7 @@ int reflect::invokeExecutable(std::string xmlFile, bool blocking) {
     reflectDebug("creating window...");
 
     // OpenGLContext ctx;
+    // WindowCreateInfo info = {true};
     win = new Window(hInstance, winId);
     /*win->setBeforeRenderLoop([](Window &win) {
       wglSwapIntervalEXT(1);
@@ -238,9 +241,11 @@ int reflect::invokeExecutable(std::string xmlFile, bool blocking) {
   }
   for (tinyxml2::XMLElement *element = winXml->FirstChildElement();
        element != nullptr; element = element->NextSiblingElement()) {
-    reflect::Component &comp = reflect::ProcessorRegistry::invokeProcessor(
-        element->Name(), win, element);
-    heapAllocations.push_back(&comp);
+    std::pair<Component &, std::string> comp =
+        reflect::ProcessorRegistry::invokeProcessor(element->Name(), win,
+                                                    element);
+    win->add(comp.first, comp.second);
+    heapAllocations.push_back(&comp.first);
   }
   reflectDebug("loading libraries...");
 #ifdef REFLECT_LUA

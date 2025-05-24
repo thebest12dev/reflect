@@ -59,7 +59,7 @@ void reflect::Window::addStyle(WindowStyle style) {
                           &cornerPreference, sizeof(cornerPreference));
 
     // Enable Mica background
-    DWM_SYSTEMBACKDROP_TYPE backdropType = DWMSBT_MAINWINDOW;
+    DWM_SYSTEMBACKDROP_TYPE backdropType = DWMSBT_TABBEDWINDOW;
     DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &backdropType,
                           sizeof(backdropType));
   }
@@ -112,6 +112,8 @@ void reflect::Window::initializeDirect2D() {
     reflectDebug("creating d2d1 factory...");
     HRESULT hr =
         D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &this->pFactory);
+
+    int i = 0;
   }
   if (!this->pRenderTarget) {
     RECT rc;
@@ -163,7 +165,7 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
     CREATESTRUCT *pCreate = reinterpret_cast<CREATESTRUCT *>(lParam);
     pThis = reinterpret_cast<reflect::Window *>(pCreate->lpCreateParams);
     SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
-
+    pThis->hwnd = hwnd;
     // Initialize Direct2D
     if (!pThis->useGL) {
       reflectDebug("calling initializeDirect2D...");
@@ -265,14 +267,19 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
                      TRUE); // Mark the entire window as needing a repaint
       break;
     }
-    case WM_NCACTIVATE:
-      InvalidateRect(hwnd, nullptr, false);
-      return TRUE; // Ensures Windows handles the default behavior
+    case WM_NCACTIVATE: {
+
+      if (pThis && pThis->customTitleBar) {
+        InvalidateRect(hwnd, nullptr, false);
+        return TRUE;
+      }
+      break;
+    }
     case WM_ACTIVATE: {
-      InvalidateRect(hwnd, nullptr, false);
+
       if (pThis->customTitleBar) {
         RECT rc;
-
+        InvalidateRect(hwnd, nullptr, false);
         GetWindowRect(hwnd, &rc);
         closeIcon.setPosition(
             {rc.right - rc.left - (10 + (40 / 2)), ((10 + (40 / 2)) / 2)});
@@ -280,8 +287,10 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
       break;
     }
     case WM_MOVE:
-      InvalidateRect(hwnd, NULL,
-                     TRUE); // Mark the entire window as needing a repaint
+      if (pThis->customTitleBar) {
+        InvalidateRect(hwnd, NULL, true);
+      }
+
       break;
     case WM_SIZING: {
       if (pThis->beforeRenderLoop)
@@ -417,6 +426,7 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
     case WM_PAINT: {
       PAINTSTRUCT ps;
       HDC hdc = BeginPaint(hwnd, &ps);
+
       if (!openglRendering && firstUpdate) {
         glHdc = GetDC(hwnd);
         if (pThis->useGL) {
@@ -450,30 +460,6 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
         }
 
         // Create a clipping region for the child controls
-
-        HRGN hrgnA = nullptr;
-        int regionType = GetWindowRgn(
-            hwnd, hrgnA); // Get the window's region (valid or reflectError)
-        // regionType = GetWindowRgn(hwnd, hrgn);
-        if (regionType != ERROR) {
-          RECT controlRect;
-          HWND hChild = GetWindow(hwnd, GW_CHILD); // Get the first child window
-
-          // while (hChild != NULL) {
-          //   GetWindowRect(hChild, &controlRect);
-          //   MapWindowPoints(NULL, hwnd, (LPPOINT)&controlRect,
-          //                   2); // Convert to client coordinates
-
-          //  // Exclude the child control region from the painting area
-          //  ExcludeClipRect(hdc, controlRect.left, controlRect.top,
-          //                  controlRect.right, controlRect.bottom);
-          //  // wait, is it a direct2d image?
-
-          //  hChild =
-          //      GetNextWindow(hChild, GW_HWNDNEXT); // Get the next child
-          //      window
-          //}
-        }
 
         // Start Direct2D rendering
 
@@ -547,9 +533,9 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
         //   // Handle device loss
         //   pThis->pRenderTarget->Release();
         //   pThis->pRenderTarget = nullptr;
-        //   // pThis->initializeDirect2D();
+        //   pThis->initializeDirect2D();
         // }
-        //  Clean up
+        //   Clean up
       }
 
       EndPaint(hwnd, &ps);
@@ -696,9 +682,10 @@ reflect::Window::Window(HINSTANCE instance, std::string id,
 
     customTitleBar = true;
   } else {
-    hwnd = CreateWindowEx(0, "WindowClass", wc.lpszClassName,
-                          WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-                          100, 100, nullptr, nullptr, instance, this);
+    hwnd = CreateWindowEx(
+        0, "WindowClass", wc.lpszClassName,
+        WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, CW_USEDEFAULT,
+        CW_USEDEFAULT, 100, 100, nullptr, nullptr, instance, this);
     customTitleBar = false;
   }
   RECT rc;

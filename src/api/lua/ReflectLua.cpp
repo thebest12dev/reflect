@@ -1,5 +1,4 @@
 #include "ReflectLua.h"
-
 namespace reflect {
 
 // Constructor

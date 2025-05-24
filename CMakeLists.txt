@@ -8,6 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 message(STATUS "Generating files...")
 message(STATUS "vcpkg toolchain location: ${CMAKE_TOOLCHAIN_FILE}")
 # Enable Hot Reload for MSVC compilers if supported.
+# Force static runtime
 if (POLICY CMP0141)
   cmake_policy(SET CMP0141 NEW)
   if (CMAKE_C_COMPILER_ID STREQUAL "MSVC" AND CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -17,16 +18,18 @@ if (POLICY CMP0141)
 endif()
 # Enable exceptions in MSVC
 if(MSVC)
-    add_compile_options(/EHsc /Zc:__cplusplus)
+    add_compile_options(/EHsc)
+    add_compile_options(/MT /NODEFAULTLIB:libcmt)
 endif()
 
 # Define the project
-set(TRIPLET "x64-windows")
+set(TRIPLET "x64-windows-static-md")
+set(VCPKG_TARGET_TRIPLET "x64-windows-static-md")
 project("cinnamontoast")
 set(CMAKE_GENERATOR_PLATFORM "x64")
 
 enable_testing()
-
+set(OPENSSL_USE_STATIC_LIBS TRUE)
 file(GLOB_RECURSE REFLECT_CORE "src/core/*.cpp" "src/core/*.h")
 file(GLOB_RECURSE REFLECT_NET "src/net/*.cpp" "src/net/*.h" )
 file(GLOB_RECURSE REFLECT_CRASHHANDLER "src/crash/*.cpp" "src/crash/*.h")
@@ -57,7 +60,7 @@ endif()
 
 get_filename_component(VCPKG_DIR "${CMAKE_TOOLCHAIN_FILE}" DIRECTORY)
 set(VCPKG_DIR "${VCPKG_DIR}/../../")
-set(PKG_CONFIG_EXECUTABLE "${VCPKG_DIR}/installed/${TRIPLET}/tools/pkgconf/pkgconf.exe")
+set(PKG_CONFIG_EXECUTABLE "${VCPKG_DIR}/installed/x64-windows/tools/pkgconf/pkgconf.exe")
 set(LIB_FILE_DIR "${CMAKE_BINARY_DIR}/vcpkg_installed/${TRIPLET}/lib")
 set(JAVA_VERSION "21")
 set(JNI_INCLUDE_DIR "$ENV{JAVA_HOME}/include/win32" "$ENV{JAVA_HOME}/include")
@@ -88,6 +91,7 @@ else()
     add_library(Reflect STATIC ${REFLECT_CSTYLE} 
                 ${REFLECT_CRASHHANDLER} 
                 ${REFLECT_LUA}
+                ${REFLECT_JAVA}
                 ${REFLECT_NET} ${REFLECT_CORE} ${REFLECT_COMMONS_CORE}
     )
     target_compile_definitions(Reflect PRIVATE REFLECT_STATIC_LIBRARY=1)
@@ -159,13 +163,15 @@ set_target_properties(reflectw PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
 add_executable(reflectt ${REFLECT_TEST})
 find_package(tinyxml2 CONFIG REQUIRED)
 find_package(GTest REQUIRED)
-find_package(OpenSSL REQUIRED)
+# find_package(OpenSSL CONFIG REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LUAJIT REQUIRED luajit)
 
 set(LUAJIT_LIBRARIES "${LIB_FILE_DIR}/${LUAJIT_LIBRARIES}.lib")
+set(OPENSSL_LIBRARIES "${LIB_FILE_DIR}/libcrypto.lib" "${LIB_FILE_DIR}/libssl.lib" crypt32)
 message(STATUS "LuaJIT binaries: ${LUAJIT_LIBRARIES}")
+message(STATUS "OpenSSL binaries: ${OPENSSL_LIBRARIES}")
 file(GLOB DLL_FILE_DIR "${CMAKE_BINARY_DIR}/vcpkg_installed/${TRIPLET}/bin/*")
 
 #foreach(file ${DLL_FILE_DIR})
@@ -183,7 +189,8 @@ if(DEFINED REFLECT_BUNDLE)
 
     target_link_libraries(Reflect PRIVATE tinyxml2::tinyxml2 GLEW::GLEW)
     target_link_libraries(Reflect PRIVATE ${LUAJIT_LIBRARIES})
-    target_link_libraries(Reflect PRIVATE OpenSSL::SSL ws2_32)
+    target_link_libraries(Reflect PRIVATE ${OPENSSL_LIBRARIES} ws2_32)
+
 else()
   
     target_link_libraries(Reflect.CStyleAPI PRIVATE Reflect.Core)

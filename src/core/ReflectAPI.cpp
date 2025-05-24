@@ -19,6 +19,7 @@
 typedef unsigned char byte;
 #include "ReflectAPI.h"
 #include "Console.h"
+#include "Main.h"
 #include "ui/Button.h"
 #include "ui/Component.h"
 #include "ui/Components.h"
@@ -209,4 +210,24 @@ bool external::setComponentFontSize(ComponentId comp_, uint8_t fontSize) {
     reflectWarn("cast for component failed! (nullptr)");
     return false; // Return false if the cast fails
   }
+}
+
+bool external::run(ComponentId comp_) {
+
+  // Attempt dynamic_cast to Component*
+  Window *comp = fastCast<Window>(Components::getComponentById(cull[comp_ - 1]),
+                                  REFLECT_OBJECT_WINDOW);
+  if (comp) {
+    comp->run([](Window &) {});
+    return true;
+  } else {
+    reflectWarn("cast for component failed! (nullptr)");
+    return false; // Return false if the cast fails
+  }
+}
+
+bool external::invoke(const char *location) {
+
+  reflect::invokeExecutable(location, false);
+  return true;
 }

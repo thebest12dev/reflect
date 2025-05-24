@@ -38,6 +38,8 @@ struct ReflectAPI {
   bool (*setVisible)(ComponentId comp, bool flag);
   bool (*setFont)(ComponentId comp, ReflectString font);
   bool (*setFontSize)(ComponentId comp, uint8_t fontSize);
+  bool (*run)(ComponentId comp);
+  bool (*invoke)(const char *location);
   bool (*setOnClick)(ComponentId comp, void (*callback)(ComponentId));
 };
 namespace external {
@@ -51,6 +53,8 @@ REFLECT_API bool setComponentVisible(ComponentId comp, bool flag);
 REFLECT_API bool setComponentFont(ComponentId comp, ReflectString font);
 REFLECT_API bool setComponentFontSize(ComponentId comp, uint8_t fontSize);
 REFLECT_API bool setOnClick(ComponentId comp, void (*callback)(ComponentId));
+REFLECT_API bool run(ComponentId comp);
+REFLECT_API bool invoke(const char *location);
 } // namespace external
 typedef void (*SharedLibraryMain)(ReflectAPI *api);
 } // namespace reflect

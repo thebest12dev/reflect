@@ -19,8 +19,8 @@
 #include "ReflectJava.h"
 #include "../cstyle/ReflectCExtern.h"
 #include "ReflectJavaUtil.h"
+#include <Windows.h>
 #include <jni.h>
-
 JNIEXPORT jint JNICALL JavaFunction(ReflectNative,
                                     getReferenceById)(JNI_PARAM_DECL,
                                                       jstring id) {
@@ -52,4 +52,43 @@ JNIEXPORT void JNICALL JavaFunction(ReflectNative, addComp)(JNI_PARAM_DECL,
   ReflectComponent comp2;
   comp2.id = (uint8_t)compRef;
   Reflect_addComponent(comp1, comp2);
+}
+
+JNIEXPORT void JNICALL JavaFunction(ReflectNative, run)(JNI_PARAM_DECL,
+                                                        jint ref) {
+  ReflectComponent comp1;
+  comp1.id = ref;
+  Reflect_run(comp1);
+}
+
+JNIEXPORT void JNICALL Java_reflect4j_ReflectNative_invoke(JNIEnv *env,
+                                                           jclass clazz,
+                                                           jstring location) {
+
+  const char *utfChars = (*env)->GetStringUTFChars(env, location, NULL);
+  if (utfChars == NULL)
+    return; // Could not get string
+
+  // Call your real native function here with the C string
+  Reflect_invoke(utfChars);
+
+  // Don't forget to release memory!
+  (*env)->ReleaseStringUTFChars(env, location, utfChars);
+}
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
+  HMODULE hModule = NULL;
+
+  // Get handle to the current module (i.e., the DLL)
+  if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                            GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                        (LPCSTR)&JNI_OnLoad, // any symbol in this DLL
+                        &hModule)) {
+    // Manually increase the refcount
+    wchar_t dllPath[MAX_PATH];
+    if (GetModuleFileNameW(hModule, dllPath, MAX_PATH)) {
+      LoadLibraryW(dllPath); // increments refcount, keeps DLL loaded
+    }
+  }
+
+  return JNI_VERSION_1_8;
 }

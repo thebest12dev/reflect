@@ -20,7 +20,6 @@
 // Includes
 #include "ReflectC.h"
 #include "../../core/ReflectAPI.h"
-
 // why do you need this really?
 using namespace reflect;
 
@@ -64,5 +63,15 @@ REFLECT_API bool Reflect_setFont(ReflectComponent comp, ReflectString font) {
 REFLECT_API bool Reflect_setFontSize(ReflectComponent comp, uint8_t fontSize) {
   // font color sizing???
   external::setComponentFontSize(comp.id, fontSize);
+  return true;
+};
+
+REFLECT_API bool Reflect_run(ReflectComponent comp) {
+  external::run(comp.id);
+  return true;
+};
+
+REFLECT_API bool Reflect_invoke(const char *location) {
+  external::invoke(location);
   return true;
 };

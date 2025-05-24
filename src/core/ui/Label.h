@@ -21,6 +21,7 @@
 #include "TextComponent.h"
 #include "TypeDefinitions.h"
 #include <d2d1.h>
+#include <dwrite.h>
 #include <string>
 
 namespace reflect {
@@ -34,7 +35,12 @@ protected:
   void registerClass();
   static LRESULT CALLBACK labelProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                                     LPARAM lParam);
+  void createResources(ID2D1RenderTarget *rt, IDWriteFactory *dwrite,
+                       reflect::Window *win);
   ID2D1HwndRenderTarget *childRenderTarget;
+  IDWriteTextFormat *pTextFormat = nullptr;
+  ID2D1SolidColorBrush *pBgBrush = nullptr;
+  ID2D1SolidColorBrush *pTextBrush = nullptr;
 
 public:
   friend class Component;

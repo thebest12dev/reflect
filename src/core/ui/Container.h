@@ -1,7 +1,7 @@
 #pragma once
-
 #include "Component.h"
 #include "TypeDefinitions.h"
+#include <d2d1.h>
 
 namespace reflect {
 class Container : public Component {
@@ -11,6 +11,7 @@ private:
   void registerClass();
   HWND windowHWND = nullptr;
   std::vector<Component *> componentsQueue;
+  ID2D1HwndRenderTarget *childRenderTarget = nullptr;
 
 public:
   REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);

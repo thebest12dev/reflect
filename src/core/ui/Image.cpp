@@ -170,7 +170,7 @@ LRESULT CALLBACK Image::imageProc(HWND hwnd, UINT uMsg, WPARAM wParam,
     pThis = reinterpret_cast<reflect::Image *>(pCreate->lpCreateParams);
     SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
     reflect::Window *win = reinterpret_cast<reflect::Window *>(
-        GetWindowLongPtr(GetParent(hwnd), GWLP_USERDATA));
+        GetWindowLongPtr(GetAncestor(hwnd, GA_ROOT), GWLP_USERDATA));
 
     RECT rc;
 
@@ -192,7 +192,7 @@ LRESULT CALLBACK Image::imageProc(HWND hwnd, UINT uMsg, WPARAM wParam,
         GetWindowLongPtr(hwnd, GWLP_USERDATA));
   }
   reflect::Window *win = reinterpret_cast<reflect::Window *>(
-      GetWindowLongPtr(GetParent(hwnd), GWLP_USERDATA));
+      GetWindowLongPtr(GetAncestor(hwnd, GA_ROOT), GWLP_USERDATA));
 
   ID2D1Factory *pFactory = win->getProperty<ID2D1Factory *>("direct2DFactory");
   if (pThis) {
@@ -215,6 +215,9 @@ LRESULT CALLBACK Image::imageProc(HWND hwnd, UINT uMsg, WPARAM wParam,
         MultiByteToWideChar(CP_UTF8, 0, path.c_str(), -1, &wstr[0], sizeNeeded);
 
         getBitmap(wstr, pThis->childRenderTarget, &(bitmap));
+        if (bitmap) {
+          pThis->bitmaps[pThis->activeImage] = bitmap;
+        }
       }
       D2D1_RECT_F rect = {0, 0, pThis->size.x, pThis->size.y};
 
@@ -225,6 +228,7 @@ LRESULT CALLBACK Image::imageProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 
       pThis->childRenderTarget->FillRectangle(rect, pBrush);
       pThis->childRenderTarget->DrawBitmap(bitmap, rect);
+      pBrush->Release();
       pThis->childRenderTarget->EndDraw();
       EndPaint(hwnd, &ps);
 
@@ -239,8 +243,11 @@ LRESULT CALLBACK Image::imageProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 void Image::render(HWND &parentHWND, HWND &windowHWND) {
   registerClass();
 
-  hwnd = CreateWindowEx(0, "D2D1BitmapImage", nullptr, WS_CHILD | WS_VISIBLE,
-                        position.x, position.y, size.x, size.y, parentHWND,
-                        nullptr, GetModuleHandle(nullptr), this);
+  hwnd = CreateWindowEx(
+      0, "D2D1BitmapImage", nullptr, WS_CHILD | WS_VISIBLE, position.x,
+      position.y + reinterpret_cast<Window *>(
+                       GetWindowLongPtr(windowHWND, GWLP_USERDATA))
+                       ->getProperty<int>("customTitleBarSize"),
+      size.x, size.y, parentHWND, nullptr, GetModuleHandle(nullptr), this);
 };
 } // namespace reflect
