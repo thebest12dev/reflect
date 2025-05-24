@@ -20,7 +20,6 @@
 // Includes
 #include "ReflectC.h"
 #include "../../core/ReflectAPI.h"
-
 // why do you need this really?
 using namespace reflect;
 

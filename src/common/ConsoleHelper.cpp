@@ -22,7 +22,13 @@
 #include "../core/logging/LogInstance.h"
 namespace {
 // Indicates whether debug logging is enabled.
+
+#ifdef _DEBUG
+bool debugEnabled = true;
+#else
 bool debugEnabled = false;
+#endif
+
 } // namespace
 
 namespace reflect {
