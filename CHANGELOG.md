@@ -1,3 +1,9 @@
+# v1.8.0 (2025-05-24)
+- Added containers
+- Added images 
+- Added more modular XML processors
+- Bug fixes
+
 # v1.7.0 (2025-05-15)
 - Added custom title bar (not accessible)
 - Renamed CinnamonToast to Reflect

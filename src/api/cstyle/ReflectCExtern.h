@@ -171,6 +171,8 @@ REFLECT_API bool Reflect_setFont(ReflectComponent comp, ReflectString font);
  * @return true if successful, false otherwise.
  */
 REFLECT_API bool Reflect_setFontSize(ReflectComponent comp, uint8_t fontSize);
+REFLECT_API bool Reflect_invoke(const char *location);
+REFLECT_API bool Reflect_run(ReflectComponent comp);
 #ifdef __cplusplus
 // end extern "C"
 }

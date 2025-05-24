@@ -66,3 +66,13 @@ REFLECT_API bool Reflect_setFontSize(ReflectComponent comp, uint8_t fontSize) {
   external::setComponentFontSize(comp.id, fontSize);
   return true;
 };
+
+REFLECT_API bool Reflect_run(ReflectComponent comp) {
+  external::run(comp.id);
+  return true;
+};
+
+REFLECT_API bool Reflect_invoke(const char *location) {
+  external::invoke(location);
+  return true;
+};

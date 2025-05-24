@@ -27,5 +27,6 @@ namespace reflect {
 REFLECT_API int invokeExecutable(std::string xmlFile, bool blocking = true);
 REFLECT_API int cliMain(const uint8_t argc,
                         const std::vector<std::string> argv);
+REFLECT_API void addToHeap(void *ptr);
 } // namespace reflect
 // int main(const int argc, const char *argv[]);

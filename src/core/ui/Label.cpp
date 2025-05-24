@@ -44,6 +44,34 @@ void reflect::Label::registerClass() {
   wc.lpfnWndProc = labelProc;
   RegisterClass(&wc);
 }
+void reflect::Label::createResources(ID2D1RenderTarget *rt,
+                                     IDWriteFactory *dwrite,
+                                     reflect::Window *win) {
+
+  if (pTextFormat) {
+    pTextFormat->Release();
+    pTextFormat = nullptr;
+  }
+  if (pBgBrush) {
+    pBgBrush->Release();
+    pBgBrush = nullptr;
+  }
+  if (pTextBrush) {
+    pTextBrush->Release();
+    pTextBrush = nullptr;
+  }
+
+  std::wstring wfont(fontStr.begin(), fontStr.end());
+  dwrite->CreateTextFormat(wfont.c_str(), NULL, DWRITE_FONT_WEIGHT_NORMAL,
+                           DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+                           fontSize, L"en-us", &pTextFormat);
+
+  rt->CreateSolidColorBrush(D2D1::ColorF(win->getColor().r / 255.0f,
+                                         win->getColor().g / 255.0f,
+                                         win->getColor().b / 255.0f),
+                            &pBgBrush);
+  rt->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &pTextBrush);
+}
 LRESULT CALLBACK reflect::Label::labelProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                                            LPARAM lParam) {
   reflect::Label *pThis = nullptr;
@@ -53,7 +81,7 @@ LRESULT CALLBACK reflect::Label::labelProc(HWND hwnd, UINT uMsg, WPARAM wParam,
     pThis = reinterpret_cast<reflect::Label *>(pCreate->lpCreateParams);
     SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
     reflect::Window *win = reinterpret_cast<reflect::Window *>(
-        GetWindowLongPtr(GetParent(hwnd), GWLP_USERDATA));
+        GetWindowLongPtr(GetAncestor(hwnd, GA_ROOT), GWLP_USERDATA));
 
     RECT rc;
 
@@ -61,7 +89,8 @@ LRESULT CALLBACK reflect::Label::labelProc(HWND hwnd, UINT uMsg, WPARAM wParam,
     // Initialize Direct2D
     ID2D1Factory *pFactory =
         win->getProperty<ID2D1Factory *>("direct2DFactory");
-
+    IDWriteFactory *pDWriteFactory = win->getProperty<IDWriteFactory *>(
+        "directWriteFactory"); // get from parent window
     D2D1_RENDER_TARGET_PROPERTIES rtProps = D2D1::RenderTargetProperties();
     D2D1_HWND_RENDER_TARGET_PROPERTIES hwndRTProps =
         D2D1::HwndRenderTargetProperties(
@@ -70,20 +99,29 @@ LRESULT CALLBACK reflect::Label::labelProc(HWND hwnd, UINT uMsg, WPARAM wParam,
     HRESULT hr = pFactory->CreateHwndRenderTarget(
         rtProps, hwndRTProps,
         &(pThis->childRenderTarget)); // <--- store it on pThis
+    // std::wstring wtextFont =
+    //     std::wstring(pThis->fontStr.begin(), pThis->fontStr.end());
+    //// In WM_CREATE block after creating childRenderTarget:
+    // hr = pDWriteFactory->CreateTextFormat(
+    //     wtextFont.c_str(), NULL, DWRITE_FONT_WEIGHT_NORMAL,
+    //     DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+    //     pThis->fontSize, L"en-us", &pThis->pTextFormat);
+
+    if (SUCCEEDED(hr)) {
+      pThis->createResources(pThis->childRenderTarget, pDWriteFactory, win);
+    }
 
   } else {
     pThis = reinterpret_cast<reflect::Label *>(
         GetWindowLongPtr(hwnd, GWLP_USERDATA));
   }
   reflect::Window *win = reinterpret_cast<reflect::Window *>(
-      GetWindowLongPtr(GetParent(hwnd), GWLP_USERDATA));
+      GetWindowLongPtr(GetAncestor(hwnd, GA_ROOT), GWLP_USERDATA));
   // Example: In Label::render or Label::paint
 
+  // Create text format (font, size, etc.)
   IDWriteFactory *pDWriteFactory = win->getProperty<IDWriteFactory *>(
       "directWriteFactory"); // get from parent window
-
-  // Create text format (font, size, etc.)
-
   ID2D1Factory *pFactory = win->getProperty<ID2D1Factory *>("direct2DFactory");
   if (pThis) {
 
@@ -91,18 +129,16 @@ LRESULT CALLBACK reflect::Label::labelProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 
     switch (uMsg) {
     case WM_SIZE: {
-      if (pThis->childRenderTarget) {
-        pThis->childRenderTarget->Release();
-        pThis->childRenderTarget = nullptr;
-      }
+
       RECT rc;
       GetClientRect(hwnd, &rc);
-      D2D1_RENDER_TARGET_PROPERTIES rtProps = D2D1::RenderTargetProperties();
-      D2D1_HWND_RENDER_TARGET_PROPERTIES hwndRTProps =
-          D2D1::HwndRenderTargetProperties(
-              hwnd, D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top));
-      HRESULT hr = pFactory->CreateHwndRenderTarget(
-          rtProps, hwndRTProps, &(pThis->childRenderTarget));
+      if (pThis->childRenderTarget) {
+        D2D1_SIZE_U newSize =
+            D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top);
+        pThis->childRenderTarget->Resize(newSize);
+      }
+
+      pThis->createResources(pThis->childRenderTarget, pDWriteFactory, win);
       InvalidateRect(hwnd, nullptr, FALSE); // Request redraw
       break;
     }
@@ -110,45 +146,41 @@ LRESULT CALLBACK reflect::Label::labelProc(HWND hwnd, UINT uMsg, WPARAM wParam,
       PAINTSTRUCT ps;
       HDC hdc = BeginPaint(hwnd, &ps);
       pThis->childRenderTarget->BeginDraw();
-      IDWriteTextFormat *pTextFormat = nullptr;
-      std::wstring wtextFont =
-          std::wstring(pThis->fontStr.begin(), pThis->fontStr.end());
-      HRESULT hr = pDWriteFactory->CreateTextFormat(
-          wtextFont.c_str(), // Font family name
-          NULL, // Font collection (NULL sets it to use the system font
-                // collection)
-          DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL,
-          DWRITE_FONT_STRETCH_NORMAL,
-          pThis->fontSize, // Font size
-          L"en-us", &pTextFormat);
+
       D2D1_RECT_F rect = {0, 0, pThis->size.x, pThis->size.y};
 
-      ID2D1SolidColorBrush *pBrush = nullptr;
-      hr = pThis->childRenderTarget->CreateSolidColorBrush(
-          D2D1::ColorF(win->getColor().r / 255.0f, win->getColor().g / 255.0f,
-                       win->getColor().b / 255.0f),
-          &pBrush);
-      pThis->childRenderTarget->FillRectangle(rect, pBrush);
-      pBrush->Release();
+      pThis->childRenderTarget->FillRectangle(rect, pThis->pBgBrush);
       std::wstring wtext = std::wstring(pThis->text.begin(), pThis->text.end());
-      D2D1_RECT_F layoutRect =
-          D2D1::RectF((FLOAT)pThis->position.x, (FLOAT)pThis->position.y,
-                      (FLOAT)(pThis->position.x + pThis->size.x),
-                      (FLOAT)(pThis->position.y + pThis->size.y));
-
-      pBrush = nullptr;
-      pThis->childRenderTarget->CreateSolidColorBrush(
-          D2D1::ColorF(D2D1::ColorF::White), &pBrush);
 
       pThis->childRenderTarget->DrawText(wtext.c_str(), (UINT32)wtext.length(),
-                                         pTextFormat, rect, pBrush);
+                                         pThis->pTextFormat, rect,
+                                         pThis->pTextBrush);
 
-      pBrush->Release();
-      pTextFormat->Release();
-      pThis->childRenderTarget->EndDraw();
+      HRESULT hr = pThis->childRenderTarget->EndDraw();
+      if (hr == D2DERR_RECREATE_TARGET) {
+        RECT rc;
+
+        GetClientRect(hwnd, &rc);
+        pThis->childRenderTarget->Release();
+        pThis->childRenderTarget = nullptr;
+        pThis->createResources(pThis->childRenderTarget, pDWriteFactory, win);
+        D2D1_RENDER_TARGET_PROPERTIES rtProps = D2D1::RenderTargetProperties();
+        D2D1_HWND_RENDER_TARGET_PROPERTIES hwndRTProps =
+            D2D1::HwndRenderTargetProperties(
+                hwnd, D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top));
+
+        HRESULT hr = pFactory->CreateHwndRenderTarget(
+            rtProps, hwndRTProps,
+            &(pThis->childRenderTarget)); // <--- store it on pThis
+        InvalidateRect(hwnd, nullptr, FALSE);
+      }
+
       EndPaint(hwnd, &ps);
-      break;
       return 0;
+    }
+    case WM_ERASEBKGND: {
+      // Prevent background erase; Direct2D will handle it.
+      return 1;
     }
     }
   }
@@ -170,9 +202,10 @@ void reflect::Label::render(HWND &parentHWND, HWND &windowHWND) {
       GetWindowLongPtr(windowHWND, GWLP_USERDATA));
   registerClass();
   // Create the label window
-  hwnd = CreateWindow("D2D1Label",           // Predefined class for a label
-                      text.c_str(),          // Label text
-                      WS_VISIBLE | WS_CHILD, // Styles: visible and child window
+  hwnd = CreateWindow("D2D1Label",  // Predefined class for a label
+                      text.c_str(), // Label text
+                      WS_VISIBLE | WS_CHILD | WS_CLIPCHILDREN |
+                          WS_CLIPSIBLINGS, // Styles: visible and child window
                       position.x,
                       position.y + window->getProperty<int>(
                                        "customTitleBarSize"), // Position (x, y)

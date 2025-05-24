@@ -53,3 +53,10 @@ JNIEXPORT void JNICALL JavaFunction(ReflectNative, addComp)(JNI_PARAM_DECL,
   comp2.id = (uint8_t)compRef;
   Reflect_addComponent(comp1, comp2);
 }
+
+JNIEXPORT void JNICALL JavaFunction(ReflectNative, run)(JNI_PARAM_DECL,
+                                                        jint ref) {
+  ReflectComponent comp1;
+  comp1.id = ref;
+  Reflect_run(comp1);
+}

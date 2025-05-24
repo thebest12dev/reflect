@@ -17,11 +17,12 @@ if (POLICY CMP0141)
 endif()
 # Enable exceptions in MSVC
 if(MSVC)
-    add_compile_options(/EHsc /Zc:__cplusplus)
+    add_compile_options(/EHsc)
 endif()
 
 # Define the project
 set(TRIPLET "x64-windows")
+set(VCPKG_TARGET_TRIPLET "x64-windows")
 project("cinnamontoast")
 set(CMAKE_GENERATOR_PLATFORM "x64")
 
@@ -88,6 +89,7 @@ else()
     add_library(Reflect STATIC ${REFLECT_CSTYLE} 
                 ${REFLECT_CRASHHANDLER} 
                 ${REFLECT_LUA}
+                ${REFLECT_JAVA}
                 ${REFLECT_NET} ${REFLECT_CORE} ${REFLECT_COMMONS_CORE}
     )
     target_compile_definitions(Reflect PRIVATE REFLECT_STATIC_LIBRARY=1)
@@ -183,7 +185,7 @@ if(DEFINED REFLECT_BUNDLE)
 
     target_link_libraries(Reflect PRIVATE tinyxml2::tinyxml2 GLEW::GLEW)
     target_link_libraries(Reflect PRIVATE ${LUAJIT_LIBRARIES})
-    target_link_libraries(Reflect PRIVATE OpenSSL::SSL ws2_32)
+    target_link_libraries(Reflect PRIVATE OpenSSL::SSL OpenSSL::Crypto ws2_32)
 else()
   
     target_link_libraries(Reflect.CStyleAPI PRIVATE Reflect.Core)

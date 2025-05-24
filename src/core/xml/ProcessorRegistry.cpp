@@ -1,5 +1,8 @@
 #include "ProcessorRegistry.h"
+#include "../Main.h"
 #include "core/ui/Button.h"
+#include "core/ui/Container.h"
+#include "core/ui/Image.h"
 #include "core/ui/Label.h"
 #include "core/ui/ProgressBar.h"
 #include "core/ui/TextField.h"
@@ -7,7 +10,8 @@
 namespace reflect {
 std::unordered_map<std::string, Processor> ProcessorRegistry::mapOfProcessors =
     {{"label",
-      [](Window *win, tinyxml2::XMLElement *label) -> Component & {
+      [](Window *win,
+         tinyxml2::XMLElement *label) -> std::pair<Component &, std::string> {
         // Access attributes
         std::string c = std::string(label->GetText());
         std::string *contents = &c;
@@ -17,11 +21,11 @@ std::unordered_map<std::string, Processor> ProcessorRegistry::mapOfProcessors =
         Label *labelComp = new Label(*contents, position);
         labelComp->setFont(label->Attribute("font"));
         labelComp->setFontSize(std::stoi(label->Attribute("fontSize")));
-        win->add(*labelComp, id);
-        return *labelComp;
+        return {*labelComp, id};
       }},
      {"button",
-      [](Window *win, tinyxml2::XMLElement *button) -> Component & {
+      [](Window *win,
+         tinyxml2::XMLElement *button) -> std::pair<Component &, std::string> {
         // Access attributes
         std::string contents = button->GetText();
         std::string id = button->Attribute("id");
@@ -32,11 +36,11 @@ std::unordered_map<std::string, Processor> ProcessorRegistry::mapOfProcessors =
         buttonComp->setFont(button->Attribute("font"));
         buttonComp->setFontSize(std::stoi(button->Attribute("fontSize")));
 
-        win->add(*buttonComp, id);
-        return *buttonComp;
+        return {*buttonComp, id};
       }},
      {"progressBar",
-      [](Window *win, tinyxml2::XMLElement *label) -> Component & {
+      [](Window *win,
+         tinyxml2::XMLElement *label) -> std::pair<Component &, std::string> {
         // Access attributes
         std::string id = label->Attribute("id");
         Vector2 position(std::stoi(label->Attribute("x")),
@@ -49,10 +53,26 @@ std::unordered_map<std::string, Processor> ProcessorRegistry::mapOfProcessors =
         pb->setValue(std::stof(label->Attribute("value")));
         pb->setPosition(position);
         pb->setSize(size);
-        win->add(*pb, id);
-        return *pb;
+        return {*pb, id};
       }},
-     {"textField", [](Window *win, tinyxml2::XMLElement *field) -> Component & {
+     {"image",
+      [](Window *win,
+         tinyxml2::XMLElement *img) -> std::pair<Component &, std::string> {
+        // Access attributes
+        std::string id = img->Attribute("id");
+        Vector2 position(std::stoi(img->Attribute("x")),
+                         std::stoi(img->Attribute("y")));
+        Vector2 size(std::stoi(img->Attribute("width")),
+                     std::stoi(img->Attribute("height")));
+        Image *imgComp = new Image();
+        imgComp->setImageLocation(img->Attribute("location"));
+        imgComp->setPosition(position);
+        imgComp->setSize(size);
+        return {*imgComp, id};
+      }},
+     {"textField",
+      [](Window *win,
+         tinyxml2::XMLElement *field) -> std::pair<Component &, std::string> {
         // Access attributes
         // Access attributes
         std::string id = field->Attribute("id");
@@ -62,17 +82,42 @@ std::unordered_map<std::string, Processor> ProcessorRegistry::mapOfProcessors =
         fieldComp->setSize(Vector2(std::stoi(field->Attribute("width")),
                                    std::stoi(field->Attribute("height"))));
         fieldComp->setPosition(position);
-        win->add(*fieldComp, id);
-        return *fieldComp;
+        return {*fieldComp, id};
+      }},
+     {"container",
+      [](Window *win, tinyxml2::XMLElement *container)
+          -> std::pair<Component &, std::string> {
+        // Access attributes
+        // Access attributes
+        std::string id = container->Attribute("id");
+        Vector2 position(std::stoi(container->Attribute("x")),
+                         std::stoi(container->Attribute("y")));
+        Container *containerComp = new Container();
+        containerComp->setSize(
+            Vector2(std::stoi(container->Attribute("width")),
+                    std::stoi(container->Attribute("height"))));
+        containerComp->setPosition(position);
+
+        // recursive stuff
+
+        for (tinyxml2::XMLElement *element = container->FirstChildElement();
+             element != nullptr; element = element->NextSiblingElement()) {
+          std::pair<Component &, std::string> comp =
+              reflect::ProcessorRegistry::invokeProcessor(element->Name(), win,
+                                                          element);
+          containerComp->add(comp.first, comp.second);
+          addToHeap(&comp);
+        }
+        return {*containerComp, id};
       }}};
 
 void ProcessorRegistry::createProcessor(Processor processor,
                                         const std::string &elementId) {
   mapOfProcessors[elementId] = processor;
 }
-Component &ProcessorRegistry::invokeProcessor(const std::string &elementId,
-                                              Window *win,
-                                              tinyxml2::XMLElement *element) {
+std::pair<Component &, std::string>
+ProcessorRegistry::invokeProcessor(const std::string &elementId, Window *win,
+                                   tinyxml2::XMLElement *element) {
   return mapOfProcessors[elementId](win, element);
 }
 

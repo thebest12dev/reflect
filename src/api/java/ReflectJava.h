@@ -99,6 +99,13 @@ JNIEXPORT void JNICALL Java_reflect4j_ReflectNative_setVisible__II(JNIEnv *,
                                                                    jclass, jint,
                                                                    jint);
 
+/*
+ * Class:     reflect4j_ReflectNative
+ * Method:    run
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_reflect4j_ReflectNative_run(JNIEnv *, jclass, jint);
+
 #ifdef __cplusplus
 }
 #endif
