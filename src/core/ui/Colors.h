@@ -27,6 +27,11 @@ struct Color3 {
   Color3() : r(0), g(0), b(0) {}
   Color3(unsigned char r, unsigned char g, unsigned char b)
       : r(r), g(g), b(b) {}
+  void lerp(const Color3 &other, float amt) {
+    this->r = static_cast<unsigned char>(r + (other.r - r) * amt);
+    this->g = static_cast<unsigned char>(g + (other.g - g) * amt);
+    this->b = static_cast<unsigned char>(b + (other.b - b) * amt);
+  }
 };
 
 struct Color3Float {
@@ -50,7 +55,11 @@ struct Color3Float {
     return *this;
   }
   // Array-style access (read/write)
-
+  void lerp(const Color3Float &other, float amt) {
+    this->r = (r + (other.r - r) * amt);
+    this->g = (g + (other.g - g) * amt);
+    this->b = (b + (other.b - b) * amt);
+  }
   float &operator[](size_t index) {
     if (index >= 3) {
       return value0;

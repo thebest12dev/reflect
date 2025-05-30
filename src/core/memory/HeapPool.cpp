@@ -78,6 +78,9 @@ void *HeapPool::allocate(std::size_t size) {
 void HeapPool::deallocate(void *ptr, std::size_t size) {
   // Round size to nearest multiple of alignment (e.g., 8 bytes)
   size = (size + 7) & ~7;
+  if (ptr < pool || ptr >= pool + poolSize) {
+    throw std::runtime_error("Invalid pointer passed to deallocate()");
+  }
 
   // Add the block back to the free list
   FreeBlock *block = reinterpret_cast<FreeBlock *>(ptr);

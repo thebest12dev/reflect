@@ -42,27 +42,28 @@ or you can directly use C++ (faster, but more complicated):
 #include <string>
 #include <iostream>
 #include <windows.h>
-extern "C" __declspec(dllexport) void ReflectMain(reflect::ReflectAPI* api) {
+extern "C" __declspec(dllexport) void reflectMain(reflect::ReflectAPI* api) {
     std::cout << "Loaded!" << std::endl;
-    reflect::ComponentId id = api->GetComponentById("label1");
-    const char* string = api->GetComponentText(id);
+    reflect::ComponentId id = api->getComponentById("label1");
+    const char* string = api->getComponentText(id);
     std::cout << string << std::endl;
 };
 ```
 
 ## Building
-To build Reflect, you need CMake and a C++ compiler (like MSVC, or g++). Then simply do these steps:
+To build Reflect, you need CMake, vcpkg and a C++ compiler (like MSVC, or g++). Then simply do these steps:
 ### If using Visual Studio IDE
 1. Open the project in Visual Studio
 2. Select the configuration (Debug or Release)
 3. Select reflecti.exe as the target
-4. Finally, build the project (as it will be automatically be built)
+4. Setup vcpkg (steps below)
+5. Finally, build the project (as it will be automatically be built)
 
 ### If using plain CMake and VS Build Tools
 1. Open a terminal
 2. Navigate to the project directory
-3. Run `python3 DownloadLibraries.py` to download the libraries source (like tinyxml2)
-4. If you're using MSBuild, run
+4. Setup vcpkg (steps below)
+5. If you're using MSBuild, run
 ```cmd
 cmake -G "Visual Studio xx xxxx" -A x64
 ```
@@ -74,15 +75,14 @@ cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/cmake -DTRIPLET=x64-window
 ```cmd
 cmake --build . --config Release
 ```
-### If building on Linux
-1. Open a terminal
-2. Install CMake and g++ if you haven't already: `sudo apt install cmake g++ ninja-build`
-3. Navigate to the project directory
-5. Run `cmake . -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=<path to vcpkg.cmake> -DTRIPLET=x64-linux`
-6. Run `ninja`
 
 This will build the project and create the launcher (reflecti) as well as the shared libraries (Reflect.Core, etc.) that you can link with your projects.
 
+### To setup vcpkg
+1. Clone vcpkg via `git clone https://github.com/microsoft/vcpkg`
+2. Go to the directory where vcpkg is cloned
+3. Run bootstrap-vcpkg
+4. Now simply integrate it with CMake
 ## Security and sandboxing
 For native code, there isn't any sandboxing, so beware of malicious programs. 
 

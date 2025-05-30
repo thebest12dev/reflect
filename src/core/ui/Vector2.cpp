@@ -83,4 +83,57 @@ Vector2 Vector2::operator|(const Vector2 &vec) const noexcept {
 Vector2::operator std::vector<int>() const noexcept {
   return std::vector<int>{x, y};
 }
+
+// Vector2Float
+Vector2Float32::Vector2Float32() = default;
+
+Vector2Float32::Vector2Float32(float x, float y) : x(x), y(y) {}
+
+Vector2Float32
+Vector2Float32::operator+(const Vector2Float32 &vec) const noexcept {
+  return Vector2Float32(this->x + vec.x, this->y + vec.y);
+}
+
+Vector2Float32
+Vector2Float32::operator-(const Vector2Float32 &vec) const noexcept {
+  return Vector2Float32(this->x - vec.x, this->y - vec.y);
+}
+
+Vector2Float32
+Vector2Float32::operator*(const Vector2Float32 &vec) const noexcept {
+  return Vector2Float32(this->x * vec.x, this->y * vec.y);
+}
+
+Vector2Float32
+Vector2Float32::operator/(const Vector2Float32 &vec) const noexcept {
+  return Vector2Float32(this->x / vec.x, this->y / vec.y);
+}
+
+Vector2Float32 &Vector2Float32::operator+=(const Vector2Float32 &vec) noexcept {
+  this->x += vec.x;
+  this->y += vec.y;
+  return *this;
+}
+
+Vector2Float32 &Vector2Float32::operator-=(const Vector2Float32 &vec) noexcept {
+  this->x -= vec.x;
+  this->y -= vec.y;
+  return *this;
+}
+
+Vector2Float32 &Vector2Float32::operator*=(const Vector2Float32 &vec) noexcept {
+  this->x *= vec.x;
+  this->y *= vec.y;
+  return *this;
+}
+
+Vector2Float32 &Vector2Float32::operator/=(const Vector2Float32 &vec) noexcept {
+  this->x /= vec.x;
+  this->y /= vec.y;
+  return *this;
+}
+
+Vector2Float32::operator std::vector<float>() const noexcept {
+  return std::vector<float>{x, y};
+}
 } // namespace reflect

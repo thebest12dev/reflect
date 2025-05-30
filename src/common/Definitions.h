@@ -27,7 +27,7 @@
 /**
  * @brief External application name to be shown to the end user.
  */
-#define APP_NAME "Project Reflect"
+#define APP_NAME "Reflect"
 
 /**
  * @brief Internal application version for compatibility checks.
@@ -82,3 +82,4 @@
 #define REFLECT_OBJECT_PROGRESSBAR 10
 #define REFLECT_OBJECT_IMAGE 11
 #define REFLECT_OBJECT_CONTAINER 12
+#define REFLECT_OBJECT_CANVAS 13

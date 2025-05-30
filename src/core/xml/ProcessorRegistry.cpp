@@ -1,5 +1,6 @@
 #include "ProcessorRegistry.h"
 #include "../Main.h"
+#include "Console.h"
 #include "core/ui/Button.h"
 #include "core/ui/Container.h"
 #include "core/ui/Image.h"
@@ -93,6 +94,26 @@ std::unordered_map<std::string, Processor> ProcessorRegistry::mapOfProcessors =
         Vector2 position(std::stoi(container->Attribute("x")),
                          std::stoi(container->Attribute("y")));
         Container *containerComp = new Container();
+
+        std::string bgColor = container->Attribute("bgColor");
+        reflectDebug("setting window background color...");
+        if (bgColor == "systemDefault") {
+          containerComp->setColor(255, 255, 255);
+        } else {
+          if (bgColor.at(0) == '#' && bgColor.length() == 7) {
+
+            const std::string hex = bgColor.substr(1);
+
+            const uint8_t r = stoi(hex.substr(0, 2), nullptr, 16);
+            const uint8_t g = stoi(hex.substr(2, 2), nullptr, 16);
+            const uint8_t b = stoi(hex.substr(4, 2), nullptr, 16);
+            const Color3 color = {r, g, b};
+            containerComp->setColor(color);
+          } else {
+            reflectError("invalid hex color representation");
+            std::exit(REFLECT_ERROR_HEX_COLOR_MALFORMED);
+          }
+        }
         containerComp->setSize(
             Vector2(std::stoi(container->Attribute("width")),
                     std::stoi(container->Attribute("height"))));
@@ -106,7 +127,8 @@ std::unordered_map<std::string, Processor> ProcessorRegistry::mapOfProcessors =
               reflect::ProcessorRegistry::invokeProcessor(element->Name(), win,
                                                           element);
           containerComp->add(comp.first, comp.second);
-          addToHeap(&comp);
+          Component *ptr = &comp.first;
+          addToHeap(ptr);
         }
         return {*containerComp, id};
       }}};

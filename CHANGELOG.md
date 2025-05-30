@@ -1,3 +1,10 @@
+# v1.9.0 (2025-??-??)
+- Added canvases
+- Abstracted some of the window logic
+- Improved components
+- Added basic canvas methods
+- Bug fixes
+
 # v1.8.0 (2025-05-24)
 - Added containers
 - Added images 

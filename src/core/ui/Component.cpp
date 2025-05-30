@@ -18,11 +18,13 @@
  */
 #include "Component.h"
 #include "../memory/HeapPool.h"
+#include "Canvas.h"
 #include "Colors.h"
 #include "TypeDefinitions.h"
 #include "Vector2.h"
 #include <cstdint>
 #include <string>
+reflect::Component::~Component() = default;
 reflect::Component::Component()
     : position(Vector2(0, 0)), size(Vector2(0, 0)),
       bgColor(Color3Float(1, 1, 1)), hwnd(nullptr), winstance(nullptr) {
@@ -40,6 +42,66 @@ void reflect::Component::setPosition(Vector2 pos) {
   }
 }
 void reflect::Component::paint() { InvalidateRect(hwnd, nullptr, true); }
+void reflect::Component::setClassName(const std::string &className) {
+  this->className = "reflect_" + className;
+}
+void reflect::Component::setWindowName(const std::string &windowName) {
+  this->windowName = windowName;
+}
+void reflect::Component::setStyles(unsigned int styles,
+                                   unsigned int extendedStyles) {
+  this->styles = styles;
+  this->extendedStyles = extendedStyles;
+}
+reflect::Canvas &reflect::Component::getCanvas() { return *canvas.get(); }
+void reflect::Component::onPaint() {};
+void reflect::Component::onCreate() {};
+HWND &reflect::Component::getParentWindow() { return parentHWND; }
+HWND &reflect::Component::getRootWindow() { return windowHWND; }
+LRESULT CALLBACK reflect::Component::componentProc(HWND hwnd, UINT uMsg,
+                                                   WPARAM wParam,
+                                                   LPARAM lParam) {
+  Component *pThis =
+      reinterpret_cast<Component *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+  if (uMsg == WM_CREATE) {
+    CREATESTRUCT *pCreate = reinterpret_cast<CREATESTRUCT *>(lParam);
+    pThis = reinterpret_cast<Component *>(pCreate->lpCreateParams);
+    SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
+    pThis->hwnd = hwnd;
+    pThis->canvas = std::make_unique<Canvas>(pThis);
+    pThis->canvas->render(hwnd, pThis->windowHWND);
+
+    pThis->onCreate();
+  }
+  if (pThis) {
+    switch (uMsg) {
+
+    case WM_PAINT: {
+      PAINTSTRUCT ps;
+      BeginPaint(hwnd, &ps);
+
+      pThis->onPaint();
+
+      EndPaint(hwnd, &ps);
+      return 0;
+    }
+    }
+  }
+  return DefWindowProc(hwnd, uMsg, wParam, lParam);
+};
+void reflect::Component::render(HWND &parentHWND, HWND &windowHWND) {
+  this->parentHWND = parentHWND;
+  this->windowHWND = windowHWND;
+  WNDCLASS wc = {};
+  wc.lpszClassName = className.c_str();
+  wc.hInstance = GetModuleHandle(nullptr);
+  wc.lpfnWndProc = componentProc;
+  RegisterClass(&wc);
+  hwnd = CreateWindowEx(extendedStyles, className.c_str(), windowName.c_str(),
+                        styles, position.x, position.y, size.x, size.y,
+                        parentHWND, nullptr, GetModuleHandle(nullptr), this);
+};
+
 reflect::Color3 reflect::Component::getColor() { return bgColor; }
 void reflect::Component::add(Component &comp) {
   // Do nothing

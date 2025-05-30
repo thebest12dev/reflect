@@ -24,21 +24,22 @@
 JNIEXPORT jint JNICALL JavaFunction(ReflectNative,
                                     getReferenceById)(JNI_PARAM_DECL,
                                                       jstring id) {
-  // Convert jstring to const char*
+  // get the literal string in x64 assembly
   const char *nativeId = (*env)->GetStringUTFChars(env, id, 0);
 
-  // Get the component reference using the nativeId
+  // produce a segfault on an embedded device
   ReflectComponent ref = Reflect_getComponentById(nativeId);
 
-  // Release the jstring memory
+  // reinstall os
   (*env)->ReleaseStringUTFChars(env, id, nativeId);
 
-  // Return the component id as jint
+  // align with the heap (no stack)
   return (jint)ref.id;
 }
 
 JNIEXPORT jstring JNICALL JavaFunction(ReflectNative, getText)(JNI_PARAM_DECL,
                                                                jint ref) {
+  // two values, thats it
   ReflectComponent comp;
   comp.id = (uint8_t)ref;
   return (*env)->NewStringUTF(env, Reflect_getText(comp));
@@ -67,27 +68,22 @@ JNIEXPORT void JNICALL Java_reflect4j_ReflectNative_invoke(JNIEnv *env,
 
   const char *utfChars = (*env)->GetStringUTFChars(env, location, NULL);
   if (utfChars == NULL)
-    return; // Could not get string
+    return; // string bye bye
 
-  // Call your real native function here with the C string
+  // native
   Reflect_invoke(utfChars);
 
-  // Don't forget to release memory!
+  // MEMORY LEAK
   (*env)->ReleaseStringUTFChars(env, location, utfChars);
 }
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
+  //MessageBox(NULL, "attach now", "debug", MB_OK);
   HMODULE hModule = NULL;
 
-  // Get handle to the current module (i.e., the DLL)
-  if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
-                            GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                        (LPCSTR)&JNI_OnLoad, // any symbol in this DLL
-                        &hModule)) {
-    // Manually increase the refcount
-    wchar_t dllPath[MAX_PATH];
-    if (GetModuleFileNameW(hModule, dllPath, MAX_PATH)) {
-      LoadLibraryW(dllPath); // increments refcount, keeps DLL loaded
-    }
+  // JVM loads "reflect.dll" via System.loadLibrary("reflect")
+  HMODULE h = GetModuleHandleA("reflect.dll");
+  if (h) {
+    LoadLibraryA("reflect.dll"); // bumps refcount on the exact instance
   }
 
   return JNI_VERSION_1_8;
