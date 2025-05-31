@@ -1,4 +1,4 @@
-# v1.9.0 (2025-??-??)
+# v1.9.0 (2025-05-31)
 - Added canvases
 - Abstracted some of the window logic
 - Improved components
