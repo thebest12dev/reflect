@@ -29,20 +29,9 @@
 namespace reflect {
 class Button : public TextComponent {
 protected:
-  HINSTANCE winstance;
-  HWND hwnd;
-
-  HINSTANCE parentInstance;
-  // HWND parentHWND;
-
-  Vector2 position;
-  Vector2 size;
   void (*clickCallback)(Button &);
 
 private:
-  std::string text;
-  std::string fontStr;
-  int fontSize;
 #ifdef _WIN32
   static LRESULT CALLBACK buttonProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                                      LPARAM lParam, UINT_PTR uIdSubclass,
@@ -53,14 +42,10 @@ public:
   friend class Component;
   REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
   REFLECT_API void setVisible(bool flag);
-  REFLECT_API void add(Component comp);
   REFLECT_API Button(std::string contents, Vector2 pos);
-  REFLECT_API void setVisible(int cmd);
   REFLECT_API void setFontSize(int size);
   REFLECT_API void setFont(std::string font);
-  REFLECT_API void setText(std::string text);
   REFLECT_API std::string getText();
   REFLECT_API void onClick(void (*callback)(Button &));
-  REFLECT_API void setColor(uint8_t r, uint8_t g, uint8_t b);
 };
 } // namespace reflect

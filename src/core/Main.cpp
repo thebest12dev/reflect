@@ -55,6 +55,7 @@ typedef unsigned char byte;
 #include "ui/TextField.h"
 // ui components
 #include "ui/Button.h"
+#include "ui/Canvas.h"
 #include "ui/Colors.h"
 #include "ui/Component.h"
 #include "ui/Components.h"
@@ -64,6 +65,7 @@ typedef unsigned char byte;
 #include "ui/MenuItem.h"
 #include "ui/TextComponent.h"
 #include "ui/Vector2.h"
+#include <numbers>
 #ifdef REFLECT_LUA
 #include "LuaAPI.h"
 #endif
@@ -105,8 +107,11 @@ struct Cleaner {
 Cleaner cleaner;
 
 } // namespace
+#include "ui/Canvas.h"
 #include "xml/ProcessorRegistry.h"
 #include <ShellScalingAPI.h>
+#include <numbers>
+#include <random>
 #pragma comment(lib, "Shcore.lib")
 
 void reflect::addToHeap(void *ptr) { heapAllocations.push_back(ptr); };
@@ -294,7 +299,7 @@ int reflect::invokeExecutable(std::string xmlFile, bool blocking) {
       if (lua == nullptr) {
         reflectDebug("initializing lua...");
         lua = new LuaInstance();
-        heapAllocations.push_back(lua);
+        // heapAllocations.push_back(lua);
         lua->initializeLuaApis(injectLuaApis);
       }
 
@@ -318,6 +323,91 @@ int reflect::invokeExecutable(std::string xmlFile, bool blocking) {
     win->add(*menuBar);
   }
   reflectDebug("entering main loop...");
+  // Canvas canvas;
+  // canvas.setSize({1366, 768});
+  // canvas.setPosition({0, 0});
+
+  // win->add(canvas);
+
+  // canvas.strokeWeight(10);
+  /*canvas.background({20, 100, 255});
+  canvas.stroke({0, 70, 156});
+  canvas.fill({30, 255, 0});
+  canvas.rect({100, 100}, {100, 100});*/
+
+  // int x = 100, y = 100;
+  // float vx = 1.0f, vy = 1.0f; // initial velocity
+  // const int width = 1366;
+  // const int height = 768;
+  // const int rectSize = 100;
+  // auto hsvToRGB = [](float h, float s, float v, float &r, float &g, float &b)
+  // {
+  //   float c = v * s;
+  //   float x = c * (1 - fabs(fmod(h / 60.0f, 2) - 1));
+  //   float m = v - c;
+
+  //  float r1, g1, b1;
+
+  //  if (h < 60) {
+  //    r1 = c;
+  //    g1 = x;
+  //    b1 = 0;
+  //  } else if (h < 120) {
+  //    r1 = x;
+  //    g1 = c;
+  //    b1 = 0;
+  //  } else if (h < 180) {
+  //    r1 = 0;
+  //    g1 = c;
+  //    b1 = x;
+  //  } else if (h < 240) {
+  //    r1 = 0;
+  //    g1 = x;
+  //    b1 = c;
+  //  } else if (h < 300) {
+  //    r1 = x;
+  //    g1 = 0;
+  //    b1 = c;
+  //  } else {
+  //    r1 = c;
+  //    g1 = 0;
+  //    b1 = x;
+  //  }
+
+  //  r = (r1 + m);
+  //  g = (g1 + m);
+  //  b = (b1 + m);
+  //};
+
+  // int hue = 0;
+  // std::random_device
+  //     rd; // Obtain a random seed from the hardware (if available)
+  // std::mt19937 gen(rd()); // Seed Mersenne Twister engine with rd()
+
+  // std::uniform_int_distribution<> dist(0, 255); // Distribution range [1, 10]
+  // std::vector<Vector2> points;
+  // win->setRenderLoop([&canvas, &x, &y, &vx, &vy, &hue, &hsvToRGB, &dist,
+  // &gen,
+  //                     &points](Window &win) mutable {
+  // win->setRenderLoop([&canvas](Window &win) mutable {
+  // float r, g, b;
+  // hsvToRGB(hue % 360, 1.0f, 1.0f, r, g, b);
+  //  canvas.beginDraw();
+  // canvas.clear();
+  //  canvas.background({20, 100, 255});
+
+  //  canvas.endDraw();
+  // canvas.repaint();
+  // Sleep(16); // Uncomment for manual throttling if needed
+  //});
+
+  // canvas.arc({146, 191}, {40, 40},
+  //  {-265 * 3.1415926f / 180.0f, -48 * 3.1415926f / 180.0f});
+
+  /*canvas.background({20, 100, 255});
+  canvas.triangle({100, 100}, {200, 100}, {150, 200});
+  canvas.line({0, 0}, {100, 100});
+  canvas.arc({50, 50}, {50, 50}, {0, std::numbers::pi});*/
   win->setVisible(true);
   if (blocking) {
     return win->run(onExecute);

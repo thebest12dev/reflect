@@ -26,6 +26,9 @@ void reflect::TextComponent::setText(std::string text_) { this->text = text_; }
 std::string reflect::TextComponent::getText() { return text; }
 void reflect::TextComponent::setFont(std::string f) { fontStr = f; }
 void reflect::TextComponent::setFontSize(int fs) { fontSize = fs; }
+void reflect::TextComponent::setColor(uint8_t r, uint8_t g, uint8_t b) {
+  this->bgColor = Color3Float{r / 255.0f, g / 255.0f, b / 255.0f};
+}
 reflect::TextComponent::TextComponent() {
   initializeObject(REFLECT_OBJECT_TEXTCOMPONENT, REFLECT_OBJECT_COMPONENT);
 }

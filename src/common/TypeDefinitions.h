@@ -59,8 +59,6 @@ typedef XID XWindow;
 
 #endif
 
-#define LIBC_NAMESPACE reflect
-
 /**
  * @brief Namespace for the Reflect framework.
  */

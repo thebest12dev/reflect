@@ -50,5 +50,27 @@ public:
   REFLECT_API explicit operator std::vector<int>() const noexcept;
   int x, y;
 };
+struct Vector2Float32 {
+public:
+  REFLECT_API Vector2Float32();
+  REFLECT_API Vector2Float32(float x, float y);
 
+  // Arithmetic operators
+  REFLECT_API Vector2Float32
+  operator+(const Vector2Float32 &vec) const noexcept;
+  REFLECT_API Vector2Float32
+  operator-(const Vector2Float32 &vec) const noexcept;
+  REFLECT_API Vector2Float32
+  operator*(const Vector2Float32 &vec) const noexcept;
+  REFLECT_API Vector2Float32
+  operator/(const Vector2Float32 &vec) const noexcept;
+
+  // Compound assignment
+  REFLECT_API Vector2Float32 &operator+=(const Vector2Float32 &vec) noexcept;
+  REFLECT_API Vector2Float32 &operator-=(const Vector2Float32 &vec) noexcept;
+  REFLECT_API Vector2Float32 &operator*=(const Vector2Float32 &vec) noexcept;
+  REFLECT_API Vector2Float32 &operator/=(const Vector2Float32 &vec) noexcept;
+  REFLECT_API explicit operator std::vector<float>() const noexcept;
+  float x, y;
+};
 } // namespace reflect

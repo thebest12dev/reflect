@@ -51,8 +51,8 @@ private:
   OpenGLContext *glCtx;
   bool closeHovering;
   bool customTitleBar;
-  void (*renderLoop)(Window &);
-  void (*beforeRenderLoop)(Window &);
+  std::function<void(Window &)> renderLoop;
+  std::function<void(Window &)> beforeRenderLoop;
 
 protected:
   HINSTANCE winstance;
@@ -91,7 +91,7 @@ protected:
   bool callInit;
 #ifdef _WIN32
   ID2D1HwndRenderTarget *pRenderTarget = nullptr;
-  ID2D1Factory *pFactory = nullptr;
+  ID2D1Factory *pFactory;
   IDWriteFactory *pDWriteFactory = nullptr;
   static LRESULT CALLBACK windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                                      LPARAM lParam);
@@ -114,13 +114,14 @@ public:
     std::any anyType = getPropertyMap()[property]();
     return std::any_cast<T>(anyType);
   };
-  REFLECT_API void setBeforeRenderLoop(void (*callback)(Window &));
+  REFLECT_API void setBeforeRenderLoop(std::function<void(Window &)> callback);
   REFLECT_API void swapBuffers();
   REFLECT_API bool isKeyPressed(char key);
   REFLECT_API void add(Component &comp, std::string id);
   REFLECT_API bool showNotification(reflect::Notification &notif);
   REFLECT_API int run(void (*func)(Window &win));
-  REFLECT_API void setRenderLoop(void (*loop)(Window &));
+  REFLECT_API void
+  setRenderLoop(std::function<void(Window &)> beforeRenderLoop);
   REFLECT_API void close();
   REFLECT_API operator HWND() const;
   REFLECT_API Window(const Window &) = delete;

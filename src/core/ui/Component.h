@@ -24,7 +24,60 @@
 #include <cstdint>
 #ifdef _WIN32
 #include <windows.h>
+
+// Standard window styles
+#define REFLECT_STYLE_CHILD WS_CHILD
+#define REFLECT_STYLE_VISIBLE WS_VISIBLE
+#define REFLECT_STYLE_BORDER WS_BORDER
+#define REFLECT_STYLE_CAPTION WS_CAPTION
+#define REFLECT_STYLE_CHILDWINDOW WS_CHILDWINDOW
+#define REFLECT_STYLE_CLIPCHILDREN WS_CLIPCHILDREN
+#define REFLECT_STYLE_CLIPSIBLINGS WS_CLIPSIBLINGS
+#define REFLECT_STYLE_POPUP WS_POPUP
+#define REFLECT_STYLE_DISABLED WS_DISABLED
+#define REFLECT_STYLE_GROUP WS_GROUP
+#define REFLECT_STYLE_HSCROLL WS_HSCROLL
+#define REFLECT_STYLE_ICONIC WS_ICONIC
+#define REFLECT_STYLE_MAXIMIZE WS_MAXIMIZE
+#define REFLECT_STYLE_MAXIMIZEBOX WS_MAXIMIZEBOX
+#define REFLECT_STYLE_MINIMIZE WS_MINIMIZE
+#define REFLECT_STYLE_MINIMIZEBOX WS_MINIMIZEBOX
+#define REFLECT_STYLE_OVERLAPPED WS_OVERLAPPED
+#define REFLECT_STYLE_OVERLAPPEDWINDOW WS_OVERLAPPEDWINDOW
+#define REFLECT_STYLE_SIZEBOX WS_SIZEBOX
+#define REFLECT_STYLE_SYSMENU WS_SYSMENU
+#define REFLECT_STYLE_TABSTOP WS_TABSTOP
+#define REFLECT_STYLE_THICKFRAME WS_THICKFRAME
+#define REFLECT_STYLE_TILED WS_TILED
+#define REFLECT_STYLE_TILEDWINDOW WS_TILEDWINDOW
+#define REFLECT_STYLE_VSCROLL WS_VSCROLL
+#define REFLECT_STYLE_DLGMODALFRAME WS_EX_DLGMODALFRAME
+#define REFLECT_STYLE_NOPARENTNOTIFY WS_EX_NOPARENTNOTIFY
+#define REFLECT_STYLE_TOPMOST WS_EX_TOPMOST
+#define REFLECT_STYLE_ACCEPTFILES WS_EX_ACCEPTFILES
+#define REFLECT_STYLE_TRANSPARENT WS_EX_TRANSPARENT
+#define REFLECT_STYLE_MDICHILD WS_EX_MDICHILD
+#define REFLECT_STYLE_TOOLWINDOW WS_EX_TOOLWINDOW
+#define REFLECT_STYLE_WINDOWEDGE WS_EX_WINDOWEDGE
+#define REFLECT_STYLE_CLIENTEDGE WS_EX_CLIENTEDGE
+#define REFLECT_STYLE_CONTEXTHELP WS_EX_CONTEXTHELP
+#define REFLECT_STYLE_RIGHT WS_EX_RIGHT
+#define REFLECT_STYLE_LEFT WS_EX_LEFT
+#define REFLECT_STYLE_RTLREADING WS_EX_RTLREADING
+#define REFLECT_STYLE_LTRREADING WS_EX_LTRREADING
+#define REFLECT_STYLE_LEFTSCROLLBAR WS_EX_LEFTSCROLLBAR
+#define REFLECT_STYLE_RIGHTSCROLLBAR WS_EX_RIGHTSCROLLBAR
+#define REFLECT_STYLE_CONTROLPARENT WS_EX_CONTROLPARENT
+#define REFLECT_STYLE_STATICEDGE WS_EX_STATICEDGE
+#define REFLECT_STYLE_APPWINDOW WS_EX_APPWINDOW
+#define REFLECT_STYLE_LAYERED WS_EX_LAYERED
+#define REFLECT_STYLE_NOINHERITLAYOUT WS_EX_NOINHERITLAYOUT
+#define REFLECT_STYLE_LAYOUTRTL WS_EX_LAYOUTRTL
+#define REFLECT_STYLE_COMPOSITED WS_EX_COMPOSITED
+#define REFLECT_STYLE_NOACTIVATE WS_EX_NOACTIVATE
+
 #endif
+
 #define COMPONENT_COMMON(classname)                                            \
   reflect::Vector2 classname::getSize() { return size; };                      \
   reflect::Vector2 classname::getPosition() { return position; };              \
@@ -57,8 +110,27 @@
   REFLECT_API Color3 getColor()
 
 namespace reflect {
+class Canvas;
 class Component : public Object {
+private:
+  static LRESULT CALLBACK componentProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+                                        LPARAM lParam);
+  std::string className = "reflect_Component";
+  unsigned int styles = 0;
+  unsigned int extendedStyles = 0;
+  std::string windowName = "";
+  std::unique_ptr<Canvas> canvas;
+  HWND parentHWND;
+  HWND windowHWND;
+
 protected:
+  void setClassName(const std::string &className);
+  void setStyles(unsigned int styles = 0, unsigned int extendedStyles = 0);
+  void setWindowName(const std::string &name);
+  HWND &getParentWindow();
+  HWND &getRootWindow();
+  Canvas &getCanvas();
+
   /// @brief The HINSTANCE object associated
   /// with the program required for window creation.
   HINSTANCE winstance;
@@ -104,7 +176,7 @@ public:
    * @param windowHWND The window window handle (similar to the parent handle
    * but for the window).
    */
-  REFLECT_API virtual void render(HWND &parentHWND, HWND &windowHWND) = 0;
+  REFLECT_API virtual void render(HWND &parentHWND, HWND &windowHWND);
 
   /**
    * @brief Sets the component visibility to either show or hide depending on
@@ -151,7 +223,7 @@ public:
   /**
    * @brief Virtual destructor needed for runtime polymorphism.
    */
-  REFLECT_API virtual ~Component() = default; // To allow dynamic_cast to work
+  REFLECT_API virtual ~Component(); // To allow dynamic_cast to work
 
   /**
    * @brief Returns the component's position.
@@ -174,6 +246,12 @@ public:
    */
   REFLECT_API Color3 getColor();
   REFLECT_API void setPosition(Vector2 pos);
+
+  /**
+   * @brief Wrapper over WM_PAINT (or whatever it is)
+   */
+  REFLECT_API virtual void onPaint();
+  REFLECT_API virtual void onCreate();
   REFLECT_API void *operator new(std::size_t size);
   REFLECT_API void operator delete(void *ptr) noexcept;
   REFLECT_API void *operator new[](std::size_t size);
@@ -182,6 +260,7 @@ public:
   friend class Window;
   friend class Label;
   friend class Button;
+  friend class Canvas;
   friend class Container;
 };
 

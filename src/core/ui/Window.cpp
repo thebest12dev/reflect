@@ -33,6 +33,7 @@
 #include <wincodec.h>
 #ifdef _WIN32
 #include "Notification.h"
+#include <VersionHelpers.h>
 #include <cstdio>
 #include <d2d1.h>
 #include <dwmapi.h>
@@ -42,6 +43,9 @@
 
 #pragma comment(lib, "dwmapi.lib")
 using namespace reflect::console;
+namespace {
+ID2D1Factory *pFactory = nullptr;
+}
 // Direct2D-specific members
 // Due to floating point operations, may not produce exact color
 void reflect::Window::addStyle(WindowStyle style) {
@@ -100,28 +104,28 @@ void reflect::Window::setColor(Color3Array color) {
   this->bgColor[1] = color[1] / 255.0f;
   this->bgColor[2] = color[2] / 255.0f;
 }
-void reflect::Window::setRenderLoop(void (*loop)(Window &)) {
+void reflect::Window::setRenderLoop(std::function<void(Window &)> loop) {
   renderLoop = loop;
 }
 void reflect::Window::initializeDirect2D() {
-  if (!this->pFactory) {
+
+  if (!::pFactory) {
 
     reflectDebug("initializing Direct2D...");
     // Create the Direct2D factory
 
     reflectDebug("creating d2d1 factory...");
     HRESULT hr =
-        D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &this->pFactory);
-
-    int i = 0;
+        D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &::pFactory);
   }
+  this->pFactory = ::pFactory;
   if (!this->pRenderTarget) {
     RECT rc;
     GetClientRect(hwnd, &rc);
 
     // Create the render target
     reflectDebug("creating renderer target...");
-    this->pFactory->CreateHwndRenderTarget(
+    ::pFactory->CreateHwndRenderTarget(
         D2D1::RenderTargetProperties(),
         D2D1::HwndRenderTargetProperties(
             hwnd, D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top)),
@@ -741,11 +745,11 @@ reflect::Window::~Window() {
     pRenderTarget->Release();
     pRenderTarget = nullptr;
   }
-  if (pFactory) {
-    pFactory->Release();
-    pFactory = nullptr;
-  }
-  // set to nullptr to avoid dangling pointers
+  // if (pFactory) {
+  //   pFactory->Release();
+  //   pFactory = nullptr;
+  // }
+  //  set to nullptr to avoid dangling pointers
 }
 void reflect::Window::setTitle(std::string title) {
   reflectDebug("window title set");
@@ -789,7 +793,8 @@ int reflect::Window::run(void (*func)(Window &win)) {
       //}
     }
 
-    if (customPipeline && openglRendering && !renderThread)
+    else if (customPipeline && openglRendering && !renderThread) {
+
       renderThread = new std::thread([this, func, msg]() {
         while (msg.message != WM_QUIT) {
           if (!renderHdc) {
@@ -813,6 +818,9 @@ int reflect::Window::run(void (*func)(Window &win)) {
           // }
         }
       });
+    } else if (direct2dRendering && renderLoop) {
+      renderLoop(*this);
+    }
     /*if (openglRendering && currentContext != nullptr && customPipeline &&
         renderLoop) {
       renderLoop(*this);
@@ -829,7 +837,8 @@ int reflect::Window::run(void (*func)(Window &win)) {
   }
   return static_cast<int>(msg.wParam);
 }
-void reflect::Window::setBeforeRenderLoop(void (*callback)(Window &)) {
+void reflect::Window::setBeforeRenderLoop(
+    std::function<void(Window &)> callback) {
   this->beforeRenderLoop = callback;
 }
 void reflect::Window::swapBuffers() {

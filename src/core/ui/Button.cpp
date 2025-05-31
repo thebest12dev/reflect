@@ -147,8 +147,10 @@ std::string reflect::Button::getText() { return text; }
  * @param text The text to display on the button.
  * @param pos The position of the button.
  */
-reflect::Button::Button(std::string text, Vector2 pos)
-    : position(pos), size(Vector2(0, 0)), text(text) {
+reflect::Button::Button(std::string text, Vector2 pos) {
+  this->position = pos;
+  this->text = text;
+
   initializeObject(REFLECT_OBJECT_BUTTON, REFLECT_OBJECT_TEXTCOMPONENT);
 }
 #elif __linux__
