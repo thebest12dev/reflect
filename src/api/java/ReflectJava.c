@@ -77,7 +77,7 @@ JNIEXPORT void JNICALL Java_reflect4j_ReflectNative_invoke(JNIEnv *env,
   (*env)->ReleaseStringUTFChars(env, location, utfChars);
 }
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
-  //MessageBox(NULL, "attach now", "debug", MB_OK);
+  // MessageBox(NULL, "attach now", "debug", MB_OK);
   HMODULE hModule = NULL;
 
   // JVM loads "reflect.dll" via System.loadLibrary("reflect")
