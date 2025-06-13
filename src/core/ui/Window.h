@@ -98,6 +98,9 @@ protected:
   void initializeDirect2D();
   void initializeDirectWrite(); // Add
 #endif
+  char keyPressed = 0;
+  std::vector<std::function<void(char)>> keyPressedListeners;
+  std::vector<std::function<void()>> onUpdateListeners;
 
 public:
   COMPONENT_DECL(Window);
@@ -110,7 +113,7 @@ public:
 
   template <typename T>
 
-  REFLECT_API T getProperty(std::string property) {
+  T getProperty(std::string property) {
     std::any anyType = getPropertyMap()[property]();
     return std::any_cast<T>(anyType);
   };
@@ -122,11 +125,14 @@ public:
   REFLECT_API int run(void (*func)(Window &win));
   REFLECT_API void
   setRenderLoop(std::function<void(Window &)> beforeRenderLoop);
+  REFLECT_API char getCurrentKeyPressed();
   REFLECT_API void close();
   REFLECT_API operator HWND() const;
   REFLECT_API Window(const Window &) = delete;
   REFLECT_API Window &operator=(const Window &) = delete;
   REFLECT_API Window(Window &&) = delete;
+  REFLECT_API void addOnUpdateListener(std::function<void()> listener);
+  REFLECT_API void addKeyPressedListener(std::function<void(char)> listener);
   REFLECT_API Window &operator=(Window &&) = delete;
 
   friend class Component;

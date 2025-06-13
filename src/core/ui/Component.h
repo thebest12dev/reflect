@@ -251,7 +251,10 @@ public:
    * @brief Wrapper over WM_PAINT (or whatever it is)
    */
   REFLECT_API virtual void onPaint();
+  REFLECT_API virtual void onKeyPressed(char key);
   REFLECT_API virtual void onCreate();
+
+  REFLECT_API virtual void onUpdate();
   REFLECT_API void *operator new(std::size_t size);
   REFLECT_API void operator delete(void *ptr) noexcept;
   REFLECT_API void *operator new[](std::size_t size);

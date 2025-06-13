@@ -1,6 +1,7 @@
 #include "Canvas.h"
 #include "Console.h"
 #include "Window.h"
+#include <dwrite.h>
 #include <numbers>
 namespace reflect {
 void Canvas::arc(Vector2 position, Vector2 size, Vector2Float32 startStop) {
@@ -71,6 +72,22 @@ void Canvas::arc(Vector2 position, Vector2 size, Vector2Float32 startStop) {
   // Clean up
   pPathGeometry->Release();
   canvasPainted = false;
+}
+
+float Canvas::textMaximumFontSize(float height) {
+  float oldTextSize = fontSize;
+  float fontSizeNew = 1;
+  while (true) {
+    textSize(fontSizeNew);
+
+    float textHeight =
+        textAscent() + textDescent(); // Get the total height of the text
+    if (textHeight >= height) {
+      textSize(oldTextSize);
+      return fontSizeNew;
+    }
+    fontSizeNew += 1; // Reduce the font size until the text fits
+  }
 }
 Canvas::Canvas(Component *thisObject) {
   // we will take the object's hwnd
@@ -254,6 +271,8 @@ void Canvas::line(Vector2 start, Vector2 end) {
   // drawingCommands.push_back([start, end, this](ID2D1HwndRenderTarget *) {
   if (isDrawing) {
     // Define the start and end points of the line
+    D2D1_ANTIALIAS_MODE oldMode = childRenderTarget->GetAntialiasMode();
+    childRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
     D2D1_POINT_2F startPoint =
         D2D1::Point2F(start.x, start.y); // Start point (x1, y1)
     D2D1_POINT_2F endPoint = D2D1::Point2F(end.x, end.y); // End point (x2, y2)
@@ -261,6 +280,7 @@ void Canvas::line(Vector2 start, Vector2 end) {
     // Draw the line
     childRenderTarget->DrawLine(startPoint, endPoint, strokeBrush,
                                 strokeWidth); // 2.0f is the line width
+    childRenderTarget->SetAntialiasMode(oldMode);
   }
   //});
   canvasPainted = false;
@@ -296,6 +316,317 @@ void Canvas::quad(Vector2 first, Vector2 second, Vector2 third,
     pSink->Release();
 
     pPathGeometry->Release();
+  }
+}
+void Canvas::ellipse(Vector2 position, Vector2 size) {
+  // drawingCommands.push_back(
+  //   [this, position, size, radius](ID2D1HwndRenderTarget *) {
+  if (isDrawing) {
+    if (shouldStroke) {
+      childRenderTarget->DrawEllipse(
+          D2D1::Ellipse(D2D1::Point2F(position.x, position.y), size.x, size.y),
+          strokeBrush);
+      // });
+      canvasPainted = false;
+    }
+
+    if (shouldFill) {
+      childRenderTarget->FillEllipse(
+          D2D1::Ellipse(D2D1::Point2F(position.x, position.y), size.x, size.y),
+          fillBrush);
+      // });
+    }
+  }
+}
+static std::wstring toWstring(const std::string &str) {
+  return std::wstring(str.begin(), str.end());
+}
+void Canvas::text(const std::string &text, Vector2 pos, Vector2 size) {
+  // drawingCommands.push_back(
+  //   [this, position, size, radius](ID2D1HwndRenderTarget *) {
+  if (isDrawing) {
+    if (shouldStroke) {
+      std::wstring a(text.begin(), text.end());
+      childRenderTarget->DrawText(a.c_str(), a.length(), pTextFormat,
+                                  D2D1::RectF(0, 0, size.x, size.y),
+                                  strokeBrush);
+      // });
+
+      canvasPainted = false;
+    }
+  }
+}
+float Canvas::textWidth(const std::string &text) {
+  if (!pTextFormat)
+    return 0.0f;
+  Window *win = reinterpret_cast<Window *>(
+      GetWindowLongPtr(GetAncestor(hwnd, GA_ROOT), GWLP_USERDATA));
+  IDWriteFactory *pDWriteFactory =
+      win->getProperty<IDWriteFactory *>("directWriteFactory");
+  if (!pDWriteFactory)
+    return 0.0f;
+
+  std::wstring wtext = toWstring(text);
+  // Use a large layout width to avoid wrapping
+  float layoutWidth = 4096.0f;
+  float layoutHeight = 4096.0f;
+  IDWriteTextLayout *pTextLayout = nullptr;
+  HRESULT hr = pDWriteFactory->CreateTextLayout(
+      wtext.c_str(), (UINT32)wtext.length(), pTextFormat, layoutWidth,
+      layoutHeight, &pTextLayout);
+  if (FAILED(hr) || !pTextLayout)
+    return 0.0f;
+
+  DWRITE_TEXT_METRICS metrics;
+  hr = pTextLayout->GetMetrics(&metrics);
+  float width = SUCCEEDED(hr) ? metrics.widthIncludingTrailingWhitespace : 0.0f;
+  pTextLayout->Release();
+  return width;
+}
+
+float Canvas::textAscent() {
+  if (!pTextFormat)
+    return 0.0f;
+  DWRITE_FONT_METRICS metrics;
+  IDWriteFontCollection *fontCollection = nullptr;
+  HRESULT hr = pTextFormat->GetFontCollection(&fontCollection);
+  if (FAILED(hr) || !fontCollection)
+    return 0.0f;
+
+  UINT32 index;
+  BOOL exists;
+  std::wstring wfont = toWstring(fontName);
+  fontCollection->FindFamilyName(wfont.c_str(), &index, &exists);
+  if (!exists) {
+    fontCollection->Release();
+    return 0.0f;
+  }
+  IDWriteFontFamily *fontFamily = nullptr;
+  hr = fontCollection->GetFontFamily(index, &fontFamily);
+  if (FAILED(hr) || !fontFamily) {
+    fontCollection->Release();
+    return 0.0f;
+  }
+  IDWriteFont *font = nullptr;
+  hr = fontFamily->GetFirstMatchingFont(DWRITE_FONT_WEIGHT_NORMAL,
+                                        DWRITE_FONT_STRETCH_NORMAL,
+                                        DWRITE_FONT_STYLE_NORMAL, &font);
+  if (FAILED(hr) || !font) {
+    fontFamily->Release();
+    fontCollection->Release();
+    return 0.0f;
+  }
+  font->GetMetrics(&metrics);
+  float ascent = (float)metrics.ascent / metrics.designUnitsPerEm * fontSize;
+  font->Release();
+  fontFamily->Release();
+  fontCollection->Release();
+  return ascent;
+}
+
+float Canvas::textDescent() {
+  if (!pTextFormat)
+    return 0.0f;
+  DWRITE_FONT_METRICS metrics;
+  IDWriteFontCollection *fontCollection = nullptr;
+  HRESULT hr = pTextFormat->GetFontCollection(&fontCollection);
+  if (FAILED(hr) || !fontCollection)
+    return 0.0f;
+
+  UINT32 index;
+  BOOL exists;
+  std::wstring wfont = toWstring(fontName);
+  fontCollection->FindFamilyName(wfont.c_str(), &index, &exists);
+  if (!exists) {
+    fontCollection->Release();
+    return 0.0f;
+  }
+  IDWriteFontFamily *fontFamily = nullptr;
+  hr = fontCollection->GetFontFamily(index, &fontFamily);
+  if (FAILED(hr) || !fontFamily) {
+    fontCollection->Release();
+    return 0.0f;
+  }
+  IDWriteFont *font = nullptr;
+  hr = fontFamily->GetFirstMatchingFont(DWRITE_FONT_WEIGHT_NORMAL,
+                                        DWRITE_FONT_STRETCH_NORMAL,
+                                        DWRITE_FONT_STYLE_NORMAL, &font);
+  if (FAILED(hr) || !font) {
+    fontFamily->Release();
+    fontCollection->Release();
+    return 0.0f;
+  }
+  font->GetMetrics(&metrics);
+  float descent = (float)metrics.descent / metrics.designUnitsPerEm * fontSize;
+  font->Release();
+  fontFamily->Release();
+  fontCollection->Release();
+  return descent;
+}
+void Canvas::textSize(unsigned char fontSize) {
+  this->fontSize = fontSize;
+  Window *win = reinterpret_cast<Window *>(
+      GetWindowLongPtr(GetAncestor(hwnd, GA_ROOT), GWLP_USERDATA));
+  IDWriteFactory *pDWriteFactory =
+      win->getProperty<IDWriteFactory *>("directWriteFactory");
+  if (pDWriteFactory) {
+    std::wstring wfont = std::wstring(fontName.begin(), fontName.end());
+
+    HRESULT hr = pDWriteFactory->CreateTextFormat(
+        wfont.c_str(), NULL, DWRITE_FONT_WEIGHT_NORMAL,
+        DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, (FLOAT)fontSize,
+        L"en-us", &pTextFormat);
+
+    if (SUCCEEDED(hr)) {
+      // Enable word wrapping
+      pTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP);
+
+      // Use the top-level window's client width as the layout width for
+      // wrapping
+      // RECT parentRc;
+      // GetClientRect(parentHWND, &parentRc);
+      // float layoutWidth = (float)(parentRc.right - parentRc.left);
+      // if (layoutWidth <= 0)
+      //  layoutWidth = 200.0f; // fallback
+
+      // float layoutHeight = 4096.0f; // large height to allow for wrapping
+
+      // IDWriteTextLayout *pTextLayout = nullptr;
+      // hr = pDWriteFactory->CreateTextLayout(
+      //     wtext.c_str(), (UINT32)wtext.length(), pTextFormat, layoutWidth,
+      //     layoutHeight, &pTextLayout);
+
+      // if (SUCCEEDED(hr)) {
+      //   DWRITE_TEXT_METRICS metrics;
+      //   hr = pTextLayout->GetMetrics(&metrics);
+      //   if (SUCCEEDED(hr)) {
+      //     // Only auto-size vertically to fit the wrapped text
+      //     size.x = (int)layoutWidth;
+      //     size.y = static_cast<int>(metrics.height + fontSize);
+
+      //    // Update the label's size
+      //    SetWindowPos(hwnd, NULL, position.x, position.y, size.x, size.y,
+      //                 SWP_NOZORDER | SWP_NOMOVE);
+      //  }
+      //  pTextLayout->Release();
+    }
+  }
+}
+void Canvas::textFont(const std::string &font) {
+  fontName = font;
+  Window *win = reinterpret_cast<Window *>(
+      GetWindowLongPtr(GetAncestor(hwnd, GA_ROOT), GWLP_USERDATA));
+  IDWriteFactory *pDWriteFactory =
+      win->getProperty<IDWriteFactory *>("directWriteFactory");
+  if (pDWriteFactory) {
+    std::wstring wfont = std::wstring(font.begin(), font.end());
+    HRESULT hr = pDWriteFactory->CreateTextFormat(
+        wfont.c_str(), NULL, DWRITE_FONT_WEIGHT_NORMAL,
+        DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+        (FLOAT)(fontSize > 0 ? fontSize : 1), L"en-us", &pTextFormat);
+
+    if (SUCCEEDED(hr)) {
+      // Enable word wrapping
+      pTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP);
+
+      // Use the top-level window's client width as the layout width for
+      // wrapping
+      // RECT parentRc;
+      // GetClientRect(parentHWND, &parentRc);
+      // float layoutWidth = (float)(parentRc.right - parentRc.left);
+      // if (layoutWidth <= 0)
+      //  layoutWidth = 200.0f; // fallback
+
+      // float layoutHeight = 4096.0f; // large height to allow for wrapping
+
+      // IDWriteTextLayout *pTextLayout = nullptr;
+      // hr = pDWriteFactory->CreateTextLayout(
+      //     wtext.c_str(), (UINT32)wtext.length(), pTextFormat, layoutWidth,
+      //     layoutHeight, &pTextLayout);
+
+      // if (SUCCEEDED(hr)) {
+      //   DWRITE_TEXT_METRICS metrics;
+      //   hr = pTextLayout->GetMetrics(&metrics);
+      //   if (SUCCEEDED(hr)) {
+      //     // Only auto-size vertically to fit the wrapped text
+      //     size.x = (int)layoutWidth;
+      //     size.y = static_cast<int>(metrics.height + fontSize);
+
+      //    // Update the label's size
+      //    SetWindowPos(hwnd, NULL, position.x, position.y, size.x, size.y,
+      //                 SWP_NOZORDER | SWP_NOMOVE);
+      //  }
+      //  pTextLayout->Release();
+    }
+  }
+}
+// });
+void Canvas::bezier(Vector2 first, Vector2 second, Vector2 third,
+                    Vector2 fourth) {
+
+  if (isDrawing) {
+    if (shouldStroke) {
+      // 1. Create the path geometry
+      ID2D1PathGeometry *pPathGeometry = nullptr;
+      factory->CreatePathGeometry(&pPathGeometry);
+
+      // 2. Open the geometry sink
+      ID2D1GeometrySink *pSink = nullptr;
+      pPathGeometry->Open(&pSink);
+
+      // 3. Begin the figure at the starting point
+      pSink->BeginFigure(first, // Start point
+                         D2D1_FIGURE_BEGIN_HOLLOW);
+
+      // 4. Add a cubic Bézier segment
+      D2D1_BEZIER_SEGMENT bezierSegment = {
+          second, // Control point 1
+          third,  // Control point 2
+          fourth  // End point
+      };
+      pSink->AddBezier(bezierSegment);
+
+      // 5. End and close the figure
+      pSink->EndFigure(D2D1_FIGURE_END_OPEN);
+      pSink->Close();
+      pSink->Release();
+
+      childRenderTarget->DrawGeometry(pPathGeometry, strokeBrush, strokeWidth);
+
+      // 7. Cleanup
+      pPathGeometry->Release();
+    }
+    if (shouldFill) {
+      // 1. Create the path geometry
+      ID2D1PathGeometry *pPathGeometry = nullptr;
+      factory->CreatePathGeometry(&pPathGeometry);
+
+      // 2. Open the geometry sink
+      ID2D1GeometrySink *pSink = nullptr;
+      pPathGeometry->Open(&pSink);
+
+      // 3. Begin the figure at the starting point
+      pSink->BeginFigure(first, // Start point
+                         D2D1_FIGURE_BEGIN_FILLED);
+
+      // 4. Add a cubic Bézier segment
+      D2D1_BEZIER_SEGMENT bezierSegment = {
+          second, // Control point 1
+          third,  // Control point 2
+          fourth  // End point
+      };
+      pSink->AddBezier(bezierSegment);
+
+      // 5. End and close the figure
+      pSink->EndFigure(D2D1_FIGURE_END_OPEN);
+      pSink->Close();
+      pSink->Release();
+
+      childRenderTarget->FillGeometry(pPathGeometry, fillBrush);
+
+      // 7. Cleanup
+      pPathGeometry->Release();
+    }
   }
 }
 void Canvas::rect(Vector2 position, Vector2 size, float radius) {

@@ -101,7 +101,7 @@ public:
    *
    * This maps directly to Lua APIs.
    */
-  REFLECT_API void execute(std::string code);
+  void execute(std::string code);
 
   /**
    * @brief A method to execute a Lua file.
@@ -109,20 +109,20 @@ public:
    *
    * This maps directly to Lua APIs.
    */
-  REFLECT_API void executeFile(std::string filePath);
+  void executeFile(std::string filePath);
   /**
    * @brief A method to register a function in Lua.
    * @param name The name of the function to register.
    * @param func The function to register.
    */
-  REFLECT_API void registerFunction(std::string name, lua_CFunction func);
+  void registerFunction(std::string name, lua_CFunction func);
 
   /**
    * @brief A method to set a value in Lua.
    * @param name The name of the variable to set.
    * @param value The value to set. Must be a valid Lua type.
    */
-  template <LuaType T> REFLECT_API void setValue(std::string name, T value);
+  template <LuaType T> void setValue(std::string name, T value);
   template <LuaType T>
   /**
    * @brief Sets the value to a valid Lua type.
@@ -130,12 +130,12 @@ public:
    * @param key The key, as a string.
    * @param value The value, as a Lua type.
    */
-  REFLECT_API void setValue(std::string hierarchy, std::string key, T value);
+  void setValue(std::string hierarchy, std::string key, T value);
   /**
    * @brief A method to create a table.
    * @param name The name of the table.
    */
-  REFLECT_API void createTable(std::string name);
+  void createTable(std::string name);
 
   /**
    * Note: hierarchy corresponds to the table hierarchy (not including the table
@@ -143,7 +143,7 @@ public:
    * initialized).
    */
 
-  REFLECT_API void createTable(std::string hierarchy, std::string name);
+  void createTable(std::string hierarchy, std::string name);
   // REFLECT_IMPORT void SetValue(std::string tableName, std::string key,
   //  int value);
   // REFLECT_IMPORT void SetValue(std::string tableName, std::string key,
@@ -152,8 +152,7 @@ public:
   /**
    * @brief Same as setValue but value is a string.
    */
-  REFLECT_API void setValue(std::string tableName, std::string key,
-                            std::string value);
+  void setValue(std::string tableName, std::string key, std::string value);
 
   /**
    * @brief Sets a value in a table to a function.
@@ -161,15 +160,14 @@ public:
    * @param name The key to the function.
    * @param func The function.
    */
-  REFLECT_API void registerFunction(std::string tableName, std::string name,
-                                    lua_CFunction func);
+  void registerFunction(std::string tableName, std::string name,
+                        lua_CFunction func);
   /**
    * @brief A method to initialize Lua APIs.
    * @param customInitializer A custom initializer function.
    */
-  REFLECT_API void
-  initializeLuaApis(void (*customInitializer)(LuaInstance *self));
-  REFLECT_API LuaInstance();
+  void initializeLuaApis(void (*customInitializer)(LuaInstance *self));
+  LuaInstance();
 };
 
 } // namespace reflect

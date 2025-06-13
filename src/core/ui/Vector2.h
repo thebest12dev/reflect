@@ -19,6 +19,7 @@
 #pragma once
 
 #include "TypeDefinitions.h"
+#include <d2d1.h>
 #include <vector>
 
 namespace reflect {
@@ -48,6 +49,10 @@ public:
   REFLECT_API Vector2 operator&(const Vector2 &vec) const noexcept;
   REFLECT_API Vector2 operator|(const Vector2 &vec) const noexcept;
   REFLECT_API explicit operator std::vector<int>() const noexcept;
+#ifdef _WIN32
+  REFLECT_API operator D2D1_POINT_2F() const noexcept;
+#endif
+
   int x, y;
 };
 struct Vector2Float32 {

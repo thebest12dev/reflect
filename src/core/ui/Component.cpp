@@ -22,6 +22,7 @@
 #include "Colors.h"
 #include "TypeDefinitions.h"
 #include "Vector2.h"
+#include "Window.h"
 #include <cstdint>
 #include <string>
 reflect::Component::~Component() = default;
@@ -55,7 +56,9 @@ void reflect::Component::setStyles(unsigned int styles,
 }
 reflect::Canvas &reflect::Component::getCanvas() { return *canvas.get(); }
 void reflect::Component::onPaint() {};
+void reflect::Component::onKeyPressed(char key) {};
 void reflect::Component::onCreate() {};
+void reflect::Component::onUpdate() {};
 HWND &reflect::Component::getParentWindow() { return parentHWND; }
 HWND &reflect::Component::getRootWindow() { return windowHWND; }
 LRESULT CALLBACK reflect::Component::componentProc(HWND hwnd, UINT uMsg,
@@ -92,6 +95,10 @@ LRESULT CALLBACK reflect::Component::componentProc(HWND hwnd, UINT uMsg,
 void reflect::Component::render(HWND &parentHWND, HWND &windowHWND) {
   this->parentHWND = parentHWND;
   this->windowHWND = windowHWND;
+  Window *win =
+      reinterpret_cast<Window *>(GetWindowLongPtr(windowHWND, GWLP_USERDATA));
+  win->addKeyPressedListener([this](char ch) { onKeyPressed(ch); });
+  win->addOnUpdateListener([this]() { onUpdate(); });
   WNDCLASS wc = {};
   wc.lpszClassName = className.c_str();
   wc.hInstance = GetModuleHandle(nullptr);

@@ -75,12 +75,12 @@ TEST_F(WindowInstrumentalTest, WindowSetAndGetVisibility) {
   EXPECT_FALSE(window->getVisible());
 }
 
-//TEST_F(WindowInstrumentalTest, WindowSetVisibleWithCmd) {
-//  window->setVisible(SW_SHOW);
-//  EXPECT_TRUE(window->getVisible());
-//  window->setVisible(SW_HIDE);
-//  EXPECT_FALSE(window->getVisible());
-//}
+TEST_F(WindowInstrumentalTest, WindowSetVisibleWithCmd) {
+  window->setVisible(SW_SHOW);
+  EXPECT_TRUE(window->getVisible());
+  window->setVisible(SW_HIDE);
+  EXPECT_FALSE(window->getVisible());
+}
 
 TEST_F(WindowInstrumentalTest, WindowAddComponent) {
   reflect::Label label("label", {10, 10});

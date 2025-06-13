@@ -40,7 +40,7 @@ protected:
 
 public:
   REFLECT_API TextComponent();
-  REFLECT_API virtual void render(HWND &parentHWND, HWND &windowHWND) = 0;
+  //  REFLECT_API virtual void render(HWND &parentHWND, HWND &windowHWND) {};
   REFLECT_API void setVisible(bool flag);
   REFLECT_API void add(Component &comp);
   REFLECT_API void setVisible(int cmd);
@@ -51,6 +51,7 @@ public:
   REFLECT_API virtual void setFont(std::string font);
   REFLECT_API void setText(std::string text);
   REFLECT_API virtual std::string getText();
+  REFLECT_API virtual void onPaint();
   REFLECT_API ~TextComponent();
   friend class Label;
   friend class Button;

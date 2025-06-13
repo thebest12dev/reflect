@@ -5,6 +5,7 @@
 #include "TextComponent.h"
 #include "TypeDefinitions.h"
 #include "Vector2.h"
+#include <chrono>
 #include <cstdint>
 #include <windows.h>
 
@@ -14,25 +15,34 @@ protected:
   HINSTANCE winstance;
   HWND hwnd;
 
-  Vector2 position;
+  // Vector2 position;
   std::map<std::string, bool> pressedKeys;
-  Vector2 size;
+  // Vector2 size;
   Color3Float bgColor;
   void (*focusCallback)(TextField &);
   bool focused;
   REFLECT_API static LRESULT CALLBACK editProc(HWND hwnd, UINT uMsg,
                                                WPARAM wParam, LPARAM lParam);
 
+private:
+  bool cursorBlinking = false;
+  int interval = 500;
+  std::chrono::steady_clock::time_point start =
+      std::chrono::steady_clock::now();
+
 public:
   REFLECT_API TextField();
-  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
+  // REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
   REFLECT_API void setText(std::string text);
   REFLECT_API std::string getText();
-  REFLECT_API void setSize(Vector2 size);
-  REFLECT_API void setPosition(Vector2 pos);
+  // REFLECT_API void setSize(Vector2 size);
+  // REFLECT_API void setPosition(Vector2 pos);
   REFLECT_API bool isFocused();
   REFLECT_API void setFont(std::string font);
   REFLECT_API void focus();
+  REFLECT_API void onPaint() override;
+  REFLECT_API void onKeyPressed(char key) override;
+  REFLECT_API void onUpdate() override;
   REFLECT_API void onFocus(void (*callback)(TextField &));
 };
 } // namespace reflect

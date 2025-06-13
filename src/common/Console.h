@@ -122,7 +122,7 @@ namespace console {
  * @param obj The object to print.
  * @exception std::exception If an error occurs during printing.
  */
-template <typename T> REFLECT_API inline void print(const T &obj) noexcept {
+template <typename T> inline void print(const T &obj) noexcept {
   try {
     std::cout << obj;
   } catch (const std::exception &e) {
@@ -139,7 +139,7 @@ template <typename T> REFLECT_API inline void print(const T &obj) noexcept {
  * @exception std::exception If an error occurs during printing, however will be
  * caught.
  */
-template <typename T> REFLECT_API inline void println(const T &obj) noexcept {
+template <typename T> inline void println(const T &obj) noexcept {
   try {
     std::cout << obj << std::endl;
   } catch (const std::exception &e) {
@@ -158,8 +158,7 @@ template <typename T> REFLECT_API inline void println(const T &obj) noexcept {
  * caught.
  */
 template <typename T>
-REFLECT_API inline void error(const T &obj,
-                              std::string ctx = "default") noexcept {
+inline void error(const T &obj, std::string ctx = "default") noexcept {
   try {
     std::cerr << "[ERROR] [" + getCurrentTimeString() + "] " << "[" << ctx
               << "]: " << obj << std::endl;
@@ -179,8 +178,7 @@ REFLECT_API inline void error(const T &obj,
  * caught.
  */
 template <typename T>
-REFLECT_API inline void info(const T &obj,
-                             std::string ctx = "default") noexcept {
+inline void info(const T &obj, std::string ctx = "default") noexcept {
   try {
     std::cout << "[INFO] [" + getCurrentTimeString() + "] " << "[" << ctx
               << "]: " << obj << std::endl;
@@ -201,8 +199,7 @@ REFLECT_API inline void info(const T &obj,
  * caught.
  */
 template <typename T>
-REFLECT_API inline void warn(const T &obj,
-                             std::string ctx = "default") noexcept {
+inline void warn(const T &obj, std::string ctx = "default") noexcept {
   try {
     std::cout << "[WARN] [" + getCurrentTimeString() + "] " << "[" << ctx
               << "]: " << obj << std::endl;
@@ -222,8 +219,7 @@ REFLECT_API inline void warn(const T &obj,
  * caught.
  */
 template <typename T>
-REFLECT_API inline void debug(const T &obj,
-                              std::string ctx = "default") noexcept {
+inline void debug(const T &obj, std::string ctx = "default") noexcept {
   try {
     if (getDebugEnabled())
       std::cout << "[DEBUG] [" + getCurrentTimeString() + "] " << "[" << ctx

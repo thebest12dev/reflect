@@ -29,7 +29,9 @@ void reflect::TextComponent::setFontSize(int fs) { fontSize = fs; }
 void reflect::TextComponent::setColor(uint8_t r, uint8_t g, uint8_t b) {
   this->bgColor = Color3Float{r / 255.0f, g / 255.0f, b / 255.0f};
 }
+void reflect::TextComponent::setColor(Color3 color) { this->color = color; }
 reflect::TextComponent::TextComponent() {
   initializeObject(REFLECT_OBJECT_TEXTCOMPONENT, REFLECT_OBJECT_COMPONENT);
 }
+void reflect::TextComponent::onPaint() {}
 reflect::TextComponent::~TextComponent() {}

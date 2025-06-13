@@ -136,4 +136,8 @@ Vector2Float32 &Vector2Float32::operator/=(const Vector2Float32 &vec) noexcept {
 Vector2Float32::operator std::vector<float>() const noexcept {
   return std::vector<float>{x, y};
 }
+Vector2::operator D2D1_POINT_2F() const noexcept {
+  return D2D1_POINT_2F{static_cast<float>(x), static_cast<float>(y)};
+}
+
 } // namespace reflect

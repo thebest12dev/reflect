@@ -38,7 +38,7 @@ protected:
   ID2D1Factory *factory;
   ID2D1SolidColorBrush *strokeBrush;
   std::vector<std::function<void(ID2D1HwndRenderTarget *)>> drawingCommands;
-
+  IDWriteTextFormat *pTextFormat = nullptr;
   static LRESULT CALLBACK canvasProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                                      LPARAM lParam);
 
@@ -47,7 +47,9 @@ protected:
   float strokeWidth = 1.0f;
   bool canvasPainted = false;
   bool isDrawing = false;
+  unsigned char fontSize = 0;
   bool retainedMode = false;
+  std::string fontName = "";
 
 public:
   static constexpr bool CLOSE = true;
@@ -111,8 +113,8 @@ public:
   REFLECT_API void textAlign(unsigned char flag1, unsigned char flag2);
   REFLECT_API void textLeading(float leading);
   REFLECT_API float textWidth(const std::string &text);
-  REFLECT_API void textAscent();
-  REFLECT_API void textDescent();
+  REFLECT_API float textAscent();
+  REFLECT_API float textDescent();
   // clear is the same as background, just for naming
   REFLECT_API void background(Color3 color, unsigned char alpha = 255);
   REFLECT_API void clear();
@@ -120,6 +122,7 @@ public:
   REFLECT_API void endDraw();
   REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
   REFLECT_API void repaint();
+  REFLECT_API float textMaximumFontSize(float height);
   REFLECT_API Canvas();
   REFLECT_API Canvas(Component *thisObject);
   // not done, still plenty of methods to add

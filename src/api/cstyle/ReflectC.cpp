@@ -24,54 +24,53 @@
 using namespace reflect;
 
 // literally whatever
-REFLECT_API ReflectComponent Reflect_getComponentById(ReflectString id) {
+ReflectComponent Reflect_getComponentById(ReflectString id) {
   return {(uint8_t)external::getComponentById(id)}; // do not segfault!
 };
-REFLECT_API bool Reflect_setColor(ReflectComponent component, uint8_t r,
-                                  uint8_t g, uint8_t b) {
+bool Reflect_setColor(ReflectComponent component, uint8_t r, uint8_t g,
+                      uint8_t b) {
   // color coding?
   external::setComponentColor(component.id, r, g, b);
   return true; // false false false
 };
 
 // string manipulation
-REFLECT_API ReflectString Reflect_getText(ReflectComponent component) {
+ReflectString Reflect_getText(ReflectComponent component) {
   // text
   return external::getComponentText(component.id);
 }
-REFLECT_API bool Reflect_addComponent(ReflectComponent parent,
-                                      ReflectComponent child) {
+bool Reflect_addComponent(ReflectComponent parent, ReflectComponent child) {
   // drag and drop component inside of component
   external::addComponent(parent.id, child.id);
   return true;
 };
-REFLECT_API bool Reflect_setVisibleCommand(ReflectComponent comp, uint8_t cmd) {
+bool Reflect_setVisibleCommand(ReflectComponent comp, uint8_t cmd) {
   // make the button disappear
   external::setComponentVisibleCommand(comp.id, cmd);
   return true;
 };
-REFLECT_API bool Reflect_setVisible(ReflectComponent comp, bool flag) {
+bool Reflect_setVisible(ReflectComponent comp, bool flag) {
   // wizardo disappear?
   external::setComponentVisible(comp.id, flag);
   return true;
 }
-REFLECT_API bool Reflect_setFont(ReflectComponent comp, ReflectString font) {
+bool Reflect_setFont(ReflectComponent comp, ReflectString font) {
   // font color coding???
   external::setComponentFont(comp.id, font);
   return true;
 }
-REFLECT_API bool Reflect_setFontSize(ReflectComponent comp, uint8_t fontSize) {
+bool Reflect_setFontSize(ReflectComponent comp, uint8_t fontSize) {
   // font color sizing???
   external::setComponentFontSize(comp.id, fontSize);
   return true;
 };
 
-REFLECT_API bool Reflect_run(ReflectComponent comp) {
+bool Reflect_run(ReflectComponent comp) {
   external::run(comp.id);
   return true;
 };
 
-REFLECT_API bool Reflect_invoke(const char *location) {
+bool Reflect_invoke(const char *location) {
   external::invoke(location);
   return true;
 };

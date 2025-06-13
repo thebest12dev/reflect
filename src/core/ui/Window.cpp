@@ -161,6 +161,10 @@ HGLRC currentContext = nullptr;
 HDC glHdc = nullptr;
 reflect::Image closeIcon;
 
+void reflect::Window::addKeyPressedListener(
+    std::function<void(char)> listener) {
+  keyPressedListeners.push_back(listener);
+}
 LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
                                              WPARAM wParam, LPARAM lParam) {
   reflect::Window *pThis = nullptr;
@@ -200,12 +204,31 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
       PostQuitMessage(0);
       reflectInfo("Exiting...");
       return 0;
+    case WM_CHAR: {
+      char ch = (char)wParam;
+
+      for (std::function<void(char)> func : pThis->keyPressedListeners) {
+        if (func) {
+          func(ch);
+        }
+      }
+      return 0;
+    }
+
+      // case WM_KEYDOWN: {
+      //   UINT scanCode = MapVirtualKey(wParam, MAPVK_VK_TO_CHAR);
+      //   char ch = (char)scanCode;
+      //   std::cout << ch << std::endl;
+      //   // wParam contains the virtual key code of the key that was pressed
+      //
+      //  return 0;
+      //}
+
     // case WM_KEYDOWN: {
     //   UINT scanCode = MapVirtualKey(wParam, MAPVK_VK_TO_CHAR);
     //   char ch = (char)scanCode;
     //   std::cout << ch << std::endl;
     //   // wParam contains the virtual key code of the key that was pressed
-
     //  pThis->pressedKeys[ch] = true;
     //  return 0;
     //}
@@ -553,7 +576,7 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
 };
 bool renderContextInitialized = false;
 bool reflect::Window::isKeyPressed(char key) {
-  return GetAsyncKeyState(key) & 0x8000;
+  return (GetAsyncKeyState(key) & 0x8000) && GetForegroundWindow() == hwnd;
 };
 bool reflect::Window::showNotification(Notification &notif) {
   if (!IsWindow(hwnd)) {
@@ -834,12 +857,21 @@ int reflect::Window::run(void (*func)(Window &win)) {
       func(*this);
       isExecuted = true;
     }
+
+    for (std::function<void()> listener : this->onUpdateListeners) {
+      if (listener) {
+        listener();
+      }
+    }
   }
   return static_cast<int>(msg.wParam);
 }
 void reflect::Window::setBeforeRenderLoop(
     std::function<void(Window &)> callback) {
   this->beforeRenderLoop = callback;
+}
+void reflect::Window::addOnUpdateListener(std::function<void()> listener) {
+  onUpdateListeners.push_back(listener);
 }
 void reflect::Window::swapBuffers() {
   if (renderHdc)

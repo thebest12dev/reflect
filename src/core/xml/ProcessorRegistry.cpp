@@ -79,10 +79,25 @@ std::unordered_map<std::string, Processor> ProcessorRegistry::mapOfProcessors =
         std::string id = field->Attribute("id");
         Vector2 position(std::stoi(field->Attribute("x")),
                          std::stoi(field->Attribute("y")));
+        std::string bgColor = field->Attribute("bgColor");
+
         TextField *fieldComp = new TextField();
         fieldComp->setSize(Vector2(std::stoi(field->Attribute("width")),
                                    std::stoi(field->Attribute("height"))));
         fieldComp->setPosition(position);
+        if (bgColor.at(0) == '#' && bgColor.length() == 7) {
+
+          const std::string hex = bgColor.substr(1);
+
+          const uint8_t r = stoi(hex.substr(0, 2), nullptr, 16);
+          const uint8_t g = stoi(hex.substr(2, 2), nullptr, 16);
+          const uint8_t b = stoi(hex.substr(4, 2), nullptr, 16);
+          const Color3 color = {r, g, b};
+          fieldComp->setColor(color);
+        } else {
+          reflectError("invalid hex color representation");
+          std::exit(REFLECT_ERROR_HEX_COLOR_MALFORMED);
+        }
         return {*fieldComp, id};
       }},
      {"container",
