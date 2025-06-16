@@ -1,11 +1,19 @@
 #pragma once
 #include "Object.h"
-#include "../Component.h"
+
+#include <Windows.h>
+#include <any>
 namespace reflect {
-class Event : public Object {
-  unsigned short eventId;
-  Component *component;
-  REFLECT_API Event(); 
-  REFLECT_API virtual ~Event() = 0;
+class Component;
+using NativeHandle = HWND;
+struct NativeEvent {
+  UINT uMsg;
+  WPARAM wParam;
+  LPARAM lParam;
+};
+struct Event : public Object {
+  reflect::Component *component = nullptr;
+  NativeHandle nativeHandle = nullptr;
+  NativeEvent *nativeEvent = nullptr;
 };
 } // namespace reflect

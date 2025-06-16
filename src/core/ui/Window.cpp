@@ -162,7 +162,7 @@ HDC glHdc = nullptr;
 reflect::Image closeIcon;
 
 void reflect::Window::addKeyPressedListener(
-    std::function<void(char)> listener) {
+    std::function<void(char, bool)> listener) {
   keyPressedListeners.push_back(listener);
 }
 LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
@@ -207,14 +207,23 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
     case WM_CHAR: {
       char ch = (char)wParam;
 
-      for (std::function<void(char)> func : pThis->keyPressedListeners) {
+      for (std::function<void(char, bool)> func : pThis->keyPressedListeners) {
         if (func) {
-          func(ch);
+          func(ch, false);
         }
       }
       return 0;
     }
+    case WM_KEYDOWN: {
+      char ch = (char)wParam;
 
+      for (std::function<void(char, bool)> func : pThis->keyPressedListeners) {
+        if (func) {
+          func(ch, true);
+        }
+      }
+      return 0;
+    }
       // case WM_KEYDOWN: {
       //   UINT scanCode = MapVirtualKey(wParam, MAPVK_VK_TO_CHAR);
       //   char ch = (char)scanCode;

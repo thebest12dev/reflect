@@ -99,7 +99,7 @@ protected:
   void initializeDirectWrite(); // Add
 #endif
   char keyPressed = 0;
-  std::vector<std::function<void(char)>> keyPressedListeners;
+  std::vector<std::function<void(char, bool)>> keyPressedListeners;
   std::vector<std::function<void()>> onUpdateListeners;
 
 public:
@@ -132,7 +132,8 @@ public:
   REFLECT_API Window &operator=(const Window &) = delete;
   REFLECT_API Window(Window &&) = delete;
   REFLECT_API void addOnUpdateListener(std::function<void()> listener);
-  REFLECT_API void addKeyPressedListener(std::function<void(char)> listener);
+  REFLECT_API void
+  addKeyPressedListener(std::function<void(char, bool)> listener);
   REFLECT_API Window &operator=(Window &&) = delete;
 
   friend class Component;

@@ -76,9 +76,13 @@ void TextField::focus() {
 void TextField::onFocus(void (*callback)(TextField &)) {
   focusCallback = callback;
 }
-void TextField::onPaint() {
+
+void TextField::onPaint(PaintEvent) {
+
   Canvas &canvas = getCanvas();
   canvas.beginDraw();
+  // reflectDebug("paint!");
+
   canvas.fill(color);
   canvas.rect({0, 0}, size, 3.0f);
   canvas.textFont("Inter");
@@ -103,15 +107,33 @@ void TextField::onPaint() {
   }
   lines.push_back(text.substr(start));
 
-  // For single-line, cursor at end of text
-  if (lines.size() == 1) {
-    cursorX = canvas.textWidth(lines[0]);
-    cursorY = ascent;
-  } else {
-    // For multi-line, cursor at end of last line
-    cursorX = canvas.textWidth(lines.back());
-    cursorY = lineHeight * (lines.size() - 1) + ascent;
+  //// For single-line, cursor at end of text
+  // if (lines.size() == 1) {
+  //   cursorX = canvas.textWidth(lines[0]);
+  //   cursorY = ascent;
+  // } else {
+  //   // For multi-line, cursor at end of last line
+  //   cursorX = canvas.textWidth(lines.back());
+  //   cursorY = lineHeight * (lines.size() - 1) + ascent;
+  // }
+  //   Determine cursor line and column
+  size_t currentLine = 0;
+  size_t charsCounted = 0;
+  for (size_t i = 0; i < lines.size(); ++i) {
+    if (cursorIndex <= charsCounted + lines[i].size()) {
+      currentLine = i;
+      break;
+    }
+    charsCounted += lines[i].size() + 1; // +1 for '\n'
   }
+
+  // Get column position in the line
+  size_t columnIndex = cursorIndex - charsCounted;
+  std::string cursorLine = lines[currentLine].substr(0, columnIndex);
+
+  // Calculate pixel position
+  cursorX = canvas.textWidth(cursorLine);
+  cursorY = lineHeight * currentLine + ascent;
 
   // Draw the cursor (vertical line)
   if (cursorBlinking) {
@@ -125,28 +147,71 @@ void TextField::onPaint() {
                 {static_cast<int>(x), static_cast<int>(y2)});
   }
 
-  /*canvas.line({static_cast<int>(cursorX), static_cast<int>(cursorY - ascent)},
+  /*canvas.line({static_cast<int>(cursorX), static_cast<int>(cursorY -
+  ascent)},
               {static_cast<int>(cursorX), static_cast<int>(cursorY +
      descent)});*/
 
   canvas.endDraw();
 }
 
-void TextField::onKeyPressed(char key) {
+// void TextField::onKeyPressed(KeyboardEvent k) {
+//   start = std::chrono::steady_clock::now();
+//   cursorBlinking = true;
+//   if (k.key == '\b') {
+//     if (text.size() > 0) {
+//       text.pop_back();
+//     }
+//
+//   } else if (k.key == '\r') {
+//     text += "\n";
+//   } else {
+//     text += k.key;
+//   }
+//
+//   paint();
+// }
+void TextField::onKeyPressed(KeyboardEvent k) {
   start = std::chrono::steady_clock::now();
   cursorBlinking = true;
-  if (key == '\b') {
-    if (text.size() > 0) {
-      text.pop_back();
-    }
 
-  } else {
-    text += key;
+  switch (k.keyCode) {
+  case VK_LEFT:
+    if (cursorIndex > 0)
+      cursorIndex--;
+    break;
+
+  case VK_RIGHT:
+    if (cursorIndex < text.size())
+      cursorIndex++;
+    break;
+  }
+  switch (k.key) {
+
+  case '\b': // Backspace
+    if (cursorIndex > 0 && !text.empty()) {
+      text.erase(cursorIndex - 1, 1);
+      cursorIndex--;
+    }
+    break;
+
+  case '\r': // Enter
+    text.insert(cursorIndex, "\n");
+    cursorIndex++;
+    break;
+
+  default:
+    if (isprint(k.key)) {
+      text.insert(cursorIndex, 1, k.key);
+      cursorIndex++;
+    }
+    break;
   }
 
   paint();
 }
-void TextField::onUpdate() {
+
+void TextField::onUpdate(UpdateEvent) {
   std::chrono::steady_clock::time_point current =
       std::chrono::steady_clock::now();
 
@@ -156,6 +221,7 @@ void TextField::onUpdate() {
     cursorBlinking = !cursorBlinking;
     paint();
   }
+  // paint();
 }
 void TextField::setFont(std::string font) {
   fontStr = font;

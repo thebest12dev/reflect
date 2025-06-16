@@ -1,6 +1,8 @@
 #pragma once
 #include "TypeDefinitions.h"
 #include <string>
+#define REFLECT_OBJECT_CONSTRUCTOR(classname, id, parent)                      \
+  classname() { initializeObject(id, parent); }
 namespace reflect {
 class Object;
 template <typename T>

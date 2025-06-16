@@ -169,7 +169,8 @@ void Canvas::fill(Color3 color, unsigned char alpha) {
     fillBrush->Release();
   }
   childRenderTarget->CreateSolidColorBrush(
-      {color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 1.0f}, &fillBrush);
+      {color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, alpha / 255.0f},
+      &fillBrush);
   shouldFill = true;
   //});
   canvasPainted = false;
@@ -180,7 +181,7 @@ void Canvas::stroke(Color3 color, unsigned char alpha) {
     strokeBrush->Release();
   }
   childRenderTarget->CreateSolidColorBrush(
-      {color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 1.0f},
+      {color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, alpha / 255.0f},
       &strokeBrush);
   shouldStroke = true;
   // });

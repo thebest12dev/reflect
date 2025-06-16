@@ -23,6 +23,7 @@ protected:
   bool focused;
   REFLECT_API static LRESULT CALLBACK editProc(HWND hwnd, UINT uMsg,
                                                WPARAM wParam, LPARAM lParam);
+  int cursorIndex = 0;
 
 private:
   bool cursorBlinking = false;
@@ -40,9 +41,9 @@ public:
   REFLECT_API bool isFocused();
   REFLECT_API void setFont(std::string font);
   REFLECT_API void focus();
-  REFLECT_API void onPaint() override;
-  REFLECT_API void onKeyPressed(char key) override;
-  REFLECT_API void onUpdate() override;
+  REFLECT_API void onPaint(PaintEvent event) override;
+  REFLECT_API void onKeyPressed(KeyboardEvent key) override;
+  REFLECT_API void onUpdate(UpdateEvent update) override;
   REFLECT_API void onFocus(void (*callback)(TextField &));
 };
 } // namespace reflect

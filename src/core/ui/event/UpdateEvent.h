@@ -2,6 +2,8 @@
 #include "../Component.h"
 #include "Event.h"
 #include <any>
+
 namespace reflect {
-struct PaintEvent : public Event {};
+struct UpdateEvent : public Event {};
+
 } // namespace reflect

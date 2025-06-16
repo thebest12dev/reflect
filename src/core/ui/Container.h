@@ -18,7 +18,8 @@ public:
   REFLECT_API Container();
   REFLECT_API void add(Component &comp, std::string id);
   REFLECT_API void add(Component &comp);
-  REFLECT_API void onPaint();
-  REFLECT_API void onCreate();
+  REFLECT_API void onPaint(PaintEvent event) override;
+  REFLECT_API void onCreate(CreationEvent event) override;
+  REFLECT_API void onUpdate(UpdateEvent event) override;
 };
 } // namespace reflect

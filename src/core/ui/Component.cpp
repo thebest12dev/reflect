@@ -25,6 +25,7 @@
 #include "Window.h"
 #include <cstdint>
 #include <string>
+#include <windowsx.h>
 reflect::Component::~Component() = default;
 reflect::Component::Component()
     : position(Vector2(0, 0)), size(Vector2(0, 0)),
@@ -55,10 +56,10 @@ void reflect::Component::setStyles(unsigned int styles,
   this->extendedStyles = extendedStyles;
 }
 reflect::Canvas &reflect::Component::getCanvas() { return *canvas.get(); }
-void reflect::Component::onPaint() {};
-void reflect::Component::onKeyPressed(char key) {};
-void reflect::Component::onCreate() {};
-void reflect::Component::onUpdate() {};
+void reflect::Component::onPaint(PaintEvent){};
+void reflect::Component::onKeyPressed(KeyboardEvent){};
+void reflect::Component::onCreate(CreationEvent){};
+void reflect::Component::onUpdate(UpdateEvent){};
 HWND &reflect::Component::getParentWindow() { return parentHWND; }
 HWND &reflect::Component::getRootWindow() { return windowHWND; }
 LRESULT CALLBACK reflect::Component::componentProc(HWND hwnd, UINT uMsg,
@@ -73,20 +74,78 @@ LRESULT CALLBACK reflect::Component::componentProc(HWND hwnd, UINT uMsg,
     pThis->hwnd = hwnd;
     pThis->canvas = std::make_unique<Canvas>(pThis);
     pThis->canvas->render(hwnd, pThis->windowHWND);
-
-    pThis->onCreate();
+    NativeEvent nev = {};
+    nev.lParam = lParam;
+    nev.uMsg = uMsg;
+    nev.wParam = wParam;
+    CreationEvent ev = {};
+    ev.component = pThis;
+    ev.nativeHandle = hwnd;
+    ev.nativeEvent = &nev;
+    pThis->onCreate(ev);
   }
   if (pThis) {
     switch (uMsg) {
+    case WM_LBUTTONUP: {
+      RECT rc;
+      GetWindowRect(hwnd, &rc);
+      int width = rc.right - rc.left; // The width of the client area
 
+      RECT areaRect = {width - 50, 0, width,
+                       40}; // Example area: x=100, y=100 to x=200, y=200
+      int xPos = GET_X_LPARAM(lParam);
+      int yPos = GET_Y_LPARAM(lParam);
+
+      Vector2 clickPoint = {xPos, yPos};
+      reflectDebug(xPos);
+      reflectDebug(yPos);
+
+      break;
+    }
     case WM_PAINT: {
       PAINTSTRUCT ps;
-      BeginPaint(hwnd, &ps);
+      HDC hdc = BeginPaint(hwnd, &ps);
 
-      pThis->onPaint();
+      // Get the component's rectangle in client coordinates
+      RECT compRect;
+      GetClientRect(hwnd, &compRect);
 
+      // Get the update region
+      HRGN updateRgn = CreateRectRgn(ps.rcPaint.left, ps.rcPaint.top,
+                                     ps.rcPaint.right, ps.rcPaint.bottom);
+      RECT rc;
+      int rgnType = GetRgnBox(updateRgn, &rc);
+
+      // Check if the update region intersects with the component's rect
+      HRGN compRgn = CreateRectRgnIndirect(&compRect);
+      HRGN intersectRgn = CreateRectRgn(0, 0, 0, 0);
+      CombineRgn(intersectRgn, updateRgn, compRgn, RGN_AND);
+
+      // If the intersection is empty, skip painting
+      if (rgnType == NULLREGION ||
+          CombineRgn(intersectRgn, updateRgn, compRgn, RGN_AND) == NULLREGION) {
+        // Nothing to paint
+        DeleteObject(updateRgn);
+        DeleteObject(compRgn);
+        DeleteObject(intersectRgn);
+        EndPaint(hwnd, &ps);
+        break;
+      }
+
+      NativeEvent nev = {};
+      nev.lParam = lParam;
+      nev.uMsg = uMsg;
+      nev.wParam = wParam;
+      PaintEvent ev = {};
+      ev.component = pThis;
+      ev.nativeHandle = hwnd;
+      ev.nativeEvent = &nev;
+      pThis->onPaint(ev);
+      DeleteObject(updateRgn);
+      DeleteObject(compRgn);
+      DeleteObject(intersectRgn);
       EndPaint(hwnd, &ps);
-      return 0;
+      break;
     }
     }
   }
@@ -97,8 +156,23 @@ void reflect::Component::render(HWND &parentHWND, HWND &windowHWND) {
   this->windowHWND = windowHWND;
   Window *win =
       reinterpret_cast<Window *>(GetWindowLongPtr(windowHWND, GWLP_USERDATA));
-  win->addKeyPressedListener([this](char ch) { onKeyPressed(ch); });
-  win->addOnUpdateListener([this]() { onUpdate(); });
+  win->addKeyPressedListener([this](char ch, bool virtualKey) {
+    KeyboardEvent ev = {};
+    ev.key = !virtualKey ? ch : 0;
+    ev.keyCode = virtualKey ? ch : 0;
+    ev.component = this;
+    ev.nativeHandle = hwnd;
+    ev.nativeEvent = nullptr;
+
+    onKeyPressed(ev);
+  });
+  win->addOnUpdateListener([this]() {
+    UpdateEvent ev = {};
+    ev.component = this;
+    ev.nativeHandle = hwnd;
+    ev.nativeEvent = nullptr;
+    onUpdate(ev);
+  });
   WNDCLASS wc = {};
   wc.lpszClassName = className.c_str();
   wc.hInstance = GetModuleHandle(nullptr);

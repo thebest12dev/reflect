@@ -3,5 +3,6 @@
 #include "Event.h"
 #include <any>
 namespace reflect {
-struct PaintEvent : public Event {};
+struct CreationEvent : public Event {};
+
 } // namespace reflect

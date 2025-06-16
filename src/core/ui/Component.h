@@ -21,6 +21,10 @@
 #include "Object.h"
 #include "TypeDefinitions.h"
 #include "Vector2.h"
+#include "event/CreationEvent.h"
+#include "event/KeyboardEvent.h"
+#include "event/PaintEvent.h"
+#include "event/UpdateEvent.h"
 #include <cstdint>
 #ifdef _WIN32
 #include <windows.h>
@@ -250,11 +254,11 @@ public:
   /**
    * @brief Wrapper over WM_PAINT (or whatever it is)
    */
-  REFLECT_API virtual void onPaint();
-  REFLECT_API virtual void onKeyPressed(char key);
-  REFLECT_API virtual void onCreate();
+  REFLECT_API virtual void onPaint(PaintEvent event);
+  REFLECT_API virtual void onKeyPressed(KeyboardEvent event);
+  REFLECT_API virtual void onCreate(CreationEvent event);
 
-  REFLECT_API virtual void onUpdate();
+  REFLECT_API virtual void onUpdate(UpdateEvent event);
   REFLECT_API void *operator new(std::size_t size);
   REFLECT_API void operator delete(void *ptr) noexcept;
   REFLECT_API void *operator new[](std::size_t size);

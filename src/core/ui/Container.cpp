@@ -32,14 +32,16 @@ Container::Container() {
 //     comp->render(this->hwnd, windowHWND);
 //   }
 // }
-void Container::onPaint() {
+#include <chrono>
+void Container::onPaint(PaintEvent ev) {
   Canvas &canvas = getCanvas();
   canvas.beginDraw();
   canvas.background(bgColor);
   canvas.endDraw();
 }
-
-void Container::onCreate() {
+void Container::onUpdate(UpdateEvent ev) { // paint();
+}
+void Container::onCreate(CreationEvent ev) {
   for (Component *comp : componentsQueue) {
     reflectDebug("added new component");
     comp->winstance = this->winstance;
