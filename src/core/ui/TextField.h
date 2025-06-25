@@ -10,19 +10,19 @@
 #include <windows.h>
 
 namespace reflect {
-class TextField : public TextComponent {
+class REFLECT_API TextField : public TextComponent {
 protected:
-  HINSTANCE winstance;
-  HWND hwnd;
+  // HINSTANCE winstance;
+  // HWND hwnd;
 
   // Vector2 position;
   std::map<std::string, bool> pressedKeys;
   // Vector2 size;
-  Color3Float bgColor;
+  // Color3Float bgColor;
   void (*focusCallback)(TextField &);
   bool focused;
-  REFLECT_API static LRESULT CALLBACK editProc(HWND hwnd, UINT uMsg,
-                                               WPARAM wParam, LPARAM lParam);
+  static LRESULT CALLBACK editProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+                                   LPARAM lParam);
   int cursorIndex = 0;
 
 private:
@@ -32,19 +32,16 @@ private:
       std::chrono::steady_clock::now();
 
 public:
-  REFLECT_API TextField();
+  TextField();
   // REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
-  REFLECT_API void setText(std::string text);
-  REFLECT_API std::string getText();
   // REFLECT_API void setSize(Vector2 size);
   // REFLECT_API void setPosition(Vector2 pos);
-  REFLECT_API bool isFocused();
-  REFLECT_API void setFont(std::string font);
-  REFLECT_API void focus();
-  REFLECT_API void onPaint(PaintEvent event) override;
-  REFLECT_API void onKeyPressed(KeyboardEvent key) override;
-  REFLECT_API void onUpdate(UpdateEvent update) override;
-  REFLECT_API void onFocus(void (*callback)(TextField &));
+  bool isFocused();
+  void focus();
+  void onPaint(PaintEvent event) override;
+  void onKeyPressed(KeyboardEvent key) override;
+  void onUpdate(UpdateEvent update) override;
+  void onFocus(void (*callback)(TextField &));
 };
 } // namespace reflect
 #endif

@@ -1,3 +1,8 @@
+# v1.10.0 (????-??-??)
+- Text field overhaul
+- More canvas functions
+- Progress bar overhaul
+
 # v1.9.0 (2025-05-31)
 - Added canvases
 - Abstracted some of the window logic

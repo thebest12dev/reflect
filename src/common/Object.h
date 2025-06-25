@@ -9,7 +9,7 @@ template <typename T>
 concept DerivedFromObject = std::is_base_of_v<Object, T>;
 
 using ObjectUID = unsigned int;
-class Object {
+class REFLECT_API Object {
 private:
   static std::map<int, int> parentOf;
   ObjectUID uid = 0;
@@ -19,10 +19,10 @@ protected:
                                 ObjectUID parent = REFLECT_OBJECT_OBJECT) final;
 
 public:
-  REFLECT_API Object();
-  REFLECT_API virtual inline std::string toString() noexcept;
-  REFLECT_API virtual inline unsigned int getUID() const noexcept;
-  REFLECT_API virtual ~Object() = 0;
+  Object();
+  virtual std::string toString() noexcept;
+  virtual unsigned int getUID() const noexcept;
+  virtual ~Object() = 0;
 
   friend void setUidToParent(Object &obj, ObjectUID parentUid);
   template <DerivedFromObject T>

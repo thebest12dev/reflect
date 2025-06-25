@@ -8,8 +8,18 @@
 #include <thread>
 
 namespace {
+#ifdef __clang__
+__attribute__((used))
+#endif
 
 void DummyRenderLoop(reflect::Window &) {}
+#ifdef __clang__
+__attribute__((used))
+#endif
+#ifdef __clang__
+__attribute__((used))
+#endif
+
 void DummyBeforeRenderLoop(reflect::Window &) {}
 
 class CanvasInstrumentalTest : public ::testing::Test {

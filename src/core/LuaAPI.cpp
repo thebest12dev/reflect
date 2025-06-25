@@ -56,6 +56,7 @@ int LuaAPI::luaReadFile(lua_State *L) {
                       std::istreambuf_iterator<char>());
   file.close();
   lua_pushstring(L, content.c_str());
+  return 1;
 }
 int LuaAPI::luaWriteFile(lua_State *L) {
   if (!luaReadWrite) {

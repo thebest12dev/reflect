@@ -144,14 +144,15 @@ LRESULT CALLBACK reflect::Label::labelProc(HWND hwnd, UINT uMsg, WPARAM wParam,
     }
     case WM_PAINT: {
       PAINTSTRUCT ps;
-      HDC hdc = BeginPaint(hwnd, &ps);
+      // HDC hdc =
+      BeginPaint(hwnd, &ps);
       pThis->childRenderTarget->BeginDraw();
 
-      D2D1_RECT_F rect = {0, 0, pThis->size.x, pThis->size.y};
+      D2D1_RECT_F rect = {0, 0, static_cast<float>(pThis->size.x),
+                          static_cast<float>(pThis->size.y)};
 
       pThis->childRenderTarget->FillRectangle(rect, pThis->pBgBrush);
       std::wstring wtext = std::wstring(pThis->text.begin(), pThis->text.end());
-
       pThis->childRenderTarget->DrawText(wtext.c_str(), (UINT32)wtext.length(),
                                          pThis->pTextFormat, rect,
                                          pThis->pTextBrush);
@@ -169,7 +170,8 @@ LRESULT CALLBACK reflect::Label::labelProc(HWND hwnd, UINT uMsg, WPARAM wParam,
             D2D1::HwndRenderTargetProperties(
                 hwnd, D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top));
 
-        HRESULT hr = pFactory->CreateHwndRenderTarget(
+        // HRESULT hr =
+        pFactory->CreateHwndRenderTarget(
             rtProps, hwndRTProps,
             &(pThis->childRenderTarget)); // <--- store it on pThis
         InvalidateRect(hwnd, nullptr, FALSE);
@@ -189,9 +191,9 @@ LRESULT CALLBACK reflect::Label::labelProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 }
 void reflect::Label::setFontSize(int size) { fontSize = size; }
 void reflect::Label::setColor(uint8_t r, uint8_t g, uint8_t b) {
-  color = {r, g, b};
+  bgColor = Color3{r, g, b};
 }
-reflect::Color3 reflect::Label::getColor() { return color; }
+reflect::Color3 reflect::Label::getColor() { return bgColor; }
 void reflect::Label::render(HWND &parentHWND, HWND &windowHWND) {
 #ifdef _WIN32
   if (!IsWindow(parentHWND)) {

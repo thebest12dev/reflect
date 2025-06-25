@@ -20,7 +20,7 @@
 #include <stdexcept>
 namespace {
 float value0 = 0.0f;
-}
+} // namespace
 namespace reflect {
 struct Color3 {
   unsigned char r, g, b;
@@ -35,6 +35,7 @@ struct Color3 {
 };
 
 struct Color3Float {
+
   union {
     struct {
       float r, g, b;
@@ -69,8 +70,11 @@ struct Color3Float {
 
   // Array-style access (read-only version)
   const float &operator[](size_t index) const {
-    if (index >= 3)
-      return 0;
+    if (index >= 3) {
+
+      return value0;
+    }
+
     return data[index];
   }
 };

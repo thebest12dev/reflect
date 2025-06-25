@@ -20,6 +20,19 @@
 #include "TypeDefinitions.h"
 
 namespace reflect {
+enum class LogFormat {
+  LOG_24_BIT_COLORED = 0,
+  LOG_TIME = 1,
+  LOG_DATE = 2,
+  LOG_FUNCTION = 3,
+  LOG_8_BIT_COLORED = 4,
+  LOG_TYPE = 5,
+};
+
+REFLECT_API LogFormat operator|(LogFormat lhs, LogFormat rhs);
+REFLECT_API LogFormat operator<<(LogFormat lhs, LogFormat rhs);
+REFLECT_API LogFormat operator>>(LogFormat lhs, LogFormat rhs);
+REFLECT_API LogFormat operator&(LogFormat lhs, LogFormat rhs);
 class LogInstance;
 namespace console {
 
@@ -37,5 +50,6 @@ REFLECT_API void setDebugEnabled(bool enabled);
  */
 REFLECT_API bool getDebugEnabled();
 REFLECT_API void setLogInstance(LogInstance inst);
+REFLECT_API void setLogFormat(LogFormat format);
 } // namespace console
 } // namespace reflect

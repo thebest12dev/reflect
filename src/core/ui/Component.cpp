@@ -62,6 +62,14 @@ void reflect::Component::onCreate(CreationEvent){};
 void reflect::Component::onUpdate(UpdateEvent){};
 HWND &reflect::Component::getParentWindow() { return parentHWND; }
 HWND &reflect::Component::getRootWindow() { return windowHWND; }
+
+void reflect::Component::setForegroundColor(uint8_t r, uint8_t g, uint8_t b) {
+  fgColor = Color3{r, g, b};
+}
+void reflect::Component::setForegroundColor(Color3 color) { fgColor = color; }
+void reflect::Component::setForegroundColor(Color3Array color) {
+  fgColor = Color3{color[0], color[1], color[2]};
+}
 LRESULT CALLBACK reflect::Component::componentProc(HWND hwnd, UINT uMsg,
                                                    WPARAM wParam,
                                                    LPARAM lParam) {
@@ -89,10 +97,10 @@ LRESULT CALLBACK reflect::Component::componentProc(HWND hwnd, UINT uMsg,
     case WM_LBUTTONUP: {
       RECT rc;
       GetWindowRect(hwnd, &rc);
-      int width = rc.right - rc.left; // The width of the client area
+      // int width = rc.right - rc.left; // The width of the client area
 
-      RECT areaRect = {width - 50, 0, width,
-                       40}; // Example area: x=100, y=100 to x=200, y=200
+      // RECT areaRect = {width - 50, 0, width,
+      //                  40}; // Example area: x=100, y=100 to x=200, y=200
       int xPos = GET_X_LPARAM(lParam);
       int yPos = GET_Y_LPARAM(lParam);
 
@@ -104,7 +112,8 @@ LRESULT CALLBACK reflect::Component::componentProc(HWND hwnd, UINT uMsg,
     }
     case WM_PAINT: {
       PAINTSTRUCT ps;
-      HDC hdc = BeginPaint(hwnd, &ps);
+      // HDC hdc =
+      BeginPaint(hwnd, &ps);
 
       // Get the component's rectangle in client coordinates
       RECT compRect;
@@ -210,9 +219,9 @@ void reflect::Component::setColor(Color3Array color) {
   this->bgColor.b = color[2] / 255.0f;
 }
 void reflect::Component::setColor(uint8_t r, uint8_t g, uint8_t b) {
-  this->bgColor.r = r;
-  this->bgColor.g = g;
-  this->bgColor.b = b;
+  this->bgColor.r = r / 255.0f;
+  this->bgColor.g = g / 255.0f;
+  this->bgColor.b = b / 255.0f;
 }
 reflect::Vector2 reflect::Component::getPosition() { return position; };
 reflect::Vector2 reflect::Component::getSize() { return size; };
@@ -228,7 +237,7 @@ void *Component::operator new(std::size_t size) {
   return ptr;
 }
 
-void Component::operator delete(void *ptr) {
+void Component::operator delete(void *ptr) noexcept {
   if (!getHeapPool()) {
     initializeHeapPool(2 * 1024 * 1024);
   }
@@ -243,7 +252,7 @@ void *Component::operator new[](std::size_t size) {
   return ptr;
 }
 
-void Component::operator delete[](void *ptr) {
+void Component::operator delete[](void *ptr) noexcept {
   if (!getHeapPool()) {
     initializeHeapPool(2 * 1024 * 1024);
   }

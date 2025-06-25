@@ -44,7 +44,7 @@ protected:
 
 public:
   friend class Component;
-  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
+  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND) override;
   REFLECT_API void setVisible(bool flag);
   REFLECT_API void add(Component comp);
   REFLECT_API Label(std::string contents, Vector2 pos);

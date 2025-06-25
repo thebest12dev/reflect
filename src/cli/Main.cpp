@@ -29,17 +29,17 @@ using byte = unsigned char;
 // version = '6.0.0.0' processorArchitecture = '*' publicKeyToken =
 //'6595b64144ccf1df' language = '*'\"")
 #endif
+#include "../core/Utilities.h"
 #include "../core/logging/LogBuffer.h"
+#include "../core/logging/LogUtil.h"
 #include "../core/memory/HeapPool.h"
 #include "Main.h"
-#include "Utilities.h"
 #ifdef REFLECT_NO_CONSOLE
 // use windows APIs intead of int main
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
   // expression to load reflect
-  reflect::LogBuffer logbuf;
-  std::cout.rdbuf(&logbuf);
+  reflect::utilities::initLogs();
   return reflect::cliMain(__argc, reflect::utilities::cstrArrToVector(
                                       const_cast<const char **> __argv));
 }

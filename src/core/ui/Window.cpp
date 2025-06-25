@@ -115,8 +115,8 @@ void reflect::Window::initializeDirect2D() {
     // Create the Direct2D factory
 
     reflectDebug("creating d2d1 factory...");
-    HRESULT hr =
-        D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &::pFactory);
+    // HRESULT hr =
+    D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &::pFactory);
   }
   this->pFactory = ::pFactory;
   if (!this->pRenderTarget) {
@@ -134,6 +134,10 @@ void reflect::Window::initializeDirect2D() {
 };
 
 namespace {
+#ifdef __clang__
+__attribute__((used))
+#endif
+
 float getDPIScaleForWindow(HWND hwnd) {
   HDC hdc = GetDC(hwnd);
   float dpi = GetDeviceCaps(hdc, LOGPIXELSX); // or LOGPIXELSY
@@ -149,10 +153,11 @@ void safeResize(ID2D1HwndRenderTarget *pRenderTarget, D2D1_SIZE_U size) {
     }
   } __except (EXCEPTION_EXECUTE_HANDLER) {
     DWORD exceptionCode = GetExceptionCode();
+
     // Use printf instead of std::cout for SEH restrictions
     std::printf("[WARN] [safeResize]: Exception occurred while resizing "
                 "Direct2D render target: 0x%08X\n",
-                exceptionCode);
+                static_cast<unsigned int>(exceptionCode));
   }
 }
 } // namespace
@@ -461,7 +466,7 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
     }
     case WM_PAINT: {
       PAINTSTRUCT ps;
-      HDC hdc = BeginPaint(hwnd, &ps);
+      BeginPaint(hwnd, &ps);
 
       if (!openglRendering && firstUpdate) {
         glHdc = GetDC(hwnd);
@@ -533,7 +538,9 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
             rect.right = width - 50;
             rect.bottom = 40.0f;
             ID2D1SolidColorBrush *pBrush = nullptr;
-            HRESULT hr = pThis->pRenderTarget->CreateSolidColorBrush(
+
+            // HRESULT hr =
+            pThis->pRenderTarget->CreateSolidColorBrush(
                 D2D1::ColorF(1.0f, 0.0f, 0.0f), &pBrush);
             pThis->pRenderTarget->FillRectangle(rect, pBrush);
             if (closeIcon.getActiveImage() != "hover") {
@@ -549,7 +556,9 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
             rect.right = width - 50;
             rect.bottom = 40.0f;
             ID2D1SolidColorBrush *pBrush = nullptr;
-            HRESULT hr = pThis->pRenderTarget->CreateSolidColorBrush(
+
+            // HRESULT hr =
+            pThis->pRenderTarget->CreateSolidColorBrush(
                 D2D1::ColorF(0.9f, 0.9f, 0.9f), &pBrush);
 
             pThis->pRenderTarget->FillRectangle(rect, pBrush);
@@ -565,12 +574,12 @@ LRESULT CALLBACK reflect::Window::windowProc(HWND hwnd, UINT uMsg,
         //  pThis->pRenderTarget->DrawBitmap(bitmap, {100, 500, 110, 510});
 
         HRESULT hr = pThis->pRenderTarget->EndDraw();
-        // if (hr == D2DERR_RECREATE_TARGET) {
-        //   // Handle device loss
-        //   pThis->pRenderTarget->Release();
-        //   pThis->pRenderTarget = nullptr;
-        //   pThis->initializeDirect2D();
-        // }
+        if (hr == D2DERR_RECREATE_TARGET) {
+          // Handle device loss
+          pThis->pRenderTarget->Release();
+          pThis->pRenderTarget = nullptr;
+          pThis->initializeDirect2D();
+        }
         //   Clean up
       }
 
@@ -694,9 +703,8 @@ void reflect::Window::setSize(Vector2 size_) {
 }
 reflect::Window::Window(HINSTANCE instance, std::string id,
                         WindowCreateInfo *info)
-    : winstance(instance), useGL(false), glCtx(nullptr), customPipeline(false),
-      beforeRenderLoop(nullptr), callInit(false), renderLoop(nullptr),
-      renderRunning(false) {
+    : useGL(false), customPipeline(false), glCtx(nullptr), closeHovering(false),
+      renderRunning(false), callInit(true) {
   initializeObject(REFLECT_OBJECT_WINDOW, REFLECT_OBJECT_COMPONENT);
   reflectDebug("initializing win32 parameters...");
   WNDCLASS wc = {};
@@ -744,9 +752,9 @@ reflect::Window::Window(HINSTANCE instance, std::string id,
   }
   reflect::Components::gchildren[id] = this;
 }
-reflect::Window::Window(HINSTANCE instance, OpenGLContext ctx, std::string id)
-    : winstance(instance), useGL(true), glCtx(&ctx), customPipeline(true),
-      beforeRenderLoop(nullptr) {
+reflect::Window::Window(HINSTANCE instance, OpenGLContext *ctx, std::string id)
+    : useGL(true), customPipeline(true), glCtx(ctx), closeHovering(false),
+      customTitleBar(false), renderRunning(false), callInit(true) {
   initializeObject(REFLECT_OBJECT_WINDOW, REFLECT_OBJECT_COMPONENT);
   reflectDebug("initializing win32 parameters...");
   WNDCLASS wc = {};
@@ -798,8 +806,7 @@ void reflect::Window::setVisible(int cmd) { ShowWindow(hwnd, cmd); }
 void reflect::Window::render(HWND &parentHWND, HWND &windowHWND) {
   reflectWarn("Window::render called, the method is intentionally empty "
               "because it is "
-              "not a child component!",
-              "render");
+              "not a child component!");
   // do nothing
 }
 void reflect::Window::close() { PostMessage(hwnd, WM_DESTROY, 0, 0); };
@@ -827,7 +834,7 @@ int reflect::Window::run(void (*func)(Window &win)) {
 
     else if (customPipeline && openglRendering && !renderThread) {
 
-      renderThread = new std::thread([this, func, msg]() {
+      renderThread = new std::thread([this, msg]() {
         while (msg.message != WM_QUIT) {
           if (!renderHdc) {
             renderHdc = GetDC(hwnd);

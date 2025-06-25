@@ -25,34 +25,28 @@
 
 #include "TypeDefinitions.h"
 namespace reflect {
-class TextComponent : public Component {
+class REFLECT_API TextComponent : public Component {
 protected:
-  HINSTANCE winstance;
-  HWND hwnd;
-
-  HINSTANCE parentInstance;
   // Window parentWindow;
 
-  Color3 color;
   std::string text;
   std::string fontStr;
   int fontSize;
 
 public:
-  REFLECT_API TextComponent();
+  TextComponent();
   //  REFLECT_API virtual void render(HWND &parentHWND, HWND &windowHWND) {};
-  REFLECT_API void setVisible(bool flag);
+  /*REFLECT_API void setVisible(bool flag);
   REFLECT_API void add(Component &comp);
   REFLECT_API void setVisible(int cmd);
   REFLECT_API void setColor(uint8_t r, uint8_t g, uint8_t b);
   REFLECT_API void setColor(Color3 color);
-  REFLECT_API void setColor(Color3Array color);
-  REFLECT_API virtual void setFontSize(int size);
-  REFLECT_API virtual void setFont(std::string font);
-  REFLECT_API void setText(std::string text);
-  REFLECT_API virtual std::string getText();
-  REFLECT_API virtual void onPaint();
-  REFLECT_API ~TextComponent();
+  REFLECT_API void setColor(Color3Array color);*/
+  virtual void setFontSize(int size);
+  virtual void setFont(std::string font);
+  void setText(std::string text);
+  virtual std::string getText();
+  ~TextComponent();
   friend class Label;
   friend class Button;
 };

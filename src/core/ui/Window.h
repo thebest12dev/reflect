@@ -55,8 +55,6 @@ private:
   std::function<void(Window &)> beforeRenderLoop;
 
 protected:
-  HINSTANCE winstance;
-  HWND hwnd;
   // std::map<char, bool> pressedKeys;
   std::thread *renderThread = nullptr;
   std::condition_variable renderCondition;
@@ -91,7 +89,7 @@ protected:
   bool callInit;
 #ifdef _WIN32
   ID2D1HwndRenderTarget *pRenderTarget = nullptr;
-  ID2D1Factory *pFactory;
+  ID2D1Factory *pFactory = nullptr;
   IDWriteFactory *pDWriteFactory = nullptr;
   static LRESULT CALLBACK windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                                      LPARAM lParam);
@@ -106,7 +104,7 @@ public:
   COMPONENT_DECL(Window);
   REFLECT_API Window(HINSTANCE instance, std::string id,
                      WindowCreateInfo *info = nullptr);
-  REFLECT_API Window(HINSTANCE instance, OpenGLContext ctx, std::string id);
+  REFLECT_API Window(HINSTANCE instance, OpenGLContext *ctx, std::string id);
   REFLECT_API void setTitle(std::string title);
   REFLECT_API void addStyle(WindowStyle style);
   // // void SetSize(Vector2 dim);
@@ -128,13 +126,13 @@ public:
   REFLECT_API char getCurrentKeyPressed();
   REFLECT_API void close();
   REFLECT_API operator HWND() const;
-  REFLECT_API Window(const Window &) = delete;
-  REFLECT_API Window &operator=(const Window &) = delete;
-  REFLECT_API Window(Window &&) = delete;
+  Window(const Window &) = delete;
+  Window &operator=(const Window &) = delete;
+  Window(Window &&) = delete;
   REFLECT_API void addOnUpdateListener(std::function<void()> listener);
   REFLECT_API void
   addKeyPressedListener(std::function<void(char, bool)> listener);
-  REFLECT_API Window &operator=(Window &&) = delete;
+  Window &operator=(Window &&) = delete;
 
   friend class Component;
   friend class Label;

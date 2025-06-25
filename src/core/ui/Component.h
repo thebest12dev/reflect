@@ -134,15 +134,6 @@ protected:
   HWND &getParentWindow();
   HWND &getRootWindow();
   Canvas &getCanvas();
-
-  /// @brief The HINSTANCE object associated
-  /// with the program required for window creation.
-  HINSTANCE winstance;
-
-  /// @brief The window handle (HWND) associated
-  /// with the object needed for Win32 APIs.
-  HWND hwnd;
-
   /// @brief The position of the component
   /// in X and Y coordinates.
   Vector2 position;
@@ -154,6 +145,15 @@ protected:
   /// @brief The color of the
   /// component in RGB.
   Color3Float bgColor;
+  /// @brief The window handle (HWND) associated
+  /// with the object needed for Win32 APIs.
+  HWND hwnd;
+
+  /// @brief The HINSTANCE object associated
+  /// with the program required for window creation.
+  HINSTANCE winstance;
+
+  Color3Float fgColor;
 
 #ifdef __linux__
   // Passed to the X11 window loop
@@ -223,7 +223,22 @@ public:
    * @brief Same as other methods but with an int[3] type.
    */
   REFLECT_API void setColor(Color3Array color);
+  /**
+   * @brief Sets the color of the component by its red, green and blue
+   * components.
+   */
+  REFLECT_API void setForegroundColor(uint8_t r, uint8_t g, uint8_t b);
 
+  /**
+   * @brief Similar to setColor(uint8_t, uint8_t, uint8_t) but with a Color3
+   * struct.
+   */
+  REFLECT_API void setForegroundColor(Color3 color);
+
+  /**
+   * @brief Same as other methods but with an int[3] type.
+   */
+  REFLECT_API void setForegroundColor(Color3Array color);
   /**
    * @brief Virtual destructor needed for runtime polymorphism.
    */

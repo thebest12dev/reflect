@@ -36,7 +36,7 @@
 #if defined(REFLECT_BUILDING) && __linux__
 // LINUX
 #define REFLECT_API __attribute__((visibility("default")))
-#else
+#elif __linux__
 #define REFLECT_API extern
 #endif
 #ifdef __cplusplus

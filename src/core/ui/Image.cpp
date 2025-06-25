@@ -183,7 +183,8 @@ LRESULT CALLBACK Image::imageProc(HWND hwnd, UINT uMsg, WPARAM wParam,
         D2D1::HwndRenderTargetProperties(
             hwnd, D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top));
 
-    HRESULT hr = pFactory->CreateHwndRenderTarget(
+    // HRESULT hr =
+    pFactory->CreateHwndRenderTarget(
         rtProps, hwndRTProps,
         &(pThis->childRenderTarget)); // <--- store it on pThis
 
@@ -191,10 +192,11 @@ LRESULT CALLBACK Image::imageProc(HWND hwnd, UINT uMsg, WPARAM wParam,
     pThis = reinterpret_cast<reflect::Image *>(
         GetWindowLongPtr(hwnd, GWLP_USERDATA));
   }
-  reflect::Window *win = reinterpret_cast<reflect::Window *>(
-      GetWindowLongPtr(GetAncestor(hwnd, GA_ROOT), GWLP_USERDATA));
+  /*reflect::Window *win = reinterpret_cast<reflect::Window *>(
+      GetWindowLongPtr(GetAncestor(hwnd, GA_ROOT), GWLP_USERDATA));*/
 
-  ID2D1Factory *pFactory = win->getProperty<ID2D1Factory *>("direct2DFactory");
+  // ID2D1Factory *pFactory = win->getProperty<ID2D1Factory
+  // *>("direct2DFactory");
   if (pThis) {
 
     // Delegate the handling of messages to the instance
@@ -203,7 +205,8 @@ LRESULT CALLBACK Image::imageProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 
     case WM_PAINT: {
       PAINTSTRUCT ps;
-      HDC hdc = BeginPaint(hwnd, &ps);
+      // HDC hdc =
+      BeginPaint(hwnd, &ps);
       pThis->childRenderTarget->BeginDraw();
       ImageBitmap *bitmap = pThis->bitmaps[pThis->activeImage];
       std::string &path = pThis->imageIds[pThis->activeImage];
@@ -219,10 +222,12 @@ LRESULT CALLBACK Image::imageProc(HWND hwnd, UINT uMsg, WPARAM wParam,
           pThis->bitmaps[pThis->activeImage] = bitmap;
         }
       }
-      D2D1_RECT_F rect = {0, 0, pThis->size.x, pThis->size.y};
+      D2D1_RECT_F rect = {0, 0, static_cast<float>(pThis->size.x),
+                          static_cast<float>(pThis->size.y)};
 
       ID2D1SolidColorBrush *pBrush = nullptr;
-      HRESULT hr = pThis->childRenderTarget->CreateSolidColorBrush(
+      // HRESULT hr =
+      pThis->childRenderTarget->CreateSolidColorBrush(
           D2D1::ColorF(pThis->bgColor.r, pThis->bgColor.g, pThis->bgColor.b),
           &pBrush);
 

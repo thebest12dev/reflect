@@ -10,13 +10,13 @@ void Canvas::arc(Vector2 position, Vector2 size, Vector2Float32 startStop) {
   D2D1_SIZE_F radius =
       D2D1::SizeF(size.x / 2.0f, size.y / 2.0f); // Half-width and half-height
 
-  auto normalizeDegrees = [](float deg) {
+  /*auto normalizeDegrees = [](float deg) {
     while (deg < 0)
       deg += 360.0f;
     while (deg >= 360.0f)
       deg -= 360.0f;
     return deg;
-  };
+  };*/
 
   //// Clamp sweep to [-360, 360]
 
@@ -32,7 +32,7 @@ void Canvas::arc(Vector2 position, Vector2 size, Vector2Float32 startStop) {
       centerPoint.y + radius.height * sin(startAngle + sweepAngle));
 
   // Set rotation angle (0 for no rotation)
-  FLOAT rotationAngle = 0.0f;
+  // FLOAT rotationAngle = 0.0f;
 
   // Sweep direction (counterclockwise for positive angles)
   D2D1_SWEEP_DIRECTION sweepDirection =
@@ -693,8 +693,8 @@ void Canvas::render(HWND &parentHWND, HWND &windowHWND) {
     D2D1_HWND_RENDER_TARGET_PROPERTIES hwndRTProps =
         D2D1::HwndRenderTargetProperties(
             hwnd, D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top));
-    HRESULT hr = factory->CreateHwndRenderTarget(rtProps, hwndRTProps,
-                                                 &(childRenderTarget));
+    // HRESULT hr =
+    factory->CreateHwndRenderTarget(rtProps, hwndRTProps, &(childRenderTarget));
 
     childRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black),
                                              &strokeBrush);

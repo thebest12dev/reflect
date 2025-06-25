@@ -10,7 +10,17 @@
       "cmakeToolchain": "D:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
       "buildCommandArgs": "",
       "cmakeCommandArgs": "",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+       "variables": [
+        {
+          "name": "CMAKE_C_COMPILER",
+          "value": "clang-cl.exe"
+        },
+        {
+          "name": "CMAKE_CXX_COMPILER",
+          "value": "clang-cl.exe"
+        }
+      ]
     },
     { 
       "name": "x64-Release",

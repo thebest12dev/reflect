@@ -28,7 +28,9 @@ bool debugEnabled = true;
 #else
 bool debugEnabled = false;
 #endif
-
+reflect::LogFormat logFormat = reflect::LogFormat::LOG_TIME |
+                               reflect::LogFormat::LOG_FUNCTION |
+                               reflect::LogFormat::LOG_TYPE;
 } // namespace
 
 namespace reflect {
@@ -46,8 +48,25 @@ void console::setDebugEnabled(bool enabled) { debugEnabled = enabled; }
  * @return True if debug logging is enabled, false otherwise.
  */
 bool console::getDebugEnabled() { return debugEnabled; }
-inline void console::setLogInstance(LogInstance inst) {
+void console::setLogInstance(LogInstance inst) {
   std::cout.rdbuf(&(std::streambuf &)inst);
   std::cerr.rdbuf(&(std::streambuf &)inst);
 };
+
+LogFormat operator|(LogFormat lhs, LogFormat rhs) {
+  return static_cast<LogFormat>(static_cast<uint8_t>(lhs) |
+                                static_cast<uint8_t>(rhs));
+}
+LogFormat operator<<(LogFormat lhs, LogFormat rhs) {
+  return static_cast<LogFormat>(static_cast<uint8_t>(lhs)
+                                << static_cast<uint8_t>(rhs));
+}
+LogFormat operator>>(LogFormat lhs, LogFormat rhs) {
+  return static_cast<LogFormat>(static_cast<uint8_t>(lhs) >>
+                                static_cast<uint8_t>(rhs));
+}
+LogFormat operator&(LogFormat lhs, LogFormat rhs) {
+  return static_cast<LogFormat>(static_cast<uint8_t>(lhs) &
+                                static_cast<uint8_t>(rhs));
+}
 } // namespace reflect

@@ -78,7 +78,6 @@ JNIEXPORT void JNICALL Java_reflect4j_ReflectNative_invoke(JNIEnv *env,
 }
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
   // MessageBox(NULL, "attach now", "debug", MB_OK);
-  HMODULE hModule = NULL;
 
   // JVM loads "reflect.dll" via System.loadLibrary("reflect")
   HMODULE h = GetModuleHandleA("reflect.dll");

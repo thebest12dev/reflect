@@ -24,37 +24,35 @@
 #include <string>
 
 namespace reflect {
-class MenuItem : public TextComponent {
+class REFLECT_API MenuItem : public TextComponent {
 protected:
-  HINSTANCE winstance;
+  // HINSTANCE winstance;
 #ifdef _WIN32
   HMENU hmenu;
 #endif
 
-  HINSTANCE parentInstance;
-  // HWND parentHWND;
-
-  // Vector2 position;
-  Vector2 size;
-
-private:
-  std::string text;
-  std::string fontStr;
-  int fontSize;
+  //  HINSTANCE parentInstance;
+  //  // HWND parentHWND;
+  //
+  //  // Vector2 position;
+  //  Vector2 size;
+  //
+  // private:
+  //  std::string text;
+  //  std::string fontStr;
+  //  int fontSize;
 
 public:
   friend class Component;
-  REFLECT_API void render(HWND &parentHWND, HWND &windowHWND);
-  REFLECT_API void setVisible(bool flag);
-  REFLECT_API void add(MenuItem &comp);
-  REFLECT_API void setText(std::string contents);
-  REFLECT_API MenuItem(std::string contents);
-  REFLECT_API MenuItem();
-  REFLECT_API void setVisible(int cmd);
-  REFLECT_API void setFontSize(int size) override;
-  REFLECT_API void setFont(std::string font) override;
-  REFLECT_API std::string getText() override;
-  REFLECT_API void setColor(uint8_t r, uint8_t g, uint8_t b);
+  void render(HWND &parentHWND, HWND &windowHWND) override;
+  void setVisible(bool flag);
+  void add(MenuItem &comp);
+  void setText(std::string contents);
+  MenuItem(std::string contents);
+  MenuItem();
+  void setVisible(int cmd);
+  // std::string getText() override;
+  void setColor(uint8_t r, uint8_t g, uint8_t b);
   friend class MenuBar;
 };
 } // namespace reflect

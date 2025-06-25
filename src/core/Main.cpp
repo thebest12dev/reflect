@@ -128,7 +128,8 @@ int reflect::invokeExecutable(std::string xmlFile, bool blocking) {
   InitCommonControlsEx(&icex);*/
 
   InitCommonControls();
-  HRESULT hr = CoInitialize(nullptr);
+  // HRESULT hr =
+  CoInitialize(nullptr);
   // load the xml file
   tinyxml2::XMLDocument doc;
   SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
@@ -214,7 +215,7 @@ int reflect::invokeExecutable(std::string xmlFile, bool blocking) {
       HINSTANCE hInstance = GetModuleHandle(nullptr);
       reflectDebug("creating window...");
       OpenGLContext ctx;
-      win = new Window(hInstance, ctx, winId);
+      win = new Window(hInstance, &ctx, winId);
     }
   }
   win->addStyle(STYLE_DARK_TITLE_BAR);
@@ -291,7 +292,8 @@ int reflect::invokeExecutable(std::string xmlFile, bool blocking) {
       reflectApi.setVisibleCommand = external::setComponentVisibleCommand;
 
       reflectApi.setOnClick = external::setOnClick;
-      std::thread *thread = new std::thread(mainFunc, &reflectApi);
+      // std::thread *thread =
+      std::thread(mainFunc, &reflectApi).detach();
     }
 #ifdef REFLECT_LUA
     else if (std::string(sharedLib->Attribute("type")) == "lua") {

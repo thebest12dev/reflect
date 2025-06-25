@@ -5,7 +5,7 @@
 #include "Window.h"
 #include <CommCtrl.h>
 namespace {
-WNDPROC originalEditProc = nullptr; // Store the original window procedure
+// WNDPROC originalEditProc = nullptr; // Store the original window procedure
 } // namespace
 namespace reflect {
 // LRESULT CALLBACK TextField::editProc(HWND hwnd, UINT msg, WPARAM wParam,
@@ -27,9 +27,7 @@ namespace reflect {
 //   return CallWindowProc(originalEditProc, hwnd, msg, wParam, lParam);
 // }
 
-TextField::TextField()
-    : winstance(GetModuleHandle(nullptr)), hwnd(nullptr),
-      bgColor(0.2f, 0.2f, 0.2f), focused(false), focusCallback(nullptr) {
+TextField::TextField() : focusCallback(nullptr), focused(false) {
   initializeObject(REFLECT_OBJECT_TEXTFIELD, REFLECT_OBJECT_TEXTCOMPONENT);
   this->setClassName("TextField");
   this->setStyles(WS_VISIBLE | WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
@@ -58,15 +56,15 @@ TextField::TextField()
 //    SendMessage(hwnd, WM_SETFONT, (WPARAM)reflect::utilities::getFont(),
 //    TRUE);
 //  }
-void TextField::setText(std::string text) {
-  this->text = text;
-  SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)text.c_str());
-}
-std::string TextField::getText() {
-  char buffer[256];
-  SendMessage(hwnd, WM_GETTEXT, sizeof(buffer), (LPARAM)buffer);
-  return std::string(buffer);
-}
+// void TextField::setText(std::string text) {
+//  this->text = text;
+//  SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)text.c_str());
+//}
+// std::string TextField::getText() {
+//  char buffer[256];
+//  SendMessage(hwnd, WM_GETTEXT, sizeof(buffer), (LPARAM)buffer);
+//  return std::string(buffer);
+//}
 
 bool TextField::isFocused() { return focused; }
 void TextField::focus() {
@@ -82,12 +80,15 @@ void TextField::onPaint(PaintEvent) {
   Canvas &canvas = getCanvas();
   canvas.beginDraw();
   // reflectDebug("paint!");
+  canvas.noStroke();
 
-  canvas.fill(color);
+  canvas.fill({0, 0, 0});
+  canvas.rect({0, 0}, size);
+  canvas.fill(bgColor);
   canvas.rect({0, 0}, size, 3.0f);
   canvas.textFont("Inter");
-  // float textSize = canvas.textMaximumFontSize(size.y);
-  canvas.textSize(25);
+  float textSize = canvas.textMaximumFontSize(size.y);
+  canvas.textSize(textSize);
 
   canvas.stroke({255, 255, 255});
   canvas.text(text, {0, 0}, size);
@@ -222,10 +223,5 @@ void TextField::onUpdate(UpdateEvent) {
     paint();
   }
   // paint();
-}
-void TextField::setFont(std::string font) {
-  fontStr = font;
-  SendMessage(hwnd, WM_SETFONT,
-              (WPARAM)reflect::utilities::getFont(fontStr, fontSize), TRUE);
 }
 } // namespace reflect
